@@ -5,6 +5,7 @@ use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\Ecommerce\ProductController;
 use App\Http\Controllers\Ecommerce\CartController;
 use App\Http\Controllers\AjaxController;
+use App\Http\Controllers\APIController;
 use App\Http\Controllers\Ecommerce\OrderController;
 
 use App\Http\Controllers\Ecommerce\Admin\ProductController as AdminProductController;
@@ -60,3 +61,5 @@ Route::resource('/product', ProductController::class);
 Route::get('/payment/notification',[OrderController::class,'NotificationAPI'])->name('NotificationAPI');
 Route::post('/payment/notification',[OrderController::class,'postNotificationAPI'])->name('postNotificationAPI');
 Route::get('/orderStatus',[OrderController::class,'status'])->name('status');
+
+Route::post('/resignform',[APIController::class,'postResignForm'])->name('postResignForm');

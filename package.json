@@ -61,6 +61,7 @@
         "@tinymce/tinymce-react": "^3.12.6",
         "chart.js": "^3.4.1",
         "ckeditor5-custom-build": "file:resources/js/Admin/components/ckeditor",
+        "formik": "^2.2.9",
         "hover.css": "^2.3.2",
         "html-react-parser": "^1.2.7",
         "html-to-react": "^1.4.5",
@@ -79,6 +80,7 @@
         "react-tabs": "^3.2.2",
         "redux": "^4.1.1",
         "redux-thunk": "^2.3.0",
-        "swiper": "^6.7.0"
+        "swiper": "^6.7.0",
+        "uipath-orchestrator-api-node": "^0.8.3"
     }
 }

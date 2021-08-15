@@ -62,7 +62,7 @@ const Header = (props) => {
         <header className="site-header shadow-lg">
             <div className="header-wrapper">
                 <div className="top-part">
-                    <div className="head-content">
+                    <div className="head-content justify-between">
                         <button className="mobile-nav-toggle"
                             onClick={() => setIsSidebarOpen(!isSidebarOpen)}
                             type="button"
@@ -78,37 +78,17 @@ const Header = (props) => {
                                 </a>
                             </div>
                         </div>
-                        <ul className="icon-nav">
-                            {dataIconHeader.map((item, i) => (
-                                <li>
-                                    <a href={item.path}>
-                                        <div className="icon icon-hvr">
-                                            {item.icon}
-                                        </div>
-                                        <div className={`counter bg-red-700
-                                        text-gray-50 w-4 h-4 text-xs rounded-full
-                                        absolute right-1 top-1 text-center
-                                        ${item.counter ? '' : 'hidden'}`}>
-                                            {props.cartData.qtyTotal || 0}
-                                        </div>
-                                    </a>
-                                </li>
-                            ))}
-                        </ul>
+                        <nav className="hidden lg:flex items-center">
+                            <ul>
+                                {dataHeader.map((item, i) => (
+                                    <li className="hvr hvr-underline-from-center">
+                                        <a href={item.itemId}>{item.title}</a>
+                                    </li>
+                                ))
+                                }
+                            </ul>
+                        </nav>
                     </div>
-                </div>
-                <div className="divider" />
-                <div className="bottom-part hidden md:flex">
-                    <nav>
-                        <ul>
-                            {dataHeader.map((item, i) => (
-                                <li className="hvr hvr-underline-from-center">
-                                    <a href={item.itemId}>{item.title}</a>
-                                </li>
-                            ))
-                            }
-                        </ul>
-                    </nav>
                 </div>
             </div>
 
@@ -153,10 +133,10 @@ const Header = (props) => {
                                             {item.icon}
                                         </div>
                                         <div className={`counter bg-red-700
-                                        text-gray-50 w-4 h-4 text-xs rounded-full
-                                        absolute right-1 top-1 text-center
-                                        ${item.counter ? '' : 'hidden'}`}>
-                                           {props.cartData.qtyTotal || 0}
+                                            text-gray-50 w-4 h-4 text-xs rounded-full
+                                            absolute right-1 top-1 text-center
+                                            ${item.counter ? '' : 'hidden'}`}>
+                                            {props.cartData?.qtyTotal || 0}
                                         </div>
                                     </a>
                                 </li>
@@ -167,45 +147,46 @@ const Header = (props) => {
 
 
                 {/* <ProSidebar rtl={true}>
-                    <SidebarHeader>
-                    </SidebarHeader>
-                    <SidebarContent>
-                        <Menu iconShape="square">
-                            <MenuItem
-                            // icon={<FaGem />}
-                            >Dashboard</MenuItem>
-                            <SubMenu title="Components"
-                            // icon={<FaHeart />}
-                            >
-                                <MenuItem>Component 1</MenuItem>
-                                <MenuItem>Component 2</MenuItem>
-                            </SubMenu>
-                        </Menu>
-                    </SidebarContent>
-                </ProSidebar> */}
+                        <SidebarHeader>
+                        </SidebarHeader>
+                        <SidebarContent>
+                            <Menu iconShape="square">
+                                <MenuItem
+                                // icon={<FaGem />}
+                                >Dashboard</MenuItem>
+                                <SubMenu title="Components"
+                                // icon={<FaHeart />}
+                                >
+                                    <MenuItem>Component 1</MenuItem>
+                                    <MenuItem>Component 2</MenuItem>
+                                </SubMenu>
+                            </Menu>
+                        </SidebarContent>
+                    </ProSidebar> */}
 
                 {/* <div className="flex items-center justify-center mt-10 text-center py-6">
-                    <span className="mx-2 text-2xl font-semibold text-black">
-                        react-minimal-side-navigation
-                    </span>
-                </div>
+                        <span className="mx-2 text-2xl font-semibold text-black">
+                            react-minimal-side-navigation
+                        </span>
+                    </div>
 
 
-                <Navigation
-                    // you can use your own router's api to get pathname
-                    activeItemId={location.pathname}
-                    onSelect={({ itemId }) => {
-                        history.push(itemId);
-                    }}
-                    items={dataHeader}
-                /> */}
+                    <Navigation
+                        // you can use your own router's api to get pathname
+                        activeItemId={location.pathname}
+                        onSelect={({ itemId }) => {
+                            history.push(itemId);
+                        }}
+                        items={dataHeader}
+                    /> */}
 
 
             </div>
             {/* <div className="block md:hidden">
 
-            </div> */}
+                </div> */}
         </header>
+
     )
 }
 

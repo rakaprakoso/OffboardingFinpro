@@ -29,7 +29,7 @@ const Footer1 = () => {
                         <div className="col-lg-6">
 
                             <div className="logo">
-                                <a href="/" className="remove_underline">
+                                <a href="/" className="remove_underline inline-block">
                                     <img className="mx-auto lg:mx-0"
                                     src={logo} alt="Keina Beauty" />
                                 </a>

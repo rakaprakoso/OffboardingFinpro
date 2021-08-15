@@ -1,18 +1,19 @@
-$sidebar-bg-color: #e9e9e9;
+$sidebar-bg-color:#e9e9e9;
 
 @import '~react-pro-sidebar/dist/scss/styles.scss';
 
 #header {
     &.site-header {
-        background-color: rgba(255, 255, 255, 0.7);
+        background-color:rgba(255, 255, 255, 0.7);
     }
 
     header {
         .logo img {
-            height: 50px;
-            max-width: 100%;
-            object-fit: contain;
+            height:50px;
+            max-width:100%;
+            object-fit:contain;
         }
+
         .mobile-nav-toggle,
         .icon-nav {
             @apply absolute;
@@ -20,22 +21,22 @@ $sidebar-bg-color: #e9e9e9;
 
         .mobile-nav-toggle {
             @apply inline-block md:hidden right-0 text-gray-500;
-            padding: 13px;
-            padding-right: 0;
-            font-size: 24px;
+            padding:13px;
+            padding-right:0;
+            font-size:24px;
         }
 
         .icon-nav {
             @apply hidden md:flex right-0;
 
             a {
-                padding: 13px;
-                font-size: 24px;
+                padding:13px;
+                font-size:24px;
                 @apply text-gray-500 inline-block relative;
             }
 
             li:last-child>a {
-                padding-right: 0;
+                padding-right:0;
             }
 
         }
@@ -46,42 +47,42 @@ $sidebar-bg-color: #e9e9e9;
 
         .top-part .head-content,
         .bottom-part {
-            @apply flex justify-center relative;
+            @apply flex relative;
         }
 
         .top-part {
-
             .head-content {
-                @apply my-4;
+                @apply py-4;
             }
 
             .mobile-nav-toggle,
             .icon-nav {
                 @apply absolute top-0 bottom-0;
             }
-
         }
-
-
 
         .bottom-part {
             @apply hidden md:flex;
+        }
 
-            nav>ul>li {
-                float: left;
-                @apply font-semibold;
+        .sidebar {
+            .icon-nav {
+                @apply block relative;
 
-                a {
-                    @apply px-3 py-2 block;
+                li {
+                    float:left;
                 }
             }
         }
 
-        .sidebar{
-            .icon-nav{
-                @apply block relative;
-                li{
-                    float:left;
+        .top-part,
+        .bottom-part {
+            nav>ul>li {
+                float:left;
+                @apply font-semibold;
+
+                a {
+                    @apply px-3 py-2 block;
                 }
             }
         }

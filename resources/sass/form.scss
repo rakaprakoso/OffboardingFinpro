@@ -1,0 +1,35 @@
+form{
+    button,
+    input,
+    optgroup,
+    select,
+    textarea {
+        @apply w-full mt-2 mb-6 px-4 py-2 border rounded-sm text-gray-700 text-sm;
+        &:focus{
+            @apply outline-none border-primary ring-primary ring-1;
+        }
+    }
+}
+
+//FORM
+[type='text'],
+[type='email'],
+[type='url'],
+[type='password'],
+[type='number'],
+[type='date'],
+[type='datetime-local'],
+[type='month'],
+[type='search'],
+[type='tel'],
+[type='time'],
+[type='week'],
+[multiple],
+textarea,
+select {
+    border-color: inherit;
+    @apply w-full mt-2 mb-6 px-4 py-2 border rounded-sm text-gray-700 text-sm;
+    &:focus{
+        @apply outline-none border-primary ring-primary ring-1;
+    }
+}
