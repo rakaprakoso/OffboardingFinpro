@@ -1,10 +1,12 @@
 @import 'tailwindcss/base';
-// @import 'tailwindcss/components';
+@import 'tailwindcss/components';
 @import 'tailwindcss/utilities';
 
 @import 'button';
 @import 'accordion';
 
 @import 'form';
+@import "@fortawesome/fontawesome-free/css/all.css";
+// @import '@fortawesome/fontawesome-svg-core/styles.css';
 
 

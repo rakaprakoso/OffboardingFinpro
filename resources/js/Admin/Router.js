@@ -1,6 +1,6 @@
-import { React,useEffect } from 'react';
+import { React, useEffect } from 'react';
 import { Switch, BrowserRouter, Route } from 'react-router-dom';
-import {Helmet} from "react-helmet";
+import { Helmet } from "react-helmet";
 
 // import NotFound from './pages/NotFound';
 
@@ -13,6 +13,9 @@ import {Helmet} from "react-helmet";
 import Dashboard from './views/admin/Dashboard'
 import Admin from './layouts/Admin'
 import AdminMain from './layouts/AdminMain'
+import Profile from "./views/Profile.js";
+import Landing from "./views/Landing.js";
+import ResignForm from './views/ResignForm';
 
 const Main = props => {
     return (
@@ -21,7 +24,10 @@ const Main = props => {
                 <link rel="shortcut icon" href="\assets\green-white.png" type="image/x-icon" />
             </Helmet>
             <Switch>
-                <Route path="/admin/" component={Admin}/>
+                <Route path="/admin/" component={Admin} />
+                <Route path="/profile" component={Profile} />
+                <Route path="/resignform" component={ResignForm} />
+                <Route path="/" exact component={Landing} />
                 {/* <Route path="/admin/product" component={AdminMain}/>
                 <Route path="/admin/dashboard" component={Home}/> */}
                 {/* <Route path="/about" component={About} />

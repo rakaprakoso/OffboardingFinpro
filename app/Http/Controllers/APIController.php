@@ -38,14 +38,14 @@ class APIController extends Controller
 
     public function postResignForm(Request $request)
     {
-        $par1 = "text1";
+        $par1 = "1";
         $par2 = "text2";
         $par3 = "text3";
         // $input = '{"employeeNameIn":"' . $par1 . '",
         //     "in_par2":"' . $par2 . '",
         //     "in_par3":"' . $par3 . '"}';
-        // $input = '{"employeeNameIn":"' . $par1 . '"}';
-        $input = json_encode($request->all());
+        $input = '{"employeeIDIn":"' . $par1 . '"}';
+        // $input = json_encode($request->all());
 
         // return gettype($input);
         // return json_encode($request->all());

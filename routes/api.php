@@ -10,6 +10,7 @@ use App\Http\Controllers\Ecommerce\OrderController;
 
 use App\Http\Controllers\Ecommerce\Admin\ProductController as AdminProductController;
 use App\Http\Controllers\Ecommerce\Admin\ImageController;
+use App\Http\Controllers\EmployeeController;
 /*
 |--------------------------------------------------------------------------
 | API Routes
@@ -63,3 +64,4 @@ Route::post('/payment/notification',[OrderController::class,'postNotificationAPI
 Route::get('/orderStatus',[OrderController::class,'status'])->name('status');
 
 Route::post('/resignform',[APIController::class,'postResignForm'])->name('postResignForm');
+Route::resource('/employees', EmployeeController::class);
