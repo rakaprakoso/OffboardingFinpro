@@ -2,11 +2,13 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Offboarding;
 use Illuminate\Http\Request;
 
 class APIController extends Controller
 {
-    private function getAccessToken(){
+    private function getAccessToken()
+    {
         $url = 'https://account.uipath.com/oauth/token';
 
         $ch = curl_init($url);
@@ -35,23 +37,10 @@ class APIController extends Controller
         $obj = json_decode($result);
         return $obj->access_token;
     }
-
-    public function postResignForm(Request $request)
+    private function startProcess($argumentIn)
     {
-        $par1 = "1";
-        $par2 = "text2";
-        $par3 = "text3";
-        // $input = '{"employeeNameIn":"' . $par1 . '",
-        //     "in_par2":"' . $par2 . '",
-        //     "in_par3":"' . $par3 . '"}';
-        $input = '{"employeeIDIn":"' . $par1 . '"}';
-        // $input = json_encode($request->all());
-
-        // return gettype($input);
-        // return json_encode($request->all());
         $auth = $this->getAccessToken();
 
-        //Start the process with parameters
         $url = 'https://platform.uipath.com/presiaykbmhx/Indosat/odata/Jobs/UiPath.Server.Configuration.OData.StartJobs';
 
         $ch = curl_init($url);
@@ -63,7 +52,7 @@ class APIController extends Controller
             "NoOfRobots" => 0,
             "JobsCount" => 1,
             // 'Strategy' => 'All',
-            'InputArguments' => $input,
+            'InputArguments' => $argumentIn,
         );
         $payload = json_encode(array("startInfo" => $data));
 
@@ -114,6 +103,32 @@ class APIController extends Controller
                 $waitloop = false;
             }
         } while ($waitloop);
-        echo "test";
+    }
+
+    public function postResignForm(Request $request)
+    {
+        $offboardingTicket = new Offboarding;
+        $offboardingTicket->employee_id = $request->employeeIDIn;
+        $offboardingTicket->type = "Resign";
+        $offboardingTicket->status = "Waiting Document Verification";
+        $offboardingTicket->effective_date = $request->effective_date;
+        $offboardingTicket->save();
+
+        $par1 = "1";
+        $par2 = "text2";
+        $par3 = "text3";
+        // $input = '{"employeeNameIn":"' . $par1 . '",
+        //     "in_par2":"' . $par2 . '",
+        //     "in_par3":"' . $par3 . '"}';
+        $input = '{"employeeIDIn":"' . $request->employeeIDIn . '"}';
+        // $input = json_encode($request->all());
+
+        // return gettype($input);
+        // return json_encode($request->all());
+
+        //Start the process with parameters
+        $this->startProcess($input);
+        return response()->json("Success", 200);
+
     }
 }

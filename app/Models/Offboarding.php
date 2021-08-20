@@ -8,4 +8,22 @@ use Illuminate\Database\Eloquent\Model;
 class Offboarding extends Model
 {
     use HasFactory;
+    // protected $guarded = array();
+
+    // public static $rules = array();
+
+    // public $relationships = array('Author', 'Category');
+
+    // public function author() {
+    //     return $this->belongsTo('Author');
+    // }
+
+    // public function category() {
+    //     return $this->belongsTo('Category');
+    // }
+
+    public function employee()
+    {
+        return $this->hasOne(Employee::class, 'id','employee_id');
+    }
 }

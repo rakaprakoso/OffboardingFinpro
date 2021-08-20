@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use App\Models\Employee;
+use App\Models\Offboarding;
 
 class EmployeeController extends Controller
 {
@@ -14,7 +15,8 @@ class EmployeeController extends Controller
      */
     public function index()
     {
-        //
+        $offboarding = Offboarding::with('Employee')->get();
+        return response()->json($offboarding, 200);
     }
 
     /**

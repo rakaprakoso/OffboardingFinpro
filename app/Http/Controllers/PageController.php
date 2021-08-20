@@ -17,7 +17,6 @@ class PageController extends Controller
         SEOTools::setCanonical('https://tiptronic.deprakoso.site/');
         SEOTools::opengraph()->addProperty('type', 'Homepage');
         // SEOTools::twitter()->setSite('@LuizVinicius73');
-        SEOTools::jsonLd()->addImage('https://keinabeauty.com/assets/green-white.png');
 
         return view('index');
     }

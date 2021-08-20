@@ -11,6 +11,7 @@ use App\Http\Controllers\Ecommerce\OrderController;
 use App\Http\Controllers\Ecommerce\Admin\ProductController as AdminProductController;
 use App\Http\Controllers\Ecommerce\Admin\ImageController;
 use App\Http\Controllers\EmployeeController;
+use App\Http\Controllers\OffboardingController;
 /*
 |--------------------------------------------------------------------------
 | API Routes
@@ -65,3 +66,4 @@ Route::get('/orderStatus',[OrderController::class,'status'])->name('status');
 
 Route::post('/resignform',[APIController::class,'postResignForm'])->name('postResignForm');
 Route::resource('/employees', EmployeeController::class);
+Route::resource('/offboarding', OffboardingController::class);
