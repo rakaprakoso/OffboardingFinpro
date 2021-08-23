@@ -129,7 +129,7 @@ class APIController extends Controller
                 'public/Documents/Resign Letter',
                 $request->file('resign_letter'),
             );
-            $offboardingDetail->resignation_letter_link = Storage::url($path);
+            $offboardingDetail->resignation_letter_link = env('APP_URL').Storage::url($path);
         }
         $offboardingTicket->details()->save($offboardingDetail);
 
