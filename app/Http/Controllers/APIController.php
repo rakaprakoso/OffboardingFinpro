@@ -3,7 +3,9 @@
 namespace App\Http\Controllers;
 
 use App\Models\Offboarding;
+use App\Models\OffboardingDetail;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Storage;
 
 class APIController extends Controller
 {
@@ -79,34 +81,43 @@ class APIController extends Controller
         $procid = $obj->value[0]->Id;
         $waitloop = true;
 
-        do {
-            sleep(5);
-            //Check the status of the process
-            $url = 'https://platform.uipath.com/presiaykbmhx/Indosat/odata/Jobs?$filter=Id%20eq%20' . $procid;
-            $ch = curl_init($url);
-            curl_setopt($ch, CURLOPT_CUSTOMREQUEST, "GET");
-            curl_setopt($ch, CURLOPT_HTTPHEADER, array('Accept: application/json', 'Content-Type: application/json', 'X-UIPATH-TenantName: YOUR TENANTNAME', 'Authorization: Bearer ' . $auth, 'User-Agent: telnet'));
+        // do {
+        //     sleep(5);
+        //     //Check the status of the process
+        //     $url = 'https://platform.uipath.com/presiaykbmhx/Indosat/odata/Jobs?$filter=Id%20eq%20' . $procid;
+        //     $ch = curl_init($url);
+        //     curl_setopt($ch, CURLOPT_CUSTOMREQUEST, "GET");
+        //     curl_setopt($ch, CURLOPT_HTTPHEADER, array('Accept: application/json', 'Content-Type: application/json', 'X-UIPATH-TenantName: INDOSAT', 'Authorization: Bearer ' . $auth, 'User-Agent: telnet'));
 
-            curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
-            curl_setopt($ch, CURLOPT_TIMEOUT, 60);
+        //     curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+        //     curl_setopt($ch, CURLOPT_TIMEOUT, 60);
 
-            curl_setopt($ch, CURLOPT_SSL_VERIFYHOST, false);
-            curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false);
+        //     curl_setopt($ch, CURLOPT_SSL_VERIFYHOST, false);
+        //     curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false);
 
-            $result = curl_exec($ch);
-            curl_close($ch);
+        //     $result = curl_exec($ch);
+        //     curl_close($ch);
 
-            $obj = json_decode($result);
-            //echo $obj->value[0]->State;
-            if (substr($obj->value[0]->State, 0, 4) === "Succ") {
-                echo $obj->value[0]->OutputArguments;
-                $waitloop = false;
-            }
-        } while ($waitloop);
+        //     $obj = json_decode($result);
+        //     //echo $obj->value[0]->State;
+        //     if (substr($obj->value[0]->State, 0, 4) === "Succ") {
+        //         echo $obj->value[0]->OutputArguments;
+        //         $waitloop = false;
+        //     }
+        // } while ($waitloop);
     }
 
     public function postResignForm(Request $request)
     {
+        // return $request->all();
+        // $this->validate($request, [
+        //     'resign_letter' => 'required|file|max:7000', // max 7MB
+        // ]);
+        $path = Storage::putFile(
+            'public/Documents/Resign Letter',
+            $request->file('resign_letter'),
+        );
+
         $offboardingTicket = new Offboarding;
         $offboardingTicket->employee_id = $request->employeeIDIn;
         $offboardingTicket->type = "Resign";
@@ -114,13 +125,26 @@ class APIController extends Controller
         $offboardingTicket->effective_date = $request->effective_date;
         $offboardingTicket->save();
 
+        $offboardingDetail = new OffboardingDetail;
+        $offboardingDetail->offboarding_id = $offboardingTicket->id;
+        $offboardingDetail->reason = $request->reason;
+        $offboardingDetail->resignation_letter_link = Storage::url($path);
+        $offboardingTicket->details()->save($offboardingDetail);
+
+        // return response()->json("sengsong");
+
         $par1 = "1";
         $par2 = "text2";
         $par3 = "text3";
         // $input = '{"employeeNameIn":"' . $par1 . '",
         //     "in_par2":"' . $par2 . '",
         //     "in_par3":"' . $par3 . '"}';
-        $input = '{"employeeIDIn":"' . $request->employeeIDIn . '"}';
+        $input = array(
+            'employeeIDIn' => $request->employeeIDIn,
+            'processTypeIn' => $request->process_type,
+        );
+        $input = json_encode($input);
+        // $input = '{"employeeIDIn":"' . $request->employeeIDIn . '",}';
         // $input = json_encode($request->all());
 
         // return gettype($input);
@@ -129,6 +153,9 @@ class APIController extends Controller
         //Start the process with parameters
         $this->startProcess($input);
         return response()->json("Success", 200);
+    }
+
+    public function postVerifyResignLetter(Request $request){
 
     }
 }

@@ -26,4 +26,8 @@ class Offboarding extends Model
     {
         return $this->hasOne(Employee::class, 'id','employee_id');
     }
+    public function details()
+    {
+        return $this->hasOne(OffboardingDetail::class, 'id','offboarding_id');
+    }
 }

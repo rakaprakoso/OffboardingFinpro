@@ -64,6 +64,8 @@ Route::get('/payment/notification',[OrderController::class,'NotificationAPI'])->
 Route::post('/payment/notification',[OrderController::class,'postNotificationAPI'])->name('postNotificationAPI');
 Route::get('/orderStatus',[OrderController::class,'status'])->name('status');
 
-Route::post('/resignform',[APIController::class,'postResignForm'])->name('postResignForm');
 Route::resource('/employees', EmployeeController::class);
 Route::resource('/offboarding', OffboardingController::class);
+
+Route::post('/resignform',[APIController::class,'postResignForm'])->name('postResignForm');
+Route::post('/verifyresignletter',[APIController::class,'postVerifyResignLetter'])->name('postVerifyResignLetter');
