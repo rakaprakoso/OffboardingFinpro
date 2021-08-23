@@ -113,10 +113,6 @@ class APIController extends Controller
         // $this->validate($request, [
         //     'resign_letter' => 'required|file|max:7000', // max 7MB
         // ]);
-        $path = Storage::putFile(
-            'public/Documents/Resign Letter',
-            $request->file('resign_letter'),
-        );
 
         $offboardingTicket = new Offboarding;
         $offboardingTicket->employee_id = $request->employeeIDIn;
@@ -128,7 +124,13 @@ class APIController extends Controller
         $offboardingDetail = new OffboardingDetail;
         $offboardingDetail->offboarding_id = $offboardingTicket->id;
         $offboardingDetail->reason = $request->reason;
-        $offboardingDetail->resignation_letter_link = Storage::url($path);
+        if($request->file('resign_letter')){
+            $path = Storage::putFile(
+                'public/Documents/Resign Letter',
+                $request->file('resign_letter'),
+            );
+            $offboardingDetail->resignation_letter_link = Storage::url($path);
+        }
         $offboardingTicket->details()->save($offboardingDetail);
 
         // return response()->json("sengsong");
