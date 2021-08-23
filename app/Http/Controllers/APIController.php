@@ -113,7 +113,12 @@ class APIController extends Controller
         // $this->validate($request, [
         //     'resign_letter' => 'required|file|max:7000', // max 7MB
         // ]);
-        return config('app.url');
+        // return config('app.url');
+        // if($request->effective_date){
+        //     $date = explode('/', $request->effective_date);
+        //     $date = $date[2].'-'.$date[2].'-'.$date[0];
+        //     $request->effective_date = $date;
+        // }
         $offboardingTicket = new Offboarding;
         $offboardingTicket->employee_id = $request->employeeIDIn;
         $offboardingTicket->type = "Resign";
@@ -129,10 +134,10 @@ class APIController extends Controller
                 'public/Documents/Resign Letter',
                 $request->file('resign_letter'),
             );
-            $offboardingDetail->resignation_letter_link = env('APP_URL').Storage::url($path);
+            $offboardingDetail->resignation_letter_link = config('app.url').Storage::url($path);
         }
         $offboardingTicket->details()->save($offboardingDetail);
-        return response()->json($offboardingTicket);
+        // return response()->json($offboardingTicket);
 
         // return response()->json("sengsong");
 

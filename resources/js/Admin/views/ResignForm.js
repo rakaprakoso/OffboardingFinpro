@@ -24,14 +24,18 @@ const ResignForm = () => {
                             employeeID: '',
                             reason: '',
                             resignLetter: '',
+                            effectiveDate: '',
                         }}
                         onSubmit={async (values) => {
-                            console.log(values);
+                            // console.log(values);
                             // await new Promise((r) => setTimeout(r, 500));
                             // alert(JSON.stringify(values, null, 2));
                             const formData = new FormData();
                             formData.append('employeeNameIn', values.employeeName);
                             formData.append('employeeIDIn', values.employeeID);
+                            formData.append('reason', values.reason);
+                            formData.append('effective_date', values.effectiveDate);
+                            formData.append('process_type',1);
 
                             // // Post the form, just make sure to set the 'Content-Type' header
                             const res = await axios.post('/api/resignform', formData, {
@@ -45,14 +49,17 @@ const ResignForm = () => {
                         }}
                     >
                         <Form>
-                            <label htmlFor="employeeName">Employee Name</label>
-                            <Field id="employeeName" name="employeeName" placeholder="Employee Name" />
+                            {/* <label htmlFor="employeeName">Employee Name</label>
+                            <Field id="employeeName" name="employeeName" placeholder="Employee Name" /> */}
 
                             <label htmlFor="employeeID">Employee ID</label>
                             <Field id="employeeID" name="employeeID" placeholder="Employee ID" />
 
                             <label htmlFor="reason">Resign Reason</label>
                             <Field id="reason" type="textarea" name="reason" placeholder="Resign Reason" />
+
+                            <label htmlFor="effectiveDate">Effective Date</label>
+                            <input type="date" id="effectiveDate" name="effectiveDate"/>
 
                             <label htmlFor="file">Resign Letter</label>
                             <input id="file" name="file" type="file" placeholder="Resign Reason"
