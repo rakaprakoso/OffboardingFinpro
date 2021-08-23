@@ -144,6 +144,7 @@ class APIController extends Controller
         $input = array(
             'employeeIDIn' => $request->employeeIDIn,
             'processTypeIn' => $request->process_type,
+            'offboardingIDIn' => $offboardingTicket->id,
         );
         $input = json_encode($input);
         // $input = '{"employeeIDIn":"' . $request->employeeIDIn . '",}';
