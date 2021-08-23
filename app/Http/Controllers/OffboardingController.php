@@ -72,7 +72,12 @@ class OffboardingController extends Controller
      */
     public function update(Request $request, $id)
     {
-        //
+        // return "test";
+        // return $request->all();
+        $offboardingTicket = Offboarding::find($id);
+        $offboardingTicket->status = $request->status;
+        $offboardingTicket->save();
+        return response()->json($offboardingTicket, 200);
     }
 
     /**

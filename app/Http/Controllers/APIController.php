@@ -157,7 +157,7 @@ class APIController extends Controller
         return response()->json("Success", 200);
     }
 
-    public function postVerifyResignLetter(Request $request){
+    public function postVerifyResignLetter($id,Request $request){
 
     }
 }
