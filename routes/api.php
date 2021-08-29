@@ -69,3 +69,4 @@ Route::resource('/offboarding', OffboardingController::class);
 
 Route::post('/resignform',[APIController::class,'postResignForm'])->name('postResignForm');
 Route::post('/verifyresignletter',[APIController::class,'postVerifyResignLetter'])->name('postVerifyResignLetter');
+Route::post('/managerconfirmation',[APIController::class,'postManagerConfirmation'])->name('postManagerConfirmation');

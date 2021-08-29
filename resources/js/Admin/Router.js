@@ -27,6 +27,7 @@ const Main = props => {
                 <Route path="/admin/" component={Admin} />
                 <Route path="/profile" component={Profile} />
                 <Route path="/resignform" component={ResignForm} />
+                <Route path="/resignform/:id" component={ResignForm} />
                 <Route path="/" exact component={Landing} />
                 {/* <Route path="/admin/product" component={AdminMain}/>
                 <Route path="/admin/dashboard" component={Home}/> */}

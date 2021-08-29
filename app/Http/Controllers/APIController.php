@@ -6,6 +6,7 @@ use App\Models\Offboarding;
 use App\Models\OffboardingDetail;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Str;
 
 class APIController extends Controller
 {
@@ -124,6 +125,7 @@ class APIController extends Controller
         $offboardingTicket->type = "Resign";
         $offboardingTicket->status = "Waiting Document Verification";
         $offboardingTicket->effective_date = $request->effective_date;
+        $offboardingTicket->token = Str::random(64);
         $offboardingTicket->save();
 
         $offboardingDetail = new OffboardingDetail;
@@ -166,5 +168,22 @@ class APIController extends Controller
 
     public function postVerifyResignLetter($id,Request $request){
 
+    }
+
+    public function postManagerConfirmation(Request $request){
+        $offboardingTicket = Offboarding::find($request->offboardingID);
+        $offboardingTicket->status = $request->status == "1" ? "Accepted by SPV" : "Declined by SPV";
+        $offboardingTicket->effective_date = $request->effective_date;
+        $offboardingTicket->token = Str::random(64);
+        $offboardingTicket->save();
+
+        $input = array(
+            'processTypeIn' => 2,
+            'offboardingIDIn' => $offboardingTicket->id,
+        );
+        $input = json_encode($input);
+        $this->startProcess($input);
+
+        return response()->json("Success", 200);
     }
 }
