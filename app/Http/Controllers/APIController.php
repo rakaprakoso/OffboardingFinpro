@@ -123,7 +123,7 @@ class APIController extends Controller
         $offboardingTicket = new Offboarding;
         $offboardingTicket->employee_id = $request->employeeIDIn;
         $offboardingTicket->type = "Resign";
-        $offboardingTicket->status = "Waiting Document Verification";
+        $offboardingTicket->status = "0";
         $offboardingTicket->effective_date = $request->effective_date;
         $offboardingTicket->token = Str::random(64);
         $offboardingTicket->save();
@@ -172,7 +172,7 @@ class APIController extends Controller
 
     public function postManagerConfirmation(Request $request){
         $offboardingTicket = Offboarding::find($request->offboardingID);
-        $offboardingTicket->status = $request->status == "1" ? "Accepted by SPV" : "Declined by SPV";
+        $offboardingTicket->status = $request->status == "1" ? "2" : "-2";
         $offboardingTicket->effective_date = $request->effective_date;
         $offboardingTicket->token = Str::random(64);
         $offboardingTicket->save();

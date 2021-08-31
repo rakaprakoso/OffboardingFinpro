@@ -30,4 +30,8 @@ class Offboarding extends Model
     {
         return $this->hasOne(OffboardingDetail::class, 'offboarding_id','id');
     }
+    public function statusDetails()
+    {
+        return $this->hasOne(StatusDetail::class, 'code','status');
+    }
 }
