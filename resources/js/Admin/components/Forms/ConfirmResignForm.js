@@ -7,7 +7,7 @@ import {
     useLocation
 } from "react-router-dom";
 
-const PmConfirmResignForm = () => {
+const ConfirmResignForm = () => {
 
     var { id } = useParams();
     let { search } = useLocation();
@@ -18,7 +18,6 @@ const PmConfirmResignForm = () => {
     const [data, setData] = useState(false)
 
     useEffect(async () => {
-        console.log("Test")
         const dataFetch = await axios
             .get(`/api/offboarding/${id}`)
             .then(function (response) {
@@ -29,16 +28,14 @@ const PmConfirmResignForm = () => {
                 console.log(error);
             });
 
-        console.log(dataFetch?.id)
-
-        if(dataFetch?.id) {
+        if (dataFetch?.id) {
             setData(dataFetch);
             if (dataFetch.token == query.get('token')) {
                 setToken(true);
             } else {
                 setToken(false);
             }
-        }else{
+        } else {
             setData(null);
         }
 
@@ -49,6 +46,9 @@ const PmConfirmResignForm = () => {
             {data == null ? "Data Not Found" : null}
             {data && token == false || null ?
                 "Token Not Correct" :
+                parseInt(data?.status) > 1 ? "Already Acc" :
+                parseInt(data?.status) < -1 ? "Declined" :
+                data &&
                 <div className="row">
                     <div className="col-lg-6">
                         <Formik
@@ -108,4 +108,4 @@ const PmConfirmResignForm = () => {
     )
 }
 
-export default PmConfirmResignForm
+export default ConfirmResignForm

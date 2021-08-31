@@ -174,7 +174,7 @@ class APIController extends Controller
         $offboardingTicket = Offboarding::find($request->offboardingID);
         $offboardingTicket->status = $request->status == "1" ? "2" : "-2";
         $offboardingTicket->effective_date = $request->effective_date;
-        $offboardingTicket->token = Str::random(64);
+        // $offboardingTicket->token = Str::random(64);
         $offboardingTicket->save();
 
         $input = array(
