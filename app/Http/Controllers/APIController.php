@@ -186,4 +186,25 @@ class APIController extends Controller
 
         return response()->json("Success", 200);
     }
+    public function postRequestDocument(Request $request){
+        // return response()->json($request->all(), 200);
+        // $offboardingTicket = Offboarding::find($request->offboardingID);
+        // // $offboardingTicket->status = $request->status == "1" ? "2" : "-2";
+        // $offboardingTicket->item = $request->item;
+        // $offboardingTicket->qty = $request->qty;
+        // // $offboardingTicket->token = Str::random(64);
+        // $offboardingTicket->save();
+
+        $input = array(
+            'processTypeIn' => 3,
+            'offboardingIDIn' => $request->offboardingID,
+            'IN_item' => $request->item,
+            'IN_dept' => $request->dept,
+            'IN_qty' => $request->qty,
+        );
+        $input = json_encode($input);
+        $this->startProcess($input);
+
+        return response()->json("Success", 200);
+    }
 }

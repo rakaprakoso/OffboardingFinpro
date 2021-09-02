@@ -7,6 +7,7 @@ import Footer from "../components/Footers/Footer.js";
 import EmployeeResignForm from '../components/Forms/EmployeeResignForm.js';
 import PmConfirmResignForm from '../components/Forms/PmConfirmResignForm.js';
 import ConfirmResignForm from '../components/Forms/ConfirmResignForm.js';
+import OffboardingForm from '../components/Forms/OffboardingForm.js';
 
 const ResignForm = () => {
     return (
@@ -23,7 +24,7 @@ const ResignForm = () => {
                 <div className="container py-20 mx-auto">
                     <Switch>
                         <Route path="/resignform" exact component={EmployeeResignForm} />
-                        <Route path="/offboarding/:id" component={ConfirmResignForm} />
+                        <Route path="/offboarding/:id" component={OffboardingForm} />
                     </Switch>
                 </div >
             </main>
