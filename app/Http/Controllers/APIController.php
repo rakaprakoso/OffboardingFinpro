@@ -194,6 +194,14 @@ class APIController extends Controller
         // $offboardingTicket->qty = $request->qty;
         // // $offboardingTicket->token = Str::random(64);
         // $offboardingTicket->save();
+        $items = $request->items;
+        // $items = array(
+        //     'data1',
+        //     'data2',
+        //     'data3',
+        //     'data4',
+        // );
+        // return response()->json($items, 200);
 
         $input = array(
             'processTypeIn' => 3,
@@ -201,6 +209,7 @@ class APIController extends Controller
             'IN_item' => $request->item,
             'IN_dept' => $request->dept,
             'IN_qty' => $request->qty,
+            'IN_items' => json_decode($items),
         );
         $input = json_encode($input);
         $this->startProcess($input);
