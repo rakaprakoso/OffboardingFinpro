@@ -4,6 +4,9 @@ namespace App\Http\Controllers;
 
 use App\Models\Offboarding;
 use App\Models\OffboardingDetail;
+use App\Models\Employee;
+use App\Models\OffboardingCheckpoint;
+use App\Models\ExitClearance;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
@@ -111,9 +114,14 @@ class APIController extends Controller
     public function postResignForm(Request $request)
     {
         // return $request->all();
-        // $this->validate($request, [
-        //     'resign_letter' => 'required|file|max:7000', // max 7MB
-        // ]);
+        $this->validate($request, [
+            'employeeIDIn' => 'required|exists:employees,id',
+            'resign_letter' => 'required|file|max:7000', // max 7MB
+        ]);
+        $employee = Employee::where('id', $request->employeeIDIn)->where('password', $request->password)->first();
+        if (!$employee) {
+            return response()->json('Fail', 400);
+        }
         // return config('app.url');
         // if($request->effective_date){
         //     $date = explode('/', $request->effective_date);
@@ -131,15 +139,19 @@ class APIController extends Controller
         $offboardingDetail = new OffboardingDetail;
         $offboardingDetail->offboarding_id = $offboardingTicket->id;
         $offboardingDetail->reason = $request->reason;
-        if($request->file('resign_letter')){
+        if ($request->file('resign_letter')) {
             $path = Storage::putFile(
                 'public/Documents/Resign Letter',
                 $request->file('resign_letter'),
             );
-            $offboardingDetail->resignation_letter_link = config('app.url').Storage::url($path);
+            $offboardingDetail->resignation_letter_link = config('app.url') . Storage::url($path);
         }
         $offboardingTicket->details()->save($offboardingDetail);
-        // return response()->json($offboardingTicket);
+        $checkpoint = new OffboardingCheckpoint();
+        $offboardingTicket->checkpoint()->save($checkpoint);
+        $exitClearance = new ExitClearance();
+        $offboardingTicket->checkpoint()->save($exitClearance);
+        return response()->json($offboardingTicket);
 
         // return response()->json("sengsong");
 
@@ -166,27 +178,132 @@ class APIController extends Controller
         return response()->json("Success", 200);
     }
 
-    public function postVerifyResignLetter($id,Request $request){
-
+    public function postEmployeeReject(Request $request)
+    {
+        return response()->json($request->id);
+    }
+    public function postVerifyResignLetter($id, Request $request)
+    {
     }
 
-    public function postManagerConfirmation(Request $request){
+    public function postManagerConfirmation(Request $request)
+    {
         $offboardingTicket = Offboarding::find($request->offboardingID);
-        $offboardingTicket->status = $request->status == "1" ? "2" : "-2";
-        $offboardingTicket->effective_date = $request->effective_date;
-        // $offboardingTicket->token = Str::random(64);
+        // $offboardingTicket->status = $request->status;
+        // $offboardingTicket->save();
+        if ($request->employee == '1') {
+            $offboardingTicket->checkpoint->acc_employee = $request->status == '1' ? true : false;
+        } else {
+            $offboardingTicket->checkpoint->acc_svp = $request->status == '1' ? true : false;
+            $offboardingTicket->effective_date = $request->effective_date;
+        }
+        $offboardingTicket->push();
         $offboardingTicket->save();
 
-        $input = array(
-            'processTypeIn' => 2,
-            'offboardingIDIn' => $offboardingTicket->id,
-        );
-        $input = json_encode($input);
-        $this->startProcess($input);
+        // $offboardingTicket = Offboarding::find($request->offboardingID);
+        if ($offboardingTicket->checkpoint->acc_employee == true && $offboardingTicket->checkpoint->acc_svp == true) {
+            $offboardingTicket->status = "2";
+            // $offboardingTicket->token = Str::random(64);
+            $offboardingTicket->save();
+
+            $input = array(
+                'processTypeIn' => 2,
+                'offboardingIDIn' => $offboardingTicket->id,
+            );
+            $input = json_encode($input);
+            $this->startProcess($input);
+        } elseif($offboardingTicket->checkpoint->acc_employee == false && $offboardingTicket->checkpoint->acc_svp == false) {
+            $offboardingTicket->status = "-2";
+            $offboardingTicket->save();
+        }
 
         return response()->json("Success", 200);
     }
-    public function postRequestDocument(Request $request){
+    public function postRequestDocument(Request $request)
+    {
+        $offboardingTicket = Offboarding::find($request->offboardingID);
+
+        $docLink=null;
+        if ($request->file('file')) {
+            $path = Storage::putFile(
+                'public/Documents/Exit Clearance',
+                $request->file('file'),
+            );
+            $docLink = config('app.url') . Storage::url($path);
+        }
+        switch ($request->dept) {
+            case 'fastel':
+                $offboardingTicket->exitClearance->attachment_fastel = $docLink;
+                $offboardingTicket->checkpoint->acc_fastel = true;
+                break;
+            case 'kopindosat':
+                $offboardingTicket->exitClearance->attachment_kopindosat = $docLink;
+                $offboardingTicket->checkpoint->acc_kopindosat = true;
+                break;
+            case 'it':
+                $offboardingTicket->exitClearance->attachment_it = $docLink;
+                $offboardingTicket->checkpoint->acc_it = true;
+                break;
+            case 'hrdev':
+                $offboardingTicket->exitClearance->attachment_hrdev = $docLink;
+                $offboardingTicket->checkpoint->acc_hrdev = true;
+                break;
+            case 'medical':
+                $offboardingTicket->exitClearance->attachment_medical = $docLink;
+                $offboardingTicket->checkpoint->acc_medical = true;
+                break;
+            case 'finance':
+                $offboardingTicket->exitClearance->attachment_finance = $docLink;
+                $offboardingTicket->checkpoint->acc_finance = true;
+                break;
+            default:
+                # code...
+                break;
+        }
+        $offboardingTicket->push();
+
+        if ($request->dept == "payroll") {
+            # code...
+        }else{
+            if ($request->dept == "it") {
+                $input = array(
+                    'processTypeIn' => 3,
+                    'offboardingIDIn' => $request->offboardingID,
+                    'IN_dept' => $request->dept,
+                );
+                $input = json_encode($input);
+                $this->startProcess($input);
+            }
+            if (
+                $offboardingTicket->checkpoint->acc_fastel == true &&
+                $offboardingTicket->checkpoint->acc_kopindosat == true &&
+                $offboardingTicket->checkpoint->acc_it == true &&
+                $offboardingTicket->checkpoint->acc_hrdev == true &&
+                $offboardingTicket->checkpoint->acc_medical == true &&
+                $offboardingTicket->checkpoint->acc_finance == true
+            ) {
+                $input = array(
+                    'processTypeIn' => 3,
+                    'offboardingIDIn' => $request->offboardingID,
+                    // 'IN_item' => $request->item,
+                    // 'IN_dept' => $request->dept,
+                    // 'IN_qty' => $request->qty,
+                    // 'IN_items' => json_decode($items),
+                );
+                $input = json_encode($input);
+                $this->startProcess($input);
+            }
+        }
+
+
+        // if ($request->dept == '1') {
+        //     $offboardingTicket->checkpoint->acc_employee = $request->status == '1' ? true : false;
+        // } else {
+        //     $offboardingTicket->checkpoint->acc_svp = $request->status == '1' ? true : false;
+        //     $offboardingTicket->effective_date = $request->effective_date;
+        // }
+
+
         // return response()->json($request->all(), 200);
         // $offboardingTicket = Offboarding::find($request->offboardingID);
         // // $offboardingTicket->status = $request->status == "1" ? "2" : "-2";
@@ -194,7 +311,7 @@ class APIController extends Controller
         // $offboardingTicket->qty = $request->qty;
         // // $offboardingTicket->token = Str::random(64);
         // $offboardingTicket->save();
-        $items = $request->items;
+        // $items = $request->items;
         // $items = array(
         //     'data1',
         //     'data2',
@@ -203,16 +320,7 @@ class APIController extends Controller
         // );
         // return response()->json($items, 200);
 
-        $input = array(
-            'processTypeIn' => 3,
-            'offboardingIDIn' => $request->offboardingID,
-            'IN_item' => $request->item,
-            'IN_dept' => $request->dept,
-            'IN_qty' => $request->qty,
-            'IN_items' => json_decode($items),
-        );
-        $input = json_encode($input);
-        $this->startProcess($input);
+
 
         return response()->json("Success", 200);
     }

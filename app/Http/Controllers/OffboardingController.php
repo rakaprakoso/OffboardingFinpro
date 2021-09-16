@@ -48,7 +48,7 @@ class OffboardingController extends Controller
      */
     public function show($id)
     {
-        $offboarding = Offboarding::with('Employee','Details')->find($id);
+        $offboarding = Offboarding::with('Employee', 'Details')->find($id);
         return response()->json($offboarding, 200);
     }
 
@@ -77,6 +77,8 @@ class OffboardingController extends Controller
         $offboardingTicket = Offboarding::find($id);
         $offboardingTicket->status = $request->status;
         $offboardingTicket->save();
+        $offboardingTicket->checkpoint->acc_document = $request->status == '1' ? true : false;
+        $offboardingTicket->push();
         return response()->json($offboardingTicket, 200);
     }
 

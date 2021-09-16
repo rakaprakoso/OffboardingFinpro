@@ -5,9 +5,9 @@ import { Switch, BrowserRouter, Route } from 'react-router-dom';
 import Navbar from "../components/Navbars/AuthNavbar.js";
 import Footer from "../components/Footers/Footer.js";
 import EmployeeResignForm from '../components/Forms/EmployeeResignForm.js';
-import PmConfirmResignForm from '../components/Forms/PmConfirmResignForm.js';
-import ConfirmResignForm from '../components/Forms/ConfirmResignForm.js';
+import ConfirmResignForm from '../components/Forms/ConfirmResignFormDisabled.js';
 import OffboardingForm from '../components/Forms/OffboardingForm.js';
+
 
 const ResignForm = () => {
     return (

@@ -22,6 +22,8 @@ class Offboarding extends Model
     //     return $this->belongsTo('Category');
     // }
 
+    protected $with = ['employee','checkpoint','exitClearance'];
+
     public function employee()
     {
         return $this->hasOne(Employee::class, 'id','employee_id');
@@ -29,6 +31,14 @@ class Offboarding extends Model
     public function details()
     {
         return $this->hasOne(OffboardingDetail::class, 'offboarding_id','id');
+    }
+    public function checkpoint()
+    {
+        return $this->hasOne(OffboardingCheckpoint::class, 'offboarding_id','id');
+    }
+    public function exitClearance()
+    {
+        return $this->hasOne(ExitClearance::class, 'offboarding_id','id');
     }
     public function statusDetails()
     {
