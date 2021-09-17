@@ -12,13 +12,7 @@ import { IoTrashBin } from "react-icons/io5";
 
 import * as Yup from 'yup';
 
-const ConfirmSchema = Yup.object().shape({
-    managerID: Yup.string()
-        .required('Required'),
-    status: Yup.string()
-        .required('Required'),
-    effectiveDate: Yup.date('Invalid Date').required('Required'),
-});
+
 const ConfirmDocument = Yup.object().shape({
     dept: Yup.string()
         .required('Required').nullable(),
@@ -76,6 +70,19 @@ const OffboardingForm = () => {
 
     }, []);
 
+    const ConfirmSchema = employee == false ?
+        Yup.object().shape({
+            managerID: Yup.string()
+                .required('Required'),
+            status: Yup.string()
+                .required('Required'),
+            effectiveDate: Yup.date('Invalid Date').required('Required'),
+        })
+        : Yup.object().shape({
+            status: Yup.string()
+                .required('Required')
+        })
+
     return (
         <>
             {data == null ? "Data Not Found" : null}
@@ -122,19 +129,25 @@ const OffboardingForm = () => {
                                                         setSubmitted(true)
                                                     }}
                                                 >
-                                                    {(formProps) => (
+                                                    {({ values, errors, touched, setFieldValue }) => (
                                                         <Form>
                                                             {employee == false ?
                                                                 <>
                                                                     <label htmlFor="managerID">Manager ID</label>
                                                                     <Field id="managerID" name="managerID" placeholder="Manager ID" />
+                                                                    {errors.managerID && touched.managerID ? (
+                                                                        <div className="-mt-4 mb-4 text-red-600 text-sm">{errors.managerID}</div>
+                                                                    ) : null}
 
                                                                     <label htmlFor="effectiveDate">Effective Date</label>
                                                                     <Field type="date" id="effectiveDate" name="effectiveDate" />
+                                                                    {errors.effectiveDate && touched.effectiveDate ? (
+                                                                        <div className="-mt-4 mb-4 text-red-600 text-sm">{errors.effectiveDate}</div>
+                                                                    ) : null}
                                                                 </> : null
                                                             }
                                                             <div id="status-radio-group" className="mb-2">Action</div>
-                                                            <div role="group" className="mb-2" aria-labelledby="status-radio-group">
+                                                            <div role="group" className="mb-4 block" aria-labelledby="status-radio-group">
                                                                 <label className="p-2 border rounded mr-2">
                                                                     <Field type="radio" name="status" value="1" className="my-2 mr-2" />
                                                                     Accept
@@ -144,6 +157,9 @@ const OffboardingForm = () => {
                                                                     Reject
                                                                 </label>
                                                             </div>
+                                                            {errors.status && touched.status ? (
+                                                                        <div className="-mt-4 mb-4 text-red-600 text-sm">{errors.status}</div>
+                                                                    ) : null}
                                                             <button type="submit" className="bg-primary text-white">Submit</button>
                                                         </Form>
                                                     )}
