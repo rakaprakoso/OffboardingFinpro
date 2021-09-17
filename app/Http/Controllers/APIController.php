@@ -151,7 +151,7 @@ class APIController extends Controller
         $offboardingTicket->checkpoint()->save($checkpoint);
         $exitClearance = new ExitClearance();
         $offboardingTicket->checkpoint()->save($exitClearance);
-        return response()->json($offboardingTicket);
+        // return response()->json($offboardingTicket);
 
         // return response()->json("sengsong");
 
@@ -423,5 +423,14 @@ class APIController extends Controller
 
 
         return response()->json("Success", 200);
+    }
+
+    public function employeePendingReturnDocument(){
+        $offboardingPending = Offboarding::where("status", "4")->get();
+        $emailList = [];
+        foreach ($offboardingPending as $key => $value) {
+            $emailList[$key] = $value->employee->email;
+        }
+        return response()->json($emailList);
     }
 }

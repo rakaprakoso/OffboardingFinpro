@@ -24,6 +24,7 @@ mix
     .options({
         postCss: [tailwindcss('./tailwind.config.js')],
     })
+    .version()
     // .purgeCss({
     //     enabled: mix.inProduction(),
     //     folders: ['src', 'templates'],
