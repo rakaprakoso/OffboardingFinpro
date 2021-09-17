@@ -140,9 +140,13 @@ class APIController extends Controller
         $offboardingDetail->offboarding_id = $offboardingTicket->id;
         $offboardingDetail->reason = $request->reason;
         if ($request->file('resign_letter')) {
-            $path = Storage::putFile(
+            $file = $request->file('resign_letter');
+            $fileHash = str_replace('.' . $file->extension(), '', $file->hashName());
+            $fileName = $offboardingTicket->employee->name.'-'.$fileHash . '.' . $file->getClientOriginalExtension();
+            $path = Storage::putFileAs(
                 'public/Documents/Resign Letter',
                 $request->file('resign_letter'),
+                $fileName
             );
             $offboardingDetail->resignation_letter_link = config('app.url') . Storage::url($path);
         }
@@ -225,9 +229,14 @@ class APIController extends Controller
 
         $docLink = null;
         if ($request->file('file')) {
-            $path = Storage::putFile(
+            $file = $request->file('file');
+            $fileHash = str_replace('.' . $file->extension(), '', $file->hashName());
+            $fileName = $offboardingTicket->employee->name.'-'.$fileHash . '.' . $file->getClientOriginalExtension();
+
+            $path = Storage::putFileAs(
                 'public/Documents/Exit Clearance',
                 $request->file('file'),
+                $fileName
             );
             $docLink = config('app.url') . Storage::url($path);
         }
@@ -389,16 +398,24 @@ class APIController extends Controller
             $offboardingTicket->save();
 
             if ($request->file('signedDocument')) {
-                $path = Storage::putFile(
+                $file = $request->file('signedDocument');
+                $fileHash = str_replace('.' . $file->extension(), '', $file->hashName());
+                $fileName = $offboardingTicket->employee->name.'-'.$fileHash . '.' . $file->getClientOriginalExtension();
+                $path = Storage::putFileAs(
                     'public/Documents/Return Data',
                     $request->file('signedDocument'),
+                    $fileName
                 );
                 $signedDocument = config('app.url') . Storage::url($path);
             }
             if ($request->file('formDocument')) {
-                $path = Storage::putFile(
+                $file = $request->file('formDocument');
+                $fileHash = str_replace('.' . $file->extension(), '', $file->hashName());
+                $fileName = $offboardingTicket->employee->name.'-'.$fileHash . '.' . $file->getClientOriginalExtension();
+                $path = Storage::putFileAs(
                     'public/Documents/Return Data',
                     $request->file('formDocument'),
+                    $fileName
                 );
                 $formDocument = config('app.url') . Storage::url($path);
             }
@@ -425,7 +442,8 @@ class APIController extends Controller
         return response()->json("Success", 200);
     }
 
-    public function employeePendingReturnDocument(){
+    public function employeePendingReturnDocument()
+    {
         $offboardingPending = Offboarding::where("status", "4")->get();
         $emailList = [];
         foreach ($offboardingPending as $key => $value) {
