@@ -22,7 +22,7 @@ class Offboarding extends Model
     //     return $this->belongsTo('Category');
     // }
 
-    protected $with = ['employee','checkpoint','exitClearance'];
+    protected $with = ['employee','checkpoint','exitClearance','statusDetails'];
 
     public function employee()
     {

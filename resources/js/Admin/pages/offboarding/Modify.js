@@ -10,6 +10,7 @@ import {
 
 import CardSettings from "../../components/Cards/CardSettings.js";
 import CardProfile from "../../components/Cards/CardProfile.js";
+import CardEmployee from "../../components/Cards/CardEmployee.js";
 
 export function Modify() {
 
@@ -41,11 +42,11 @@ export function Modify() {
     return (
         <>
             <div className="flex flex-wrap">
-                <div className="w-full lg:w-8/12 px-4">
-                    {offboardingData && <CardSettings data={offboardingData} />}
+                <div className="w-full lg:w-6/12 px-4">
+                    {offboardingData && <CardEmployee data={offboardingData} />}
                 </div>
-                <div className="w-full lg:w-4/12 px-4">
-                    {offboardingData && <CardProfile data={offboardingData} />}
+                <div className="w-full lg:w-6/12 px-4">
+                    {offboardingData && <CardSettings data={offboardingData} />}
                 </div>
             </div>
         </>

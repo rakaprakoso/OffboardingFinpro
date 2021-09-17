@@ -16,7 +16,7 @@ export default function Dashboard() {
                     <CardTable />
                 </div>
             </div>
-            <div className="flex flex-wrap">
+            {/* <div className="flex flex-wrap">
                 <div className="w-full xl:w-8/12 mb-12 xl:mb-0 px-4">
                     <CardLineChart />
                 </div>
@@ -32,7 +32,7 @@ export default function Dashboard() {
                     <CardSocialTraffic />
                 </div>
             </div>
-            <h1>Raka</h1>
+            <h1>Raka</h1> */}
         </>
     );
 }

@@ -1,6 +1,6 @@
 import React from "react";
 
-export default function CardEmployee({data}) {
+export default function CardEmployee({ data }) {
     console.log(data);
     return (
         <>
@@ -23,13 +23,13 @@ export default function CardEmployee({data}) {
                         <div className="flex flex-wrap justify-center">
                             <div className="w-full lg:w-9/12 px-4">
                                 <p className="text-lg leading-relaxed text-blueGray-700">
-                                  <strong>Reason :</strong>
+                                    <strong>Reason :</strong>
                                 </p>
                                 <p className="mb-4 text-lg leading-relaxed text-blueGray-700">
-                                   {data.details.reason}
+                                    {data.details.reason}
                                 </p>
                                 <p className="text-lg leading-relaxed text-blueGray-700">
-                                  <strong>Attachment :</strong>
+                                    <strong>Attachment :</strong>
                                 </p>
                                 <a
                                     download
@@ -42,6 +42,26 @@ export default function CardEmployee({data}) {
                             </div>
                         </div>
                     </div>
+                    {/* <div className="mt-10 py-4 border-t border-blueGray-200 text-center">
+                        <div className="flex flex-wrap justify-center">
+                            <table class="table-auto border">
+                                <thead>
+                                    <tr>
+                                        <th>Checkpoint</th>
+                                        <th>Status</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {data && data?.checkpoint.map((item) => (
+                                    <tr className="border">
+                                        <td>Intro to CSS</td>
+                                        <td>Adam</td>
+                                    </tr>
+                                    ))}
+                                </tbody>
+                            </table>
+                        </div>
+                    </div> */}
                 </div>
             </div>
         </>

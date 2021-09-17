@@ -4,7 +4,7 @@ import React from "react";
 
 import CardStats from "../Cards/CardStats.js";
 
-export default function HeaderStats() {
+export default function HeaderStats({data}) {
   return (
     <>
       {/* Header */}
@@ -15,50 +15,50 @@ export default function HeaderStats() {
             <div className="flex flex-wrap">
               <div className="w-full lg:w-6/12 xl:w-3/12 px-4">
                 <CardStats
-                  statSubtitle="TRAFFIC"
-                  statTitle="350,897"
-                  statArrow="up"
-                  statPercent="3.48"
-                  statPercentColor="text-emerald-500"
-                  statDescripiron="Since last month"
+                  statSubtitle="Total Offboarding"
+                  statTitle={data.total}
+                //   statArrow="up"
+                //   statPercent="3.48"
+                //   statPercentColor="text-emerald-500"
+                //   statDescripiron="Since last month"
                   statIconName="far fa-chart-bar"
-                  statIconColor="bg-red-500"
+                  statIconColor="bg-yellow-600"
                 />
               </div>
               <div className="w-full lg:w-6/12 xl:w-3/12 px-4">
                 <CardStats
-                  statSubtitle="NEW USERS"
-                  statTitle="2,356"
-                  statArrow="down"
-                  statPercent="3.48"
-                  statPercentColor="text-red-500"
-                  statDescripiron="Since last week"
-                  statIconName="fas fa-chart-pie"
-                  statIconColor="bg-orange-500"
+                  statSubtitle="Ongoing Offboarding"
+                  statTitle={data.ongoing}
+                //   statArrow="down"
+                //   statPercent="3.48"
+                //   statPercentColor="text-red-500"
+                //   statDescripiron="Since last week"
+                  statIconName="fas fa-tasks"
+                  statIconColor="bg-blue-500"
                 />
               </div>
               <div className="w-full lg:w-6/12 xl:w-3/12 px-4">
                 <CardStats
-                  statSubtitle="SALES"
-                  statTitle="924"
-                  statArrow="down"
-                  statPercent="1.10"
-                  statPercentColor="text-orange-500"
-                  statDescripiron="Since yesterday"
-                  statIconName="fas fa-users"
-                  statIconColor="bg-pink-500"
+                  statSubtitle="Completed Offboarding"
+                  statTitle={data.completed}
+                //   statArrow="down"
+                //   statPercent="1.10"
+                //   statPercentColor="text-orange-500"
+                //   statDescripiron="Since yesterday"
+                  statIconName="fas fa-check"
+                  statIconColor="bg-green-600"
                 />
               </div>
               <div className="w-full lg:w-6/12 xl:w-3/12 px-4">
                 <CardStats
-                  statSubtitle="PERFORMANCE"
-                  statTitle="49,65%"
-                  statArrow="up"
-                  statPercent="12"
-                  statPercentColor="text-emerald-500"
-                  statDescripiron="Since last month"
-                  statIconName="fas fa-percent"
-                  statIconColor="bg-lightBlue-500"
+                  statSubtitle="Failed Offboarding"
+                  statTitle={data.failed}
+                //   statArrow="up"
+                //   statPercent="12"
+                //   statPercentColor="text-emerald-500"
+                //   statDescripiron="Since last month"
+                  statIconName="fas fa-times"
+                  statIconColor="bg-red-600"
                 />
               </div>
             </div>

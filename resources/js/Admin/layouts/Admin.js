@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useEffect, useState } from "react";
 import { Switch, Route, Redirect } from "react-router-dom";
 
 // components
@@ -19,13 +19,40 @@ import Settings from "../views/admin/Settings.js";
 // import Tables from "views/admin/Tables.js";
 
 export default function Admin() {
+
+    const [countOffboardingData, setCountOffboardingData] = useState(null);
+
+    useEffect(async () => {
+
+        const dataFetch = await axios
+            .get(`/api/offboardingstatus`)
+            .then(function (response) {
+                console.log(response);
+                // return response.data;
+                return response;
+            })
+            .catch(function (error) {
+                return 404;
+                console.log(error);
+            });
+        // console.log(dataFetch.cartSession[5]);
+        // setRawData(dataFetch);
+        if (dataFetch.status == 200) {
+            setCountOffboardingData(dataFetch.data);
+        } else {
+            setCountOffboardingData(dataFetch);
+        }
+
+    }, []);
+
     return (
         <>
             <Sidebar />
             <div className="relative md:ml-64 bg-blueGray-100 min-h-screen flex flex-col">
                 <AdminNavbar />
-
-                <HeaderStats />
+                { countOffboardingData &&
+                    <HeaderStats data={countOffboardingData}/>
+                }
 
                 <div className="px-4 md:px-10 mx-auto w-full -mt-24 flex flex-col z-10">
                     <Switch>

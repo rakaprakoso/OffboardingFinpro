@@ -451,4 +451,11 @@ class APIController extends Controller
         }
         return response()->json($emailList);
     }
+    public function offboardingStatus(){
+        $data['total'] = Offboarding::get()->count();
+        $data['ongoing'] = Offboarding::whereBetween('status', [0, 5])->get()->count();
+        $data['completed'] = Offboarding::where("status", "6")->get()->count();
+        $data['failed'] = Offboarding::where('status', '<', 0)->get()->count();
+        return response()->json($data);
+    }
 }

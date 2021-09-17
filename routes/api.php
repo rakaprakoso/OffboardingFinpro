@@ -75,3 +75,4 @@ Route::post('/requestdocument',[APIController::class,'postRequestDocument'])->na
 Route::post('/returndocument',[APIController::class,'postReturnDocument'])->name('postReturnDocument');
 
 Route::get('/employeePendingReturnDocument',[APIController::class,'employeePendingReturnDocument'])->name('employeePendingReturnDocument');
+Route::get('/offboardingstatus',[APIController::class,'offboardingStatus'])->name('offboardingStatus');

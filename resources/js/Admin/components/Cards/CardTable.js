@@ -99,7 +99,7 @@ export default function CardTable({ color }) {
                                 >
                                     Status
                                 </th>
-                                <th
+                                {/* <th
                                     className={
                                         "px-6 align-middle border border-solid py-3 text-xs uppercase border-l-0 border-r-0 whitespace-nowrap font-semibold text-left " +
                                         (color === "light"
@@ -108,7 +108,7 @@ export default function CardTable({ color }) {
                                     }
                                 >
                                     Users
-                                </th>
+                                </th> */}
                                 <th
                                     className={
                                         "px-6 align-middle border border-solid py-3 text-xs uppercase border-l-0 border-r-0 whitespace-nowrap font-semibold text-left " +
@@ -157,10 +157,15 @@ export default function CardTable({ color }) {
 
                                     </td>
                                     <td className="border-t-0 px-6 align-middle border-l-0 border-r-0 text-xs whitespace-nowrap p-4">
-                                        <i className="fas fa-circle text-orange-500 mr-2"></i>
-                                        {item.status}
+                                        <i
+                                         className={
+                                            "fas fa-circle mr-2 " +
+                                            (parseInt(item.status) < 0 ? "text-red-600" : "text-green-600")
+                                        }
+                                        ></i>
+                                        {item.status_details.name}
                                     </td>
-                                    <td className="border-t-0 px-6 align-middle border-l-0 border-r-0 text-xs whitespace-nowrap p-4">
+                                    {/* <td className="border-t-0 px-6 align-middle border-l-0 border-r-0 text-xs whitespace-nowrap p-4">
                                         <div className="flex">
                                             <img
                                                 src={require("../../assets/img/team-1-800x800.jpg").default}
@@ -183,14 +188,14 @@ export default function CardTable({ color }) {
                                                 className="w-10 h-10 rounded-full border-2 border-blueGray-50 shadow -ml-4"
                                             ></img>
                                         </div>
-                                    </td>
+                                    </td> */}
                                     <td className="border-t-0 px-6 align-middle border-l-0 border-r-0 text-xs whitespace-nowrap p-4">
                                         <div className="flex items-center">
-                                            <span className="mr-2">60%</span>
+                                            <span className="mr-2">{Math.round(parseInt(item.status) / 6 * 100)} %</span>
                                             <div className="relative w-full">
                                                 <div className="overflow-hidden h-2 text-xs flex rounded bg-red-200">
                                                     <div
-                                                        style={{ width: "60%" }}
+                                                        style={{ width: `${parseInt(item.status) / 6 * 100}%` }}
                                                         className="shadow-none flex flex-col text-center whitespace-nowrap text-white justify-center bg-red-500"
                                                     ></div>
                                                 </div>
