@@ -351,7 +351,7 @@ class APIController extends Controller
         // return $request->all();
         $offboardingTicket = Offboarding::find($request->offboardingID);
         $input = null;
-        if ($request->type = "confirmation") {
+        if ($request->type == "confirmation") {
             if ($request->completed == 'true') {
                 switch ($request->dept) {
                     case 'svp':
