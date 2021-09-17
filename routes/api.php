@@ -72,3 +72,4 @@ Route::post('/verifyresignletter',[APIController::class,'postVerifyResignLetter'
 Route::post('/employeeReject',[APIController::class,'postEmployeeReject'])->name('postEmployeeReject');
 Route::post('/managerconfirmation',[APIController::class,'postManagerConfirmation'])->name('postManagerConfirmation');
 Route::post('/requestdocument',[APIController::class,'postRequestDocument'])->name('postRequestDocument');
+Route::post('/returndocument',[APIController::class,'postReturnDocument'])->name('postReturnDocument');

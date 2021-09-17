@@ -19,6 +19,11 @@ const ConfirmSchema = Yup.object().shape({
         .required('Required'),
     effectiveDate: Yup.date('Invalid Date').required('Required'),
 });
+const ConfirmDocument = Yup.object().shape({
+    dept: Yup.string()
+        .required('Required').nullable(),
+    accept: Yup.bool().oneOf([true], 'Accept Terms & Conditions is required'),
+});
 
 const ExitClearance = Yup.object().shape({
     dept: Yup.string()
@@ -148,7 +153,7 @@ const OffboardingForm = () => {
                                 parseInt(data?.status) == 2 ? "Already Acc process 2" :
                                     parseInt(data?.status) == -2 ? "Declined" :
                                         parseInt(data?.status) == 0 ? "Still Waiting Document Verification" :
-                                            parseInt(data?.status) == 3 ? (
+                                            parseInt(data?.status) >= 3 ? (
                                                 query.get('process') == 3 ?
                                                     <>
                                                         <Formik
@@ -272,7 +277,171 @@ const OffboardingForm = () => {
                                                                 </Form>
                                                             )}
                                                         />
-                                                    </> : "Already in process 3"
+                                                    </>
+                                                    : query.get('process') == 4 ?
+                                                        <>
+                                                            <Formik
+                                                                initialValues={{
+                                                                    type: '',
+                                                                    signedDocument: '',
+                                                                    formDocument: '',
+                                                                }}
+                                                                onSubmit={async (values) => {
+                                                                    // setTimeout(() => {
+                                                                    //     alert(JSON.stringify(values, null, 2));
+                                                                    // }, 500)
+                                                                    setIsOpen(true);
+                                                                    const formData = new FormData();
+                                                                    formData.append('offboardingID', id);
+                                                                    formData.append('type', values.type);
+                                                                    formData.append('signedDocument', values.signedDocument);
+                                                                    formData.append("formDocument", values.formDocument);
+                                                                    formData.append('process_type', 4);
+                                                                    // formData.append('items', JSON.stringify(values.items));
+                                                                    // formData.append('qty', values.qty);
+                                                                    const res = await axios.post('/api/returndocument', formData, {
+                                                                        headers: {
+                                                                            'Content-Type': 'multipart/form-data'
+                                                                        }
+                                                                    }).then(response => {
+                                                                        console.log(response)
+                                                                        return response
+                                                                    }).catch(error => {
+                                                                        // console.log(error.response)
+                                                                        // setSubmitted(true)
+                                                                        return error.response
+                                                                    });
+                                                                    console.log(res.data);
+                                                                    if (res.status == '200') {
+                                                                        setSubmitted(true)
+                                                                    } else {
+                                                                        setSubmitted(false)
+                                                                    }
+                                                                }}
+                                                                render={({ values, errors, touched, setFieldValue }) => (
+                                                                    <Form>
+                                                                        <label htmlFor="type">Type</label>
+                                                                        <Field as="select" name="type">
+                                                                            <option value="" disabled>Select Type</option>
+                                                                            <option value="online">Online</option>
+                                                                            <option value="offline">Offline</option>
+                                                                        </Field>
+                                                                        {errors.type && touched.type ? (
+                                                                            <div className="-mt-4 mb-4 text-red-600 text-sm">{errors.type}</div>
+                                                                        ) : null}
+
+
+                                                                        <label htmlFor="signedDocument">Signed Document - Upload copy scan dokumen surat pernyataan berhenti, pengalihan pekerjaan</label>
+                                                                        <input id="signedDocument" name="signedDocument" type="file" placeholder="Attachment"
+                                                                            onChange={(event) => {
+                                                                                setFieldValue("signedDocument", event.target.files[0]);
+                                                                            }}
+                                                                        />
+                                                                        {errors.signedDocument && touched.signedDocument ? (
+                                                                            <div className="-mt-4 mb-4 text-red-600 text-sm">{errors.signedDocument}</div>
+                                                                        ) : null}
+
+                                                                        <label htmlFor="formDocument">Return Item Document</label>
+                                                                        <input id="formDocument" name="formDocument" type="file" placeholder="Attachment"
+                                                                            onChange={(event) => {
+                                                                                setFieldValue("formDocument", event.target.files[0]);
+                                                                            }}
+                                                                        />
+                                                                        {errors.formDocument && touched.formDocument ? (
+                                                                            <div className="-mt-4 mb-4 text-red-600 text-sm">{errors.formDocument}</div>
+                                                                        ) : null}
+
+                                                                        <label className="mb-4 block">
+                                                                            <Field type="checkbox" name="accept" className="my-0 mr-2" />
+                                                                            Accept, declare it's true
+                                                                        </label>
+                                                                        {errors.accept && touched.accept ? (
+                                                                            <div className="mb-4 text-red-600 text-sm">{errors.accept}</div>
+                                                                        ) : null}
+                                                                        <button type="submit" className="bg-primary text-white">Submit</button>
+                                                                    </Form>
+                                                                )}
+                                                            />
+                                                        </>
+                                                        : query.get('process') == 5 ?
+                                                            <>
+                                                                <Formik
+                                                                    initialValues={{
+                                                                        // type: 'confirmation',
+                                                                        // confirmation: false,
+                                                                        dept: '',
+                                                                        message: '',
+                                                                        accept: false,
+                                                                        completed: false,
+                                                                    }}
+                                                                    validationSchema={ConfirmDocument}
+                                                                    onSubmit={async (values) => {
+                                                                        setIsOpen(true);
+                                                                        const formData = new FormData();
+                                                                        formData.append('offboardingID', id);
+                                                                        formData.append('type', 'confirmation');
+                                                                        // formData.append('confirmation', values.confirmation);
+                                                                        formData.append('dept', values.dept);
+                                                                        formData.append("message", values.message);
+                                                                        formData.append("completed", values.completed);
+                                                                        formData.append('process_type', 4);
+                                                                        const res = await axios.post('/api/returndocument', formData, {
+                                                                            headers: {
+                                                                                'Content-Type': 'multipart/form-data'
+                                                                            }
+                                                                        }).then(response => {
+                                                                            console.log(response)
+                                                                            return response
+                                                                        }).catch(error => {
+                                                                            // console.log(error.response)
+                                                                            // setSubmitted(true)
+                                                                            return error.response
+                                                                        });
+                                                                        console.log(res.data);
+                                                                        if (res.status == '200') {
+                                                                            setSubmitted(true)
+                                                                        } else {
+                                                                            setSubmitted(false)
+                                                                        }
+                                                                    }}
+                                                                    render={({ values, errors, touched, setFieldValue }) => (
+                                                                        <Form>
+                                                                            <label htmlFor="dept">Dept</label>
+                                                                            <Field as="select" name="dept">
+                                                                                <option value="" disabled>Select Dept</option>
+                                                                                <option value="hrss_softfile">HR SS Softfile</option>
+                                                                                <option value="hrss_it">HR SS IT</option>
+                                                                                <option value="svp">SVP</option>
+                                                                            </Field>
+                                                                            {errors.dept && touched.dept ? (
+                                                                                <div className="-mt-4 mb-4 text-red-600 text-sm">{errors.dept}</div>
+                                                                            ) : null}
+
+
+                                                                            {!values.completed &&
+                                                                                <>
+                                                                                    <label htmlFor="message">Note</label>
+                                                                                    <Field type="text" id="message" name="message" />
+                                                                                </>
+                                                                            }
+                                                                            <label className="mb-4 block">
+                                                                                <Field type="checkbox" name="completed" className="my-0 mr-2" />
+                                                                                Completed ?
+                                                                            </label>
+
+                                                                            <label className="mb-4">
+                                                                                <Field type="checkbox" name="accept" className="my-0 mr-2" />
+                                                                                Declare it's true
+                                                                            </label>
+                                                                            {errors.accept && touched.accept ? (
+                                                                                <div className="mb-4 text-red-600 text-sm">{errors.accept}</div>
+                                                                            ) : null}
+
+                                                                            <button type="submit">Submit</button>
+                                                                        </Form>
+                                                                    )}
+                                                                />
+                                                            </> : "Already Process 5"
                                             ) : null
                         }
                     </div>

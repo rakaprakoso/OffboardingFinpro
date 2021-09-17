@@ -212,7 +212,7 @@ class APIController extends Controller
             );
             $input = json_encode($input);
             $this->startProcess($input);
-        } elseif($offboardingTicket->checkpoint->acc_employee == false && $offboardingTicket->checkpoint->acc_svp == false) {
+        } elseif ($offboardingTicket->checkpoint->acc_employee == false && $offboardingTicket->checkpoint->acc_svp == false) {
             $offboardingTicket->status = "-2";
             $offboardingTicket->save();
         }
@@ -223,7 +223,7 @@ class APIController extends Controller
     {
         $offboardingTicket = Offboarding::find($request->offboardingID);
 
-        $docLink=null;
+        $docLink = null;
         if ($request->file('file')) {
             $path = Storage::putFile(
                 'public/Documents/Exit Clearance',
@@ -263,8 +263,19 @@ class APIController extends Controller
         $offboardingTicket->push();
 
         if ($request->dept == "payroll") {
-            # code...
-        }else{
+            $offboardingTicket->details->payroll_link = $docLink;
+            $offboardingTicket->checkpoint->acc_payroll = true;
+            $offboardingTicket->status = "4";
+            $offboardingTicket->save();
+            $offboardingTicket->push();
+            $input = array(
+                'processTypeIn' => 3,
+                'offboardingIDIn' => $request->offboardingID,
+                'IN_processPayroll' => 1
+            );
+            $input = json_encode($input);
+            $this->startProcess($input);
+        } else {
             if ($request->dept == "it") {
                 $input = array(
                     'processTypeIn' => 3,
@@ -277,7 +288,7 @@ class APIController extends Controller
             if (
                 $offboardingTicket->checkpoint->acc_fastel == true &&
                 $offboardingTicket->checkpoint->acc_kopindosat == true &&
-                $offboardingTicket->checkpoint->acc_it == true &&
+                // $offboardingTicket->checkpoint->acc_it == true &&
                 $offboardingTicket->checkpoint->acc_hrdev == true &&
                 $offboardingTicket->checkpoint->acc_medical == true &&
                 $offboardingTicket->checkpoint->acc_finance == true
@@ -285,6 +296,7 @@ class APIController extends Controller
                 $input = array(
                     'processTypeIn' => 3,
                     'offboardingIDIn' => $request->offboardingID,
+                    // 'IN_processPayroll' => 1
                     // 'IN_item' => $request->item,
                     // 'IN_dept' => $request->dept,
                     // 'IN_qty' => $request->qty,
@@ -320,6 +332,94 @@ class APIController extends Controller
         // );
         // return response()->json($items, 200);
 
+
+
+        return response()->json("Success", 200);
+    }
+
+    public function postReturnDocument(Request $request)
+    {
+        // return $request->all();
+        $offboardingTicket = Offboarding::find($request->offboardingID);
+        $input = null;
+        if ($request->type = "confirmation") {
+            if ($request->completed == 'true') {
+                switch ($request->dept) {
+                    case 'svp':
+                        $offboardingTicket->checkpoint->return_svp = true;
+                        break;
+                    case 'hrss_softfile':
+                        $offboardingTicket->checkpoint->return_hrss_softfile = true;
+                        break;
+                    case 'hrss_it':
+                        $offboardingTicket->checkpoint->return_hrss_it = true;
+                        break;
+                    default:
+                        # code...
+                        break;
+                }
+                $offboardingTicket->push();
+                if (
+                    $offboardingTicket->checkpoint->return_svp == true &&
+                    $offboardingTicket->checkpoint->return_hrss_softfile == true &&
+                    $offboardingTicket->checkpoint->return_hrss_it == true
+                ) {
+                    $offboardingTicket->status = "6";
+                    $offboardingTicket->save();
+                    $input = array(
+                        'processTypeIn' => 5,
+                        'offboardingIDIn' => $request->offboardingID,
+                    );
+                    $input = json_encode($input);
+                    $this->startProcess($input);
+                }
+            } else {
+                $input = array(
+                    'processTypeIn' => 4,
+                    'offboardingIDIn' => $request->offboardingID,
+                    'IN_confirm' => 1,
+                    'IN_dept' => $request->dept,
+                    'IN_messageEmail' => $request->message,
+                );
+                $input = json_encode($input);
+                $this->startProcess($input);
+            }
+        } else {
+            $offboardingTicket->status = "5";
+            $offboardingTicket->save();
+
+            if ($request->file('signedDocument')) {
+                $path = Storage::putFile(
+                    'public/Documents/Return Data',
+                    $request->file('signedDocument'),
+                );
+                $signedDocument = config('app.url') . Storage::url($path);
+            }
+            if ($request->file('formDocument')) {
+                $path = Storage::putFile(
+                    'public/Documents/Return Data',
+                    $request->file('formDocument'),
+                );
+                $formDocument = config('app.url') . Storage::url($path);
+            }
+            $offboardingTicket->details->exitDocument = $signedDocument;
+            $offboardingTicket->details->returnDocument = $formDocument;
+            $offboardingTicket->details->returnType = $request->type;
+            $offboardingTicket->push();
+
+            $input = array(
+                'processTypeIn' => 4,
+                'offboardingIDIn' => $request->offboardingID,
+                'IN_confirm' => 0,
+                // 'IN_dept' => $request->dept,
+                // 'IN_processPayroll' => 1
+                // 'IN_item' => $request->item,
+                // 'IN_qty' => $request->qty,
+                // 'IN_items' => json_decode($items),
+            );
+            $input = json_encode($input);
+            $this->startProcess($input);
+        }
 
 
         return response()->json("Success", 200);
