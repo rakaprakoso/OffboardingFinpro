@@ -163,7 +163,7 @@ export default function CardTable({ color }) {
                                             (parseInt(item.status) < 0 ? "text-red-600" : "text-green-600")
                                         }
                                         ></i>
-                                        {item.status_details.name}
+                                        {item?.status_details?.name}
                                     </td>
                                     {/* <td className="border-t-0 px-6 align-middle border-l-0 border-r-0 text-xs whitespace-nowrap p-4">
                                         <div className="flex">
