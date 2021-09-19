@@ -153,6 +153,7 @@ class APIController extends Controller
         }
         $offboardingTicket->details()->save($offboardingDetail);
         $checkpoint = new OffboardingCheckpoint();
+        $checkpoint->acc_employee = true;
         $offboardingTicket->checkpoint()->save($checkpoint);
         $exitClearance = new ExitClearance();
         $offboardingTicket->checkpoint()->save($exitClearance);
