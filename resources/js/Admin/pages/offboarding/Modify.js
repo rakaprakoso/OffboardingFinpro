@@ -43,7 +43,7 @@ export function Modify() {
         <>
             <div className="flex flex-wrap">
                 <div className="w-full lg:w-6/12 px-4">
-                    {offboardingData && <CardEmployee data={offboardingData} />}
+                    {offboardingData && <CardEmployee data={offboardingData} visibility={"admin"} />}
                 </div>
                 <div className="w-full lg:w-6/12 px-4">
                     {offboardingData && <CardSettings data={offboardingData} />}

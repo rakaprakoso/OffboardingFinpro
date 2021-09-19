@@ -70,6 +70,7 @@ Route::resource('/employees', EmployeeController::class);
 Route::resource('/offboarding', OffboardingController::class);
 
 Route::post('/resignform',[APIController::class,'postResignForm'])->name('postResignForm');
+// Route::post('/newOffboarding',[APIController::class,'postResignForm'])->name('postResignForm');
 Route::post('/verifyresignletter',[APIController::class,'postVerifyResignLetter'])->name('postVerifyResignLetter');
 Route::post('/employeeReject',[APIController::class,'postEmployeeReject'])->name('postEmployeeReject');
 Route::post('/managerconfirmation',[APIController::class,'postManagerConfirmation'])->name('postManagerConfirmation');
@@ -79,7 +80,5 @@ Route::post('/returndocument',[APIController::class,'postReturnDocument'])->name
 Route::get('/employeePendingReturnDocument',[APIController::class,'employeePendingReturnDocument'])->name('employeePendingReturnDocument');
 Route::get('/offboardingstatus',[APIController::class,'offboardingStatus'])->name('offboardingStatus');
 Route::get('/exitDocument',[APIController::class,'exitDocument'])->name('exitDocument');
+Route::get('/retireEmployee',[APIController::class,'retireEmployee'])->name('retireEmployee');
 
-Route::post('/logout', [AuthenticatedSessionController::class, 'destroy'])
-                ->middleware('auth')
-                ->name('logout');

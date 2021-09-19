@@ -103,6 +103,8 @@ export default function CardEmployee({ data, visibility }) {
         { name: 'Termination Letter', file: data?.details?.termination_letter_link },
         { name: 'Change Opers', file: data?.details?.change_opers },
         { name: 'Surat Berhenti (Pernyataan, Pengalihan Pekerjaan)', file: data?.details?.exitDocument },
+    ]
+    const clearanceAttachment = [
         { name: 'Catatan Pengembalian Barang', file: data?.details?.returnDocument },
     ]
     const payrollAttachment = [
@@ -140,9 +142,9 @@ export default function CardEmployee({ data, visibility }) {
                                 </p>
                                 {visibility &&
                                     <>
-                                        {visibility && visibility == 'payroll' || visibility == 'admin' || visibility == 'employee' ?
+                                        {visibility && visibility == 'payroll' || visibility == 'admin' || visibility == 'employee' || visibility == 'clearance' ?
                                             <>
-                                                {visibility && visibility == 'employee' || visibility == 'admin'?
+                                                {visibility && visibility == 'employee' || visibility == 'admin' || visibility == 'clearance' ?
                                                     <div className="mb-2">
                                                         <button className="btn shadow w-full bg-gray-100 mb-3" onClick={() => setToggleAttachment(!toggleAttachment)}>
                                                             Attachment - Click Here
@@ -169,7 +171,7 @@ export default function CardEmployee({ data, visibility }) {
                                                                     </td>
                                                                 </tr>
                                                             )) : null}
-                                                            {employeeAttachment.map((item, i) => (
+                                                            {visibility == 'clearance' || visibility == 'admin' ? clearanceAttachment.map((item, i) => (
                                                                 <tr class="bg-gray-100 border-b border-gray-200">
                                                                     <td class="px-3 py-2 text-xs">{item.name}</td>
                                                                     <td class="px-3 py-2 text-xs">
@@ -185,7 +187,24 @@ export default function CardEmployee({ data, visibility }) {
                                                                         }
                                                                     </td>
                                                                 </tr>
-                                                            ))}
+                                                            )) : null}
+                                                            {visibility != 'clearance' ? employeeAttachment.map((item, i) => (
+                                                                <tr class="bg-gray-100 border-b border-gray-200">
+                                                                    <td class="px-3 py-2 text-xs">{item.name}</td>
+                                                                    <td class="px-3 py-2 text-xs">
+                                                                        {item.file ?
+                                                                            <a
+                                                                                href={item.file}
+                                                                                className="text-xs text-lightBlue-500 border rounded px-2 inline-block"
+                                                                            >
+                                                                                <i className="fas fa-file mr-2 text-xs"></i>
+                                                                                Download
+                                                                            </a>
+                                                                            : "In progress"
+                                                                        }
+                                                                    </td>
+                                                                </tr>
+                                                            )) : null}
                                                         </table>}
                                                     </div> : null
                                                 }

@@ -15,9 +15,6 @@
 <body>
     <div id="root">
     </div>
-    <script>
-        var csrf_token = '{{ csrf_token() }}';
-    </script>
     <script defer src="{{asset(mix('/js/admin/app.js'))}}"></script>
     {{-- <script defer src="{{ asset('js/app.js') }}"></script> --}}
 </body>

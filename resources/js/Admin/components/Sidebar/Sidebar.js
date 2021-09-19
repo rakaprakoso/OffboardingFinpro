@@ -12,6 +12,11 @@ export default function Sidebar() {
             path: "/admin",
             name: "Dashboard",
             icon: "fas fa-user-times",
+        },
+        {
+            path: "/admin/newOffboarding",
+            name: "New Offboarding",
+            icon: "fas fa-user-edit",
         }
     ]
     return (

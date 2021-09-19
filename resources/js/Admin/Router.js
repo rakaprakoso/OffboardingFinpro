@@ -24,7 +24,8 @@ const Main = props => {
                 <link rel="shortcut icon" href="\assets\green-white.png" type="image/x-icon" />
             </Helmet> */}
             <Switch>
-                <Route path="/admin/" component={Admin} />
+                <Route path="/admin" component={Admin} />
+                <Route path="/admin/newOffboarding" exact component={Admin} />
                 <Route path="/profile" component={Profile} />
                 <Route path="/resignform" exact component={ResignForm} />
                 <Route path="/offboarding/:id" component={ResignForm} />
@@ -40,7 +41,7 @@ const Main = props => {
                 <Route path="/checkout" component={Checkout}/>
 
                 <Route path="/contact" component={Contact}/> */}
-                <Route component={NotFound} />
+                {/* <Route component={NotFound} /> */}
             </Switch>
         </>
     )

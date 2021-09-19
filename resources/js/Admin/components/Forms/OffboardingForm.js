@@ -89,6 +89,9 @@ const OffboardingForm = () => {
                         });
                     setTemplateData(dataFetch)
                 }
+                if (query.get('process') == '5') {
+                    setTracking('clearance');
+                }
                 if (query.get('rejectEmployee') == 'true') {
                     const formData = new FormData();
                     formData.append('offboardingID', id);
@@ -346,6 +349,56 @@ const OffboardingForm = () => {
                                                                                     </label>
                                                                                     {errors.accept && touched.accept ? (
                                                                                         <div className="mb-4 text-red-600 text-sm">{errors.accept}</div>
+                                                                                    ) : null}
+                                                                                    <button type="submit" className="bg-primary text-white">Submit</button>
+                                                                                </Form>
+                                                                            )}
+                                                                        />
+                                                                    </> :
+                                                                    query.get('cv') == 'true' ?
+                                                                    <>
+                                                                        <h2 className="text-2xl font-bold">Upload CV</h2>
+                                                                        <hr className="mb-3" />
+                                                                        <Formik
+                                                                            initialValues={{
+                                                                                cv: '',
+                                                                            }}
+                                                                            validationSchema={ConfirmationDocument}
+                                                                            onSubmit={async (values) => {
+                                                                                setIsOpen(true);
+                                                                                const formData = new FormData();
+                                                                                formData.append('offboardingID', id);
+                                                                                formData.append('type', 'cv');
+                                                                                formData.append('cv', values.cv);
+                                                                                const res = await axios.post('/api/requestdocument', formData, {
+                                                                                    headers: {
+                                                                                        'Content-Type': 'multipart/form-data'
+                                                                                    }
+                                                                                }).then(response => {
+                                                                                    console.log(response)
+                                                                                    return response
+                                                                                }).catch(error => {
+                                                                                    // console.log(error.response)
+                                                                                    // setSubmitted(true)
+                                                                                    return error.response
+                                                                                });
+                                                                                console.log(res.data);
+                                                                                if (res.status == '200') {
+                                                                                    setSubmitted(true)
+                                                                                } else {
+                                                                                    setSubmitted(false)
+                                                                                }
+                                                                            }}
+                                                                            render={({ values, errors, touched, setFieldValue }) => (
+                                                                                <Form>
+                                                                                    <label htmlFor="cv">CV</label>
+                                                                                    <input id="cv" name="cv" type="file" placeholder="Attachment"
+                                                                                        onChange={(event) => {
+                                                                                            setFieldValue("cv", event.target.files[0]);
+                                                                                        }}
+                                                                                    />
+                                                                                    {errors.cv && touched.cv ? (
+                                                                                        <div className="-mt-4 mb-4 text-red-600 text-sm">{errors.cv}</div>
                                                                                     ) : null}
                                                                                     <button type="submit" className="bg-primary text-white">Submit</button>
                                                                                 </Form>
