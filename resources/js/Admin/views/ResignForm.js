@@ -1,4 +1,4 @@
-import React from 'react'
+import React, { useEffect, useState } from 'react'
 import axios from 'axios'
 import { Switch, BrowserRouter, Route } from 'react-router-dom';
 
@@ -17,18 +17,90 @@ const ResignForm = () => {
                 <div class="heading bg-yellow-500 pt-32 pb-20 text-gray-50">
                     <div class="container mx-auto">
                         <h1 class="text-center text-4xl font-bold">
-                            Submit Resignation Form
+                            Offboarding
                         </h1>
                     </div>
                 </div>
-                <div className="container py-20 mx-auto">
-                    <Switch>
-                        <Route path="/resignform" exact component={EmployeeResignForm} />
-                        <Route path="/offboarding/:id" component={OffboardingForm} />
-                    </Switch>
-                </div >
+                <div class="w-full px-2 py-3 navbar-expand-lg">
+                    <div className="container px-4 py-20 mx-auto items-center justify-between">
+                        <Switch>
+                            <Route path="/resignform" exact component={EmployeeResignForm} />
+                            <Route path="/offboarding/:id" component={OffboardingForm} />
+                            <Route path="/exitDocument" component={Folder} />
+                            <Route path="/exitClearance" component={FolderClearance} />
+                        </Switch>
+                    </div >
+
+                </div>
             </main>
             <Footer />
+        </>
+    )
+}
+
+const Folder = () => {
+    const [data, setData] = useState(null);
+    useEffect(async () => {
+        const dataFetch = await axios
+            .get(`/api/exitDocument`)
+            .then(function (response) {
+                console.log(response);
+                return response.data;
+            })
+            .catch(function (error) {
+                console.log(error);
+            });
+        setData(dataFetch)
+    }, [])
+    return (
+        <>
+            <h2 className="text-2xl font-bold">Template Document Exit Form</h2>
+            <p className="text-justify">Download file terkait</p>
+            <hr className="mb-3" />
+            {data && data.map((item) => (
+                <a
+                    download
+                    href={item.file}
+                    className="text-lightBlue-500 text-lg border rounded p-5 block my-3"
+                >
+                    <i className="fas fa-file mr-2 text-xs"></i>
+                    Download - {item.name}
+                </a>
+            ))
+            }
+        </>
+    )
+}
+const FolderClearance = () => {
+    const [data, setData] = useState(null);
+    useEffect(async () => {
+        const dataFetch = await axios
+            .get(`/api/exitDocument?clearance=true`)
+            .then(function (response) {
+                console.log(response);
+                return response.data;
+            })
+            .catch(function (error) {
+                console.log(error);
+            });
+        setData(dataFetch)
+    }, [])
+    return (
+        <>
+            <h2 className="text-2xl font-bold">Template Document Clearance Form</h2>
+            <p className="text-justify">Download file terkait</p>
+            <hr className="mb-3" />
+            {data && data.map((item) => (
+                <a
+                    download
+                    href={item.file}
+                    className="text-lightBlue-500 text-lg border rounded p-5 block my-3"
+                >
+                    <i className="fas fa-file mr-2 text-xs"></i>
+                    Download - {item.name}
+                </a>
+            ))
+            }
         </>
     )
 }

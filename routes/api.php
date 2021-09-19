@@ -12,6 +12,8 @@ use App\Http\Controllers\Ecommerce\Admin\ProductController as AdminProductContro
 use App\Http\Controllers\Ecommerce\Admin\ImageController;
 use App\Http\Controllers\EmployeeController;
 use App\Http\Controllers\OffboardingController;
+
+use App\Http\Controllers\Auth\AuthenticatedSessionController;
 /*
 |--------------------------------------------------------------------------
 | API Routes
@@ -76,3 +78,8 @@ Route::post('/returndocument',[APIController::class,'postReturnDocument'])->name
 
 Route::get('/employeePendingReturnDocument',[APIController::class,'employeePendingReturnDocument'])->name('employeePendingReturnDocument');
 Route::get('/offboardingstatus',[APIController::class,'offboardingStatus'])->name('offboardingStatus');
+Route::get('/exitDocument',[APIController::class,'exitDocument'])->name('exitDocument');
+
+Route::post('/logout', [AuthenticatedSessionController::class, 'destroy'])
+                ->middleware('auth')
+                ->name('logout');

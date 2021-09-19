@@ -9,13 +9,15 @@
     <meta name="theme-color" content="#2a3f2b"/>
     <link rel="stylesheet" href="{{asset(mix('/css/app.css'))}}">
     <link rel="stylesheet" href="{{asset(mix('/css/appClient.css'))}}">
-    {{-- <link rel="shortcut icon" href="/assets/green-white.png" type="image/x-icon" /> --}}
+    <link rel="shortcut icon" href="/images/Logo%20Big.png" type="image/x-icon" />
     {!! SEO::generate() !!}
 </head>
 <body>
     <div id="root">
     </div>
-
+    <script>
+        var csrf_token = '{{ csrf_token() }}';
+    </script>
     <script defer src="{{asset(mix('/js/app.js'))}}"></script>
     {{-- <script defer src="{{ asset('js/app.js') }}"></script> --}}
 </body>

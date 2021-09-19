@@ -10,6 +10,7 @@ use App\Models\ExitClearance;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
+use File;
 
 class APIController extends Controller
 {
@@ -142,7 +143,7 @@ class APIController extends Controller
         if ($request->file('resign_letter')) {
             $file = $request->file('resign_letter');
             $fileHash = str_replace('.' . $file->extension(), '', $file->hashName());
-            $fileName = $offboardingTicket->employee->name.'-'.$fileHash . '.' . $file->getClientOriginalExtension();
+            $fileName = $offboardingTicket->employee->name . '-' . $fileHash . '.' . $file->getClientOriginalExtension();
             $path = Storage::putFileAs(
                 'public/Documents/Resign Letter',
                 $request->file('resign_letter'),
@@ -192,11 +193,20 @@ class APIController extends Controller
 
     public function postManagerConfirmation(Request $request)
     {
+        $dateChanged = "0";
         $offboardingTicket = Offboarding::find($request->offboardingID);
+        if ($offboardingTicket->effective_date != $request->effective_date) {
+            $dateChanged = "1";
+        }
         // $offboardingTicket->status = $request->status;
         // $offboardingTicket->save();
         if ($request->employee == '1') {
             $offboardingTicket->checkpoint->acc_employee = $request->status == '1' ? true : false;
+        } elseif ($request->hrmgr == '1') {
+            $offboardingTicket->checkpoint->acc_hrbp_mgr = $request->status == '1' ? true : false;
+            $offboardingTicket->push();
+        $offboardingTicket->save();
+            return response()->json("Success");
         } else {
             $offboardingTicket->checkpoint->acc_svp = $request->status == '1' ? true : false;
             $offboardingTicket->effective_date = $request->effective_date;
@@ -205,7 +215,20 @@ class APIController extends Controller
         $offboardingTicket->save();
 
         // $offboardingTicket = Offboarding::find($request->offboardingID);
-        if ($offboardingTicket->checkpoint->acc_employee == true && $offboardingTicket->checkpoint->acc_svp == true) {
+
+
+        if ($offboardingTicket->checkpoint->acc_employee == false) {
+            if ($offboardingTicket->status != "-3") {
+                $offboardingTicket->status = "-3";
+                $offboardingTicket->save();
+                $input = array(
+                    'processTypeIn' => 2,
+                    'offboardingIDIn' => $offboardingTicket->id,
+                );
+                $input = json_encode($input);
+                $this->startProcess($input);
+            }
+        } elseif ($offboardingTicket->checkpoint->acc_svp == true) {
             $offboardingTicket->status = "2";
             // $offboardingTicket->token = Str::random(64);
             $offboardingTicket->save();
@@ -213,25 +236,24 @@ class APIController extends Controller
             $input = array(
                 'processTypeIn' => 2,
                 'offboardingIDIn' => $offboardingTicket->id,
+                'IN_dateChanged' => $dateChanged,
             );
             $input = json_encode($input);
             $this->startProcess($input);
-        } elseif ($offboardingTicket->checkpoint->acc_employee == false && $offboardingTicket->checkpoint->acc_svp == false) {
-            $offboardingTicket->status = "-2";
-            $offboardingTicket->save();
         }
 
         return response()->json("Success", 200);
     }
     public function postRequestDocument(Request $request)
     {
+        // return response()->json($request->all());
         $offboardingTicket = Offboarding::find($request->offboardingID);
 
         $docLink = null;
         if ($request->file('file')) {
             $file = $request->file('file');
             $fileHash = str_replace('.' . $file->extension(), '', $file->hashName());
-            $fileName = $offboardingTicket->employee->name.'-'.$fileHash . '.' . $file->getClientOriginalExtension();
+            $fileName = $offboardingTicket->employee->name . '-' . $fileHash . '.' . $file->getClientOriginalExtension();
 
             $path = Storage::putFileAs(
                 'public/Documents/Exit Clearance',
@@ -239,6 +261,26 @@ class APIController extends Controller
                 $fileName
             );
             $docLink = config('app.url') . Storage::url($path);
+        }
+        if ($request->type == 'PL' || $request->type == 'exitinterview') {
+            $doc = null;
+            if ($request->type == 'PL') {
+                $doc = ["pl", "termination_letter", "paklaring"];
+            }else{
+                $doc = ["exit_interview_form","note_procedure","opers"];
+            }
+            foreach ($doc as $key => $value) {
+                $file = $request->file($value);
+                $fileHash = str_replace('.' . $file->extension(), '', $file->hashName());
+                $fileName = $offboardingTicket->employee->name . '-' . $fileHash . '.' . $file->getClientOriginalExtension();
+
+                $path = Storage::putFileAs(
+                    'public/Documents/Exit Clearance',
+                    $request->file($value),
+                    $fileName
+                );
+                $docLink[$value] = config('app.url') . Storage::url($path);
+            }
         }
         switch ($request->dept) {
             case 'fastel':
@@ -264,6 +306,18 @@ class APIController extends Controller
             case 'finance':
                 $offboardingTicket->exitClearance->attachment_finance = $docLink;
                 $offboardingTicket->checkpoint->acc_finance = true;
+                break;
+            case 'hrss':
+                $offboardingTicket->details->personnel_letter_link = $docLink["pl"];
+                $offboardingTicket->details->paklaring = $docLink["paklaring"];
+                $offboardingTicket->details->termination_letter_link = $docLink["termination_letter"];
+                $offboardingTicket->checkpoint->acc_hrss = true;
+                break;
+            case 'hrbp':
+                $offboardingTicket->details->exit_interview_form = $docLink["exit_interview_form"];
+                $offboardingTicket->details->note_procedure = $docLink["note_procedure"];
+                $offboardingTicket->details->change_opers = $docLink["opers"];
+                $offboardingTicket->checkpoint->exit_interview = true;
                 break;
             default:
                 # code...
@@ -400,7 +454,7 @@ class APIController extends Controller
             if ($request->file('signedDocument')) {
                 $file = $request->file('signedDocument');
                 $fileHash = str_replace('.' . $file->extension(), '', $file->hashName());
-                $fileName = $offboardingTicket->employee->name.'-'.$fileHash . '.' . $file->getClientOriginalExtension();
+                $fileName = $offboardingTicket->employee->name . '-' . $fileHash . '.' . $file->getClientOriginalExtension();
                 $path = Storage::putFileAs(
                     'public/Documents/Return Data',
                     $request->file('signedDocument'),
@@ -411,7 +465,7 @@ class APIController extends Controller
             if ($request->file('formDocument')) {
                 $file = $request->file('formDocument');
                 $fileHash = str_replace('.' . $file->extension(), '', $file->hashName());
-                $fileName = $offboardingTicket->employee->name.'-'.$fileHash . '.' . $file->getClientOriginalExtension();
+                $fileName = $offboardingTicket->employee->name . '-' . $fileHash . '.' . $file->getClientOriginalExtension();
                 $path = Storage::putFileAs(
                     'public/Documents/Return Data',
                     $request->file('formDocument'),
@@ -451,11 +505,30 @@ class APIController extends Controller
         }
         return response()->json($emailList);
     }
-    public function offboardingStatus(){
+    public function offboardingStatus()
+    {
         $data['total'] = Offboarding::get()->count();
         $data['ongoing'] = Offboarding::whereBetween('status', [0, 5])->get()->count();
         $data['completed'] = Offboarding::where("status", "6")->get()->count();
         $data['failed'] = Offboarding::where('status', '<', 0)->get()->count();
         return response()->json($data);
+    }
+    public function exitDocument(Request $request)
+    {
+        $fileData = null;
+        $folder = null;
+        if ($request->clearance == 'true') {
+            $folder = '/TemplateDocuments/TemplateClearance/';
+        } else {
+            $folder = '/TemplateDocuments/ExitDocument/';
+        }
+        $path = public_path($folder);
+        $files = File::files($path);
+        foreach ($files as $key => $value) {
+            $fileData[$key]['file'] = config('app.url') . $folder . pathinfo($value)['filename'] . '.' . pathinfo($value)['extension'];
+            $fileData[$key]['name'] = pathinfo($value)['filename'];
+        }
+        // return dd($files);
+        return response()->json($fileData);
     }
 }

@@ -5,6 +5,7 @@ import Moment from 'react-moment';
 // components
 
 import TableDropdown from "../Dropdowns/TableDropdown.js";
+import { Link } from "react-router-dom";
 
 export default function CardTable({ color }) {
     const [offboardingData, setOffboardingData] = useState(null);
@@ -126,46 +127,48 @@ export default function CardTable({ color }) {
                                             ? "bg-blueGray-50 text-blueGray-500 border-blueGray-100"
                                             : "bg-lightBlue-800 text-lightBlue-300 border-lightBlue-700")
                                     }
-                                ></th>
+                                >
+                                    Action
+                                </th>
                             </tr>
                         </thead>
                         <tbody>
                             {offboardingData && offboardingData.map((item, i) => (
                                 <tr>
-                                    <td className="border-t-0 px-6 align-middle border-l-0 border-r-0 text-xs whitespace-nowrap p-4">
+                                    <td className="border-t-0 px-6 align-middle border-l-0 border-r-0 text-xs whitespace-nowrap p-6">
                                         {item.id}
                                     </td>
-                                    <td className="border-t-0 px-6 align-middle border-l-0 border-r-0 text-xs whitespace-nowrap p-4 text-left flex items-center">
-                                        <img
+                                    <td className="border-t-0 px-6 align-middle border-l-0 border-r-0 text-xs whitespace-nowrap p-6 text-left flex items-center">
+                                        {/* <img
                                             src={require("../../assets/img/bootstrap.jpg").default}
                                             className="h-12 w-12 bg-white rounded-full border"
                                             alt="..."
-                                        ></img>{" "}
+                                        ></img>{" "} */}
                                         <span
                                             className={
-                                                "ml-3 font-bold " +
+                                                "font-bold " +
                                                 +(color === "light" ? "text-blueGray-600" : "text-white")
                                             }
                                         >
                                             {item.employee.name}
                                         </span>
                                     </td>
-                                    <td className="border-t-0 px-6 align-middle border-l-0 border-r-0 text-xs whitespace-nowrap p-4">
+                                    <td className="border-t-0 px-6 align-middle border-l-0 border-r-0 text-xs whitespace-nowrap p-6">
                                         <Moment format="DD MMMM YYYY">
                                             {item.created_at}
                                         </Moment>
 
                                     </td>
-                                    <td className="border-t-0 px-6 align-middle border-l-0 border-r-0 text-xs whitespace-nowrap p-4">
+                                    <td className="border-t-0 px-6 align-middle border-l-0 border-r-0 text-xs whitespace-nowrap p-6">
                                         <i
-                                         className={
-                                            "fas fa-circle mr-2 " +
-                                            (parseInt(item.status) < 0 ? "text-red-600" : "text-green-600")
-                                        }
+                                            className={
+                                                "fas fa-circle mr-2 " +
+                                                (parseInt(item.status) < 0 ? "text-red-600" : "text-green-600")
+                                            }
                                         ></i>
                                         {item?.status_details?.name}
                                     </td>
-                                    {/* <td className="border-t-0 px-6 align-middle border-l-0 border-r-0 text-xs whitespace-nowrap p-4">
+                                    {/* <td className="border-t-0 px-6 align-middle border-l-0 border-r-0 text-xs whitespace-nowrap p-6">
                                         <div className="flex">
                                             <img
                                                 src={require("../../assets/img/team-1-800x800.jpg").default}
@@ -189,22 +192,38 @@ export default function CardTable({ color }) {
                                             ></img>
                                         </div>
                                     </td> */}
-                                    <td className="border-t-0 px-6 align-middle border-l-0 border-r-0 text-xs whitespace-nowrap p-4">
+                                    <td className="border-t-0 px-6 align-middle border-l-0 border-r-0 text-xs whitespace-nowrap p-6">
                                         <div className="flex items-center">
-                                            <span className="mr-2">{Math.round(parseInt(item.status) / 6 * 100)} %</span>
-                                            <div className="relative w-full">
-                                                <div className="overflow-hidden h-2 text-xs flex rounded bg-red-200">
-                                                    <div
-                                                        style={{ width: `${parseInt(item.status) / 6 * 100}%` }}
-                                                        className="shadow-none flex flex-col text-center whitespace-nowrap text-white justify-center bg-red-500"
-                                                    ></div>
+                                            {parseInt(item.status) >= 0 ?
+                                                <>
+                                                    <span className="mr-2">{Math.round(parseInt(item.status) / 6 * 100)} %</span>
+                                                    <div className="relative w-full">
+                                                        <div className="overflow-hidden h-2 text-xs flex rounded bg-blue-200">
+                                                            <div
+                                                                style={{ width: `${parseInt(item.status) / 6 * 100}%` }}
+                                                                className="shadow-none flex flex-col text-center whitespace-nowrap text-white justify-center bg-blue-500"
+                                                            ></div>
+                                                        </div>
+                                                    </div>
+                                                </> :
+                                            <>
+                                                <div className="shadow-none flex flex-col text-center whitespace-nowrap text-white justify-center bg-red-600 w-full px-1 rounded text-xs"
+                                                >
+                                                    Failed
                                                 </div>
-                                            </div>
+                                            </>
+                                            }
                                         </div>
                                     </td>
-                                    <td className="border-t-0 px-6 align-middle border-l-0 border-r-0 text-xs whitespace-nowrap p-4 text-right">
-                                        <a href={`/admin/offboarding/${item.id}`}>Details</a>
-                                        <TableDropdown />
+                                    <td className="border-t-0 px-6 align-middle border-l-0 border-r-0 text-xs whitespace-nowrap p-6">
+                                        <Link
+                                         className="shadow-none text-center whitespace-nowrap text-white justify-center bg-blue-600 px-2 rounded"
+                                        to={`/admin/offboarding/${item.id}`}
+                                        >
+                                        <i className="far fa-eye inline-block mr-1"></i>
+                                            Details
+                                            </Link>
+                                        {/* <TableDropdown /> */}
                                     </td>
                                 </tr>
 

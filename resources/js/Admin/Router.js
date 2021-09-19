@@ -20,14 +20,16 @@ import ResignForm from './views/ResignForm';
 const Main = props => {
     return (
         <>
-            <Helmet>
+            {/* <Helmet>
                 <link rel="shortcut icon" href="\assets\green-white.png" type="image/x-icon" />
-            </Helmet>
+            </Helmet> */}
             <Switch>
                 <Route path="/admin/" component={Admin} />
                 <Route path="/profile" component={Profile} />
                 <Route path="/resignform" exact component={ResignForm} />
                 <Route path="/offboarding/:id" component={ResignForm} />
+                <Route path="/exitDocument" component={ResignForm} />
+                <Route path="/exitClearance" component={ResignForm} />
                 <Route path="/" exact component={Landing} />
                 {/* <Route path="/admin/product" component={AdminMain}/>
                 <Route path="/admin/dashboard" component={Home}/> */}
