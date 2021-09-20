@@ -88,6 +88,16 @@ export default function CardTable({ color }) {
                                             : "bg-lightBlue-800 text-lightBlue-300 border-lightBlue-700")
                                     }
                                 >
+                                    Type
+                                </th>
+                                <th
+                                    className={
+                                        "px-6 align-middle border border-solid py-3 text-xs uppercase border-l-0 border-r-0 whitespace-nowrap font-semibold text-left " +
+                                        (color === "light"
+                                            ? "bg-blueGray-50 text-blueGray-500 border-blueGray-100"
+                                            : "bg-lightBlue-800 text-lightBlue-300 border-lightBlue-700")
+                                    }
+                                >
                                     Issue Date
                                 </th>
                                 <th
@@ -150,8 +160,11 @@ export default function CardTable({ color }) {
                                                 +(color === "light" ? "text-blueGray-600" : "text-white")
                                             }
                                         >
-                                            {item.employee.name}
+                                            {item.employee.name} - {item.employee.rawNIK}
                                         </span>
+                                    </td>
+                                    <td className="border-t-0 px-6 align-middle border-l-0 border-r-0 text-xs whitespace-nowrap p-6">
+                                        {item?.type_detail?.name}
                                     </td>
                                     <td className="border-t-0 px-6 align-middle border-l-0 border-r-0 text-xs whitespace-nowrap p-6">
                                         <Moment format="DD MMMM YYYY">
@@ -206,24 +219,24 @@ export default function CardTable({ color }) {
                                                         </div>
                                                     </div>
                                                 </> :
-                                            <>
-                                                <div className="shadow-none flex flex-col text-center whitespace-nowrap text-white justify-center bg-red-600 w-full px-1 rounded text-xs"
-                                                >
-                                                    Failed
-                                                </div>
-                                            </>
+                                                <>
+                                                    <div className="shadow-none flex flex-col text-center whitespace-nowrap text-white justify-center bg-red-600 w-full px-1 rounded text-xs"
+                                                    >
+                                                        Failed
+                                                    </div>
+                                                </>
                                             }
                                         </div>
                                     </td>
                                     <td className="border-t-0 px-6 align-middle border-l-0 border-r-0 text-xs whitespace-nowrap p-6">
                                         <Link
-                                         className="shadow-none text-center whitespace-nowrap text-white justify-center bg-blue-600 px-2 rounded"
-                                        to={`/admin/offboarding/${item.id}`}
+                                            className="shadow-none text-center whitespace-nowrap text-white justify-center bg-blue-600 px-2 rounded"
+                                            to={`/admin/offboarding/${item.id}`}
                                         >
-                                        <i className="far fa-eye inline-block mr-1"></i>
+                                            <i className="far fa-eye inline-block mr-1"></i>
                                             Details
-                                            </Link>
-                                        {/* <TableDropdown /> */}
+                                        </Link>
+                                        <TableDropdown data={item.checkpoint}/>
                                     </td>
                                 </tr>
 

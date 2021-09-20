@@ -118,28 +118,70 @@ export default function CardEmployee({ data, visibility }) {
         <>
             <div className="relative flex flex-col min-w-0 break-words bg-white w-full mb-6 shadow-xl rounded-lg mt-16 lg:mt-0 border border-gray-50">
                 <div className="p-6">
-                    <div className="text-center">
+                    <div className="text-center px-4">
                         <h3 className="text-xl font-semibold leading-normal mb-4 text-blueGray-700">
                             {data.employee.name}
                         </h3>
                         <div className="mb-2 text-blueGray-600">
                             <i className="fas fa-briefcase mr-2 text-lg text-blueGray-400"></i>
-                            Position - Division
+                            {data?.employee?.position}
                         </div>
                         <div className="mb-2 text-blueGray-600">
                             <i className="fas fa-university mr-2 text-lg text-blueGray-400"></i>
-                            Unit Kerja
+                            Indosat
                         </div>
+                        <table class="rounded-t-lg w-full m-5 mx-auto bg-gray-200 text-gray-800">
+                            <tr class="bg-gray-100 border-b border-gray-200">
+                                <td class="px-3 py-2 text-xs">ID</td>
+                                <td class="px-3 py-2 text-xs">{data.employee.id}</td>
+                            </tr>
+                            <tr class="bg-gray-100 border-b border-gray-200">
+                                <td class="px-3 py-2 text-xs">Email</td>
+                                <td class="px-3 py-2 text-xs">{data.employee.email}</td>
+                            </tr>
+                            <tr class="bg-gray-100 border-b border-gray-200">
+                                <td class="px-3 py-2 text-xs">NIK</td>
+                                <td class="px-3 py-2 text-xs">{data.employee.rawNIK}</td>
+                            </tr>
+                        </table>
                     </div>
-                    <div className="mt-10 py-4 border-t border-blueGray-200 text-center">
+                    <div className="mb-10 py-4 border-t border-blueGray-200 text-center">
                         <div className="flex flex-wrap justify-center">
                             <div className="w-full px-4">
-                                <p className="text-lg leading-relaxed text-blueGray-700">
-                                    <strong>Reason :</strong>
-                                </p>
-                                <p className="mb-4 text-lg leading-relaxed text-blueGray-700">
-                                    {data.details.reason}
-                                </p>
+                                <h3 className="text-gray-900 font-bold text-lg">Offboarding Detail</h3>
+                                <div className="shadow-none flex flex-col text-center whitespace-nowrap text-white justify-center bg-blue-500 w-max p-2 rounded my-1 mx-auto"
+                                >
+                                    {data.type_detail.name}
+                                </div>
+                                {parseInt(data.status) >= 0 ?
+                                    <div className="w-full mb-3">
+                                        <span className="text-gray-800 font-semibold text-xl">{Math.round(parseInt(data.status) / 6 * 100)} % - {data?.status_details?.name}</span>
+                                        <div className="relative w-full">
+                                            <div className="overflow-hidden h-3 flex rounded bg-blue-200">
+                                                <div
+                                                    style={{ width: `${parseInt(data.status) / 6 * 100}%` }}
+                                                    className="shadow-none flex flex-col text-center whitespace-nowrap text-white justify-center bg-blue-500"
+                                                ></div>
+                                            </div>
+                                        </div>
+                                    </div> :
+                                    <>
+                                        <div className="shadow-none flex flex-col text-center whitespace-nowrap text-white justify-center bg-red-600 w-full px-1 rounded"
+                                        >
+                                            Failed
+                                        </div>
+                                    </>
+                                }
+                                {data.details.reason &&
+                                    <>
+                                        <p className="text-lg leading-relaxed text-blueGray-700">
+                                            <strong>Reason :</strong>
+                                        </p>
+                                        <p className="mb-4 text-lg leading-relaxed text-blueGray-700">
+                                            {data.details.reason}
+                                        </p>
+                                    </>
+                                }
                                 {visibility &&
                                     <>
                                         {visibility && visibility == 'payroll' || visibility == 'admin' || visibility == 'employee' || visibility == 'clearance' ?
@@ -208,7 +250,7 @@ export default function CardEmployee({ data, visibility }) {
                                                         </table>}
                                                     </div> : null
                                                 }
-                                                {visibility == 'admin' || visibility == 'payroll' ?<div className="mb-2">
+                                                {visibility == 'admin' || visibility == 'payroll' ? <div className="mb-2">
                                                     <button className="btn shadow w-full bg-gray-100 mb-3" onClick={() => setTogglePayroll(!togglePayroll)}>
                                                         Payroll Attachment - Click Here
                                                     </button>
@@ -237,7 +279,7 @@ export default function CardEmployee({ data, visibility }) {
                                                         }
                                                     </table>
                                                     }
-                                                </div>:null}
+                                                </div> : null}
                                             </>
                                             : null}
                                     </>
