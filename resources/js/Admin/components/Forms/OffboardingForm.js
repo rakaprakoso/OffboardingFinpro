@@ -695,7 +695,7 @@ const OffboardingForm = () => {
                                                                                     ) : null}
 
 
-                                                                                    <label htmlFor="signedDocument">Signed Document - Dokumen surat pernyataan berhenti, pengalihan pekerjaan</label>
+                                                                                    <label htmlFor="signedDocument">Signed Document - Dokumen surat pernyataan berhenti, pengalihan pekerjaan, Form berhenti BPJS Kesehatan</label>
                                                                                     <input id="signedDocument" name="signedDocument" type="file" placeholder="Attachment"
                                                                                         onChange={(event) => {
                                                                                             setFieldValue("signedDocument", event.target.files[0]);
@@ -726,6 +726,27 @@ const OffboardingForm = () => {
                                                                                 </Form>
                                                                             )}
                                                                         />
+                                                                        <div className="border p-4">
+                                                                                <h2 className="text-2xl font-bold">Template Return Form</h2>
+                                                                                <p className="text-justify">Download file terkait</p>
+                                                                                <hr className="mb-3" />
+                                                                                <a
+                                                                                        download
+                                                                                        href="/TemplateDocuments/Form Pengembalian Barang.docx"
+                                                                                        className="text-lightBlue-500 text-lg border rounded p-2 block my-1"
+                                                                                    >
+                                                                                        <i className="fas fa-file mr-2 text-xs"></i>
+                                                                                        Download - Form Pengembalian Barang
+                                                                                    </a>
+                                                                                    <a
+                                                                                        download
+                                                                                        href="/TemplateDocuments/Form BAST.docx"
+                                                                                        className="text-lightBlue-500 text-lg border rounded p-2 block my-1"
+                                                                                    >
+                                                                                        <i className="fas fa-file mr-2 text-xs"></i>
+                                                                                        Download - Form BAST
+                                                                                    </a>
+                                                                            </div>
                                                                     </>
                                                                     : query.get('process') == 5 ?
                                                                         <>

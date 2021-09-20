@@ -568,6 +568,37 @@ class APIController extends Controller
         }
         return response()->json(["date"=>$date,"data"=>$retireEmployee]);
     }
+    public function reminderDocRequest(){
+        $data['kopindosat@getnada.com'] = Offboarding::whereHas('checkpoint', function ($query) {
+            $query->where('acc_kopindosat', '=', null);
+       })->get();
+        $data['fastel@getnada.com'] = Offboarding::whereHas('checkpoint', function ($query) {
+            $query->where('acc_fastel', '=', null);
+       })->get();
+        $data['it@getnada.com'] = Offboarding::whereHas('checkpoint', function ($query) {
+            $query->where('acc_it', '=', null);
+       })->get();
+        $data['hrdev@getnada.com'] = Offboarding::whereHas('checkpoint', function ($query) {
+            $query->where('acc_hrdev', '=', null);
+       })->get();
+        $data['medical@getnada.com'] = Offboarding::whereHas('checkpoint', function ($query) {
+            $query->where('acc_medical', '=', null);
+       })->get();
+        $data['finance@getnada.com'] = Offboarding::whereHas('checkpoint', function ($query) {
+            $query->where('acc_finance', '=', null);
+       })->get();
+        $data['payroll@getnada.com'] = Offboarding::whereHas('checkpoint', function ($query) {
+            $query->where('acc_payroll', '=', null);
+       })->get();
+        $data['hrss@getnada.com'] = Offboarding::whereHas('checkpoint', function ($query) {
+            $query->where('acc_hrss', '=', null);
+       })->get();
+        $data['hrbp_mgr@getnada.com'] = Offboarding::whereHas('checkpoint', function ($query) {
+            $query->where('acc_hrbp_mgr', '=', null);
+       })->get();
+        // $data['kopindosat'] = OffboardingCheckpoint::where('acc_kopindosat', '=', null)->with('offboarding')->get();
+        return response()->json($data);
+    }
 
     private function retireOffboarding($ID,$date){
         $employeeID = $ID;

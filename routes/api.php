@@ -81,4 +81,5 @@ Route::get('/employeePendingReturnDocument',[APIController::class,'employeePendi
 Route::get('/offboardingstatus',[APIController::class,'offboardingStatus'])->name('offboardingStatus');
 Route::get('/exitDocument',[APIController::class,'exitDocument'])->name('exitDocument');
 Route::get('/retireEmployee',[APIController::class,'retireEmployee'])->name('retireEmployee');
+Route::get('/reminderDocRequest',[APIController::class,'reminderDocRequest'])->name('reminderDocRequest');
 
