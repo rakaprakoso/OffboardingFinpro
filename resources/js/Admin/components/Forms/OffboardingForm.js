@@ -266,6 +266,75 @@ const OffboardingForm = () => {
                                                                 </Formik>
                                                             </>
                                                             :
+                                                            query.get('bast') == 'true' ?
+                                                            <>
+                                                                <h2 className="text-2xl font-bold">BAST Form (Berita Acara Serah Terima)</h2>
+                                                                {/* <p className="text-justify">Cek outstanding per divisi</p> */}
+                                                                <hr className="mb-3" />
+                                                                <Formik
+                                                                    initialValues={{
+                                                                        type: '',
+                                                                        bast: '',
+                                                                        accept: false,
+                                                                    }}
+                                                                    validationSchema={ConfirmationDocument}
+                                                                    onSubmit={async (values) => {
+                                                                        setIsOpen(true);
+                                                                        const formData = new FormData();
+                                                                        formData.append('offboardingID', id);
+                                                                        formData.append('bast', values.bast);
+                                                                        const res = await axios.post('/api/bast', formData, {
+                                                                            headers: {
+                                                                                'Content-Type': 'multipart/form-data'
+                                                                            }
+                                                                        }).then(response => {
+                                                                            console.log(response)
+                                                                            return response
+                                                                        }).catch(error => {
+                                                                            return error.response
+                                                                        });
+                                                                        console.log(res.data);
+                                                                        if (res.status == '200') {
+                                                                            setSubmitted(true)
+                                                                        } else {
+                                                                            setSubmitted(false)
+                                                                        }
+                                                                    }}
+                                                                    render={({ values, errors, touched, setFieldValue }) => (
+                                                                        <Form>
+                                                                            <label htmlFor="bast">BAST</label>
+                                                                            <input id="bast" name="bast" type="file" placeholder="Attachment"
+                                                                                onChange={(event) => {
+                                                                                    setFieldValue("bast", event.target.files[0]);
+                                                                                }}
+                                                                            />
+                                                                            {errors.bast && touched.bast ? (
+                                                                                <div className="-mt-4 mb-4 text-red-600 text-sm">{errors.bast}</div>
+                                                                            ) : null}
+
+                                                                            {/* <label htmlFor="termination_letter">Termination Letter</label>
+                                                                    <input id="termination_letter" name="termination_letter" type="file" placeholder="Attachment"
+                                                                        onChange={(event) => {
+                                                                            setFieldValue("termination_letter", event.target.files[0]);
+                                                                        }}
+                                                                    />
+                                                                    {errors.termination_letter && touched.termination_letter ? (
+                                                                        <div className="-mt-4 mb-4 text-red-600 text-sm">{errors.termination_letter}</div>
+                                                                    ) : null} */}
+
+                                                                            <label className="mb-4 block">
+                                                                                <Field type="checkbox" name="accept" className="my-0 mr-2" />
+                                                                                Saya menyetujui data yang dikirimkan adalah benar
+                                                                            </label>
+                                                                            {errors.accept && touched.accept ? (
+                                                                                <div className="mb-4 text-red-600 text-sm">{errors.accept}</div>
+                                                                            ) : null}
+                                                                            <button type="submit" className="bg-primary text-white">Submit</button>
+                                                                        </Form>
+                                                                    )}
+                                                                />
+                                                            </>
+                                                            :
                                                             query.get('process') == 3 ?
                                                                 query.get('exitInterview') == 'true' ?
                                                                     <>
@@ -495,75 +564,7 @@ const OffboardingForm = () => {
                                                                                 />
                                                                             </>
                                                                             :
-                                                                            query.get('bast') == 'true' ?
-                                                                                <>
-                                                                                    <h2 className="text-2xl font-bold">BAST Form (Berita Acara Serah Terima)</h2>
-                                                                                    {/* <p className="text-justify">Cek outstanding per divisi</p> */}
-                                                                                    <hr className="mb-3" />
-                                                                                    <Formik
-                                                                                        initialValues={{
-                                                                                            type: '',
-                                                                                            bast: '',
-                                                                                            accept: false,
-                                                                                        }}
-                                                                                        validationSchema={ConfirmationDocument}
-                                                                                        onSubmit={async (values) => {
-                                                                                            setIsOpen(true);
-                                                                                            const formData = new FormData();
-                                                                                            formData.append('offboardingID', id);
-                                                                                            formData.append('bast', values.bast);
-                                                                                            const res = await axios.post('/api/bast', formData, {
-                                                                                                headers: {
-                                                                                                    'Content-Type': 'multipart/form-data'
-                                                                                                }
-                                                                                            }).then(response => {
-                                                                                                console.log(response)
-                                                                                                return response
-                                                                                            }).catch(error => {
-                                                                                                return error.response
-                                                                                            });
-                                                                                            console.log(res.data);
-                                                                                            if (res.status == '200') {
-                                                                                                setSubmitted(true)
-                                                                                            } else {
-                                                                                                setSubmitted(false)
-                                                                                            }
-                                                                                        }}
-                                                                                        render={({ values, errors, touched, setFieldValue }) => (
-                                                                                            <Form>
-                                                                                                <label htmlFor="bast">BAST</label>
-                                                                                                <input id="bast" name="bast" type="file" placeholder="Attachment"
-                                                                                                    onChange={(event) => {
-                                                                                                        setFieldValue("bast", event.target.files[0]);
-                                                                                                    }}
-                                                                                                />
-                                                                                                {errors.bast && touched.bast ? (
-                                                                                                    <div className="-mt-4 mb-4 text-red-600 text-sm">{errors.bast}</div>
-                                                                                                ) : null}
 
-                                                                                                {/* <label htmlFor="termination_letter">Termination Letter</label>
-                                                                                        <input id="termination_letter" name="termination_letter" type="file" placeholder="Attachment"
-                                                                                            onChange={(event) => {
-                                                                                                setFieldValue("termination_letter", event.target.files[0]);
-                                                                                            }}
-                                                                                        />
-                                                                                        {errors.termination_letter && touched.termination_letter ? (
-                                                                                            <div className="-mt-4 mb-4 text-red-600 text-sm">{errors.termination_letter}</div>
-                                                                                        ) : null} */}
-
-                                                                                                <label className="mb-4 block">
-                                                                                                    <Field type="checkbox" name="accept" className="my-0 mr-2" />
-                                                                                                    Saya menyetujui data yang dikirimkan adalah benar
-                                                                                                </label>
-                                                                                                {errors.accept && touched.accept ? (
-                                                                                                    <div className="mb-4 text-red-600 text-sm">{errors.accept}</div>
-                                                                                                ) : null}
-                                                                                                <button type="submit" className="bg-primary text-white">Submit</button>
-                                                                                            </Form>
-                                                                                        )}
-                                                                                    />
-                                                                                </>
-                                                                                :
                                                                                 <>
                                                                                     <h2 className="text-2xl font-bold">Document Exit Form</h2>
                                                                                     <p className="text-justify">Cek outstanding per divisi</p>
@@ -779,7 +780,7 @@ const OffboardingForm = () => {
                                                                                     {errors.signedDocument && touched.signedDocument ? (
                                                                                         <div className="-mt-4 mb-4 text-red-600 text-sm">{errors.signedDocument}</div>
                                                                                     ) : null}
-                                                                                    <label htmlFor="opers">Dokumen Surat Pernyataan Berhenti</label>
+                                                                                    <label htmlFor="opers">Form Perubahan Nomor Telepon</label>
                                                                                     <input id="opers" name="opers" type="file" placeholder="Attachment"
                                                                                         onChange={(event) => {
                                                                                             setFieldValue("opers", event.target.files[0]);
@@ -789,7 +790,7 @@ const OffboardingForm = () => {
                                                                                         <div className="-mt-4 mb-4 text-red-600 text-sm">{errors.opers}</div>
                                                                                     ) : null}
 
-                                                                                    <label htmlFor="jobTransfer">Dokumen Surat Pernyataan Berhenti</label>
+                                                                                    <label htmlFor="jobTransfer">Surat Pengalihan Pekerjaan</label>
                                                                                     <input id="jobTransfer" name="jobTransfer" type="file" placeholder="Attachment"
                                                                                         onChange={(event) => {
                                                                                             setFieldValue("jobTransfer", event.target.files[0]);
@@ -798,7 +799,7 @@ const OffboardingForm = () => {
                                                                                     {errors.jobTransfer && touched.jobTransfer ? (
                                                                                         <div className="-mt-4 mb-4 text-red-600 text-sm">{errors.jobTransfer}</div>
                                                                                     ) : null}
-                                                                                    <label htmlFor="bpjs">Dokumen Surat Pernyataan Berhenti</label>
+                                                                                    <label htmlFor="bpjs">Form BPJS</label>
                                                                                     <input id="bpjs" name="bpjs" type="file" placeholder="Attachment"
                                                                                         onChange={(event) => {
                                                                                             setFieldValue("bpjs", event.target.files[0]);

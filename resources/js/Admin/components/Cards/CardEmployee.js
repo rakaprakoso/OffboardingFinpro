@@ -106,6 +106,11 @@ export default function CardEmployee({ data, visibility }) {
             'data': data?.status == 4 ? 1 : null,
             'link': `&process=4`,
         },
+        {
+            'name': 'Employee Return Document',
+            'data': data?.details?.bast_attachment ? 1 : null,
+            'link': `&bast=true`,
+        },
         // {
         //     'name': 'Acc HR Shared Service Manager',
         //     'data': acc_hrss_mgr,
