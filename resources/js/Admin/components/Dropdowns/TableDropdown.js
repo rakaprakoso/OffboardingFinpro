@@ -102,10 +102,10 @@ const NotificationDropdown = ({ data }) => {
                 <ul className="text-xs">
                     {dataCheckpoint.map((item, i) => (
                         <li> {parseInt(item.data) == 1 ?
-                            <i class="fas fa-check text-green-600"></i> :
+                            <i className="fas fa-check text-green-600"></i> :
                             parseInt(item.data) == 0 ?
-                                <i class="fas fa-times text-red-600"></i> :
-                                <i class="fas fa-spinner text-gray-800"></i>
+                                <i className="fas fa-times text-red-600"></i> :
+                                <i className="animate-spin fas fa-spinner text-gray-800"></i>
                         } | {item.name}</li>
                     ))}
                 </ul>

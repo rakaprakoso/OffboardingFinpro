@@ -7,6 +7,7 @@ import Footer from "../components/Footers/Footer.js";
 import EmployeeResignForm from '../components/Forms/EmployeeResignForm.js';
 import ConfirmResignForm from '../components/Forms/ConfirmResignFormDisabled.js';
 import OffboardingForm from '../components/Forms/OffboardingForm.js';
+import StartOffboarding from '../components/Forms/StartOffboarding.js';
 
 
 const ResignForm = () => {
@@ -25,6 +26,7 @@ const ResignForm = () => {
                     <div className="container px-4 py-20 mx-auto items-center justify-between">
                         <Switch>
                             <Route path="/resignform" exact component={EmployeeResignForm} />
+                            <Route path="/newOffboarding" exact component={StartOffboarding} />
                             <Route path="/offboarding/:id" component={OffboardingForm} />
                             <Route path="/exitDocument" component={Folder} />
                             <Route path="/exitClearance" component={FolderClearance} />

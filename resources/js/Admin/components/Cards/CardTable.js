@@ -6,8 +6,11 @@ import Moment from 'react-moment';
 
 import TableDropdown from "../Dropdowns/TableDropdown.js";
 import { Link } from "react-router-dom";
+import TableFilter from 'react-table-filter';
+var tablesort = require('tablesort');
 
 export default function CardTable({ color }) {
+
     const [offboardingData, setOffboardingData] = useState(null);
 
     useEffect(async () => {
@@ -31,6 +34,8 @@ export default function CardTable({ color }) {
             setOffboardingData(dataFetch);
         }
 
+        new tablesort(document.getElementById('employee-table'));
+
     }, []);
 
     return (
@@ -50,14 +55,14 @@ export default function CardTable({ color }) {
                                     (color === "light" ? "text-blueGray-700" : "text-white")
                                 }
                             >
-                                Card Tables
+                                Offboarding List
                             </h3>
                         </div>
                     </div>
                 </div>
                 <div className="block w-full overflow-x-auto">
                     {/* Projects table */}
-                    <table className="items-center w-full bg-transparent border-collapse">
+                    <table className="items-center w-full bg-transparent border-collapse sort" id="employee-table">
                         <thead>
                             <tr>
                                 <th
@@ -99,6 +104,16 @@ export default function CardTable({ color }) {
                                     }
                                 >
                                     Issue Date
+                                </th>
+                                <th
+                                    className={
+                                        "px-6 align-middle border border-solid py-3 text-xs uppercase border-l-0 border-r-0 whitespace-nowrap font-semibold text-left " +
+                                        (color === "light"
+                                            ? "bg-blueGray-50 text-blueGray-500 border-blueGray-100"
+                                            : "bg-lightBlue-800 text-lightBlue-300 border-lightBlue-700")
+                                    }
+                                >
+                                    Effective Date
                                 </th>
                                 <th
                                     className={
@@ -166,9 +181,19 @@ export default function CardTable({ color }) {
                                     <td className="border-t-0 px-6 align-middle border-l-0 border-r-0 text-xs whitespace-nowrap p-6">
                                         {item?.type_detail?.name}
                                     </td>
-                                    <td className="border-t-0 px-6 align-middle border-l-0 border-r-0 text-xs whitespace-nowrap p-6">
+                                    <td className="border-t-0 px-6 align-middle border-l-0 border-r-0 text-xs whitespace-nowrap p-6"
+                                        data-sort={item.created_at}
+                                    >
                                         <Moment format="DD MMMM YYYY">
                                             {item.created_at}
+                                        </Moment>
+
+                                    </td>
+                                    <td className="border-t-0 px-6 align-middle border-l-0 border-r-0 text-xs whitespace-nowrap p-6"
+                                        data-sort={item.effective_date}
+                                    >
+                                        <Moment format="DD MMMM YYYY">
+                                            {item.effective_date}
                                         </Moment>
 
                                     </td>
@@ -205,7 +230,9 @@ export default function CardTable({ color }) {
                                             ></img>
                                         </div>
                                     </td> */}
-                                    <td className="border-t-0 px-6 align-middle border-l-0 border-r-0 text-xs whitespace-nowrap p-6">
+                                    <td className="border-t-0 px-6 align-middle border-l-0 border-r-0 text-xs whitespace-nowrap p-6"
+                                        data-sort={item.status}
+                                    >
                                         <div className="flex items-center">
                                             {parseInt(item.status) >= 0 ?
                                                 <>
@@ -236,7 +263,7 @@ export default function CardTable({ color }) {
                                             <i className="far fa-eye inline-block mr-1"></i>
                                             Details
                                         </Link>
-                                        <TableDropdown data={item.checkpoint}/>
+                                        <TableDropdown data={item.checkpoint} />
                                     </td>
                                 </tr>
 

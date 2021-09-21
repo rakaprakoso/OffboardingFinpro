@@ -28,6 +28,7 @@ const Main = props => {
                 <Route path="/admin/newOffboarding" exact component={Admin} />
                 <Route path="/profile" component={Profile} />
                 <Route path="/resignform" exact component={ResignForm} />
+                <Route path="/newOffboarding" exact component={ResignForm} />
                 <Route path="/offboarding/:id" component={ResignForm} />
                 <Route path="/exitDocument" component={ResignForm} />
                 <Route path="/exitClearance" component={ResignForm} />

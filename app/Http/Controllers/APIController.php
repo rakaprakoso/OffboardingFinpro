@@ -7,10 +7,13 @@ use App\Models\OffboardingDetail;
 use App\Models\Employee;
 use App\Models\OffboardingCheckpoint;
 use App\Models\ExitClearance;
+use App\Models\StatusDetail;
+use App\Models\TypeDetail;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
 use File;
+use DB;
 
 class APIController extends Controller
 {
@@ -125,6 +128,12 @@ class APIController extends Controller
             if (!$employee) {
                 return response()->json('Fail', 400);
             }
+        } elseif ($request->adminPublic == "true") {
+            $svp = Employee::where('id', $request->svpID)->where('password', $request->svpPassword)->first();
+            if (!$svp) {
+                return response()->json('Fail', 400);
+            }
+            $employeeID = $request->employeeID;
         } else {
             $employeeID = $request->employeeID;
         }
@@ -135,12 +144,12 @@ class APIController extends Controller
         $offboardingTicket->status = "0";
 
         if ($request->admin != "true") {
-            $offboardingTicket->type = "Resign";
+            $offboardingTicket->type = "e202";
         } else {
             $offboardingTicket->type = $request->type;
         }
 
-        if ($offboardingTicket->type != "Resign") {
+        if ($offboardingTicket->type != "e202" && $offboardingTicket->type != "e201") {
             $offboardingTicket->status = "2";
         }
 
@@ -163,15 +172,16 @@ class APIController extends Controller
         $offboardingTicket->details()->save($offboardingDetail);
         $checkpoint = new OffboardingCheckpoint();
         $checkpoint->acc_employee = true;
-        if ($offboardingTicket->type != "Resign") {
+        if ($offboardingTicket->type != "e202" && $offboardingTicket->type != "e201") {
             $checkpoint->acc_svp = true;
+            $checkpoint->acc_document = true;
         }
         $offboardingTicket->checkpoint()->save($checkpoint);
         $exitClearance = new ExitClearance();
         $offboardingTicket->checkpoint()->save($exitClearance);
 
         $processType = 1;
-        if ($offboardingTicket->type != "Resign") {
+        if ($offboardingTicket->type != "e202") {
             $processType = 2;
         }
 
@@ -291,7 +301,7 @@ class APIController extends Controller
                 $docLink[$value] = config('app.url') . Storage::url($path);
             }
         }
-        if($request->type == 'cv'){
+        if ($request->type == 'cv') {
             $file = $request->file('cv');
             $fileHash = str_replace('.' . $file->extension(), '', $file->hashName());
             $fileName = $offboardingTicket->employee->name . '-' . $fileHash . '.' . $file->getClientOriginalExtension();
@@ -531,12 +541,76 @@ class APIController extends Controller
         }
         return response()->json($emailList);
     }
-    public function offboardingStatus()
+    public function offboardingStatus(Request $request)
     {
-        $data['total'] = Offboarding::get()->count();
-        $data['ongoing'] = Offboarding::whereBetween('status', [0, 5])->get()->count();
-        $data['completed'] = Offboarding::where("status", "6")->get()->count();
-        $data['failed'] = Offboarding::where('status', '<', 0)->get()->count();
+        $data = [];
+        $data['progress'] = [];
+        switch ($request->type) {
+            case 'progress':
+                $data['total'] = Offboarding::whereBetween('status', [0, 5])
+                    ->orderBy('status')
+                    ->get()
+                    ->groupBy('status')
+                    // ->withoutRelations()
+                ;
+                $data['progress'] = [];
+                // for ($i=0; $i < count($data['total']); $i++) {
+                //     $data['progress'][$i]['name'] = count($data['total']);
+                //     $data['progress'][$i]['count'] = count($data['total']);
+                // }
+                $i = 0;
+                foreach ($data['total'] as $key => $value) {
+                    $name = StatusDetail::where('code', $key)->first()->name;
+                    $data['progress']['name'][$i] = $name;
+                    $data['progress']['count'][$i] = count($value);
+                    $i++;
+                }
+
+
+                $data['rawType'] = Offboarding::get()
+                    ->groupBy('type');
+                $i = 0;
+                foreach ($data['rawType'] as $key => $value) {
+                    $name = TypeDetail::where('code', $key)->first()->name;
+                    $data['type']['name'][$i] = $name;
+                    $data['type']['count'][$i] = count($value);
+                    $i++;
+                }
+
+                // $data['rawMonths'] = Offboarding::
+                // select(DB::raw('count(*) as count, status'))
+                // ->where('status', '>=', 0)
+                // ->groupBy('status')
+                // ->get()
+                // ;
+
+                $data['rawMonths'] = Offboarding::select(
+                    // "id",
+                    DB::raw('count(*) as count'),
+                    DB::raw("(DATE_FORMAT(effective_date, '%M %Y')) as month_year")
+                )
+                    ->orderBy('effective_date')
+                    ->where('status', '>=', 0)
+                    ->groupBy("month_year")
+                    ->get();
+
+                $data['months'] = [];
+                foreach ($data['rawMonths'] as $key => $value) {
+                    $data['months']['name'][$key] = $value->month_year;
+                    $data['months']['count'][$key] = $value->count;
+                }
+                $data['rawMonths'] = null;
+                $data['total'] = null;
+                $data['rawType'] = null;
+                break;
+            default:
+                $data['total'] = Offboarding::get()->count();
+                $data['ongoing'] = Offboarding::whereBetween('status', [0, 5])->get()->count();
+                $data['completed'] = Offboarding::where("status", "6")->get()->count();
+                $data['failed'] = Offboarding::where('status', '<', 0)->get()->count();
+                $data['turnoverratio'] = ($data['ongoing']+$data['completed']) / Employee::get()->count() * 100;
+                break;
+        }
         return response()->json($data);
     }
     public function exitDocument(Request $request)
@@ -557,50 +631,53 @@ class APIController extends Controller
         // return dd($files);
         return response()->json($fileData);
     }
-    public function retireEmployee(){
-        $retireEmployee=null;
-        $date = date('Y-m-d',mktime(0, 0, 0, date("m"),   date("d")+120,   date("Y")-56));
-        $effectiveDate = date('Y-m-d',mktime(0, 0, 0, date("m"),   date("d")+120,   date("Y")));
+    public function retireEmployee()
+    {
+        $retireEmployee = null;
+        $date = date('Y-m-d', mktime(0, 0, 0, date("m"),   date("d") + 120,   date("Y") - 56));
+        $effectiveDate = date('Y-m-d', mktime(0, 0, 0, date("m"),   date("d") + 120,   date("Y")));
         $data = Employee::whereDate('birth_date', '=', $date)->get();
         foreach ($data as $key => $value) {
             $retireEmployee[$key] = $value->email;
-            $this->retireOffboarding($value->id,$effectiveDate);
+            $this->retireOffboarding($value->id, $effectiveDate);
         }
-        return response()->json(["date"=>$date,"data"=>$retireEmployee]);
+        return response()->json(["date" => $date, "data" => $retireEmployee]);
     }
-    public function reminderDocRequest(){
+    public function reminderDocRequest()
+    {
         $data['kopindosat@getnada.com'] = Offboarding::whereHas('checkpoint', function ($query) {
             $query->where('acc_kopindosat', '=', null);
-       })->get();
+        })->get();
         $data['fastel@getnada.com'] = Offboarding::whereHas('checkpoint', function ($query) {
             $query->where('acc_fastel', '=', null);
-       })->get();
+        })->get();
         $data['it@getnada.com'] = Offboarding::whereHas('checkpoint', function ($query) {
             $query->where('acc_it', '=', null);
-       })->get();
+        })->get();
         $data['hrdev@getnada.com'] = Offboarding::whereHas('checkpoint', function ($query) {
             $query->where('acc_hrdev', '=', null);
-       })->get();
+        })->get();
         $data['medical@getnada.com'] = Offboarding::whereHas('checkpoint', function ($query) {
             $query->where('acc_medical', '=', null);
-       })->get();
+        })->get();
         $data['finance@getnada.com'] = Offboarding::whereHas('checkpoint', function ($query) {
             $query->where('acc_finance', '=', null);
-       })->get();
+        })->get();
         $data['payroll@getnada.com'] = Offboarding::whereHas('checkpoint', function ($query) {
             $query->where('acc_payroll', '=', null);
-       })->get();
+        })->get();
         $data['hrss@getnada.com'] = Offboarding::whereHas('checkpoint', function ($query) {
             $query->where('acc_hrss', '=', null);
-       })->get();
+        })->get();
         $data['hrbp_mgr@getnada.com'] = Offboarding::whereHas('checkpoint', function ($query) {
             $query->where('acc_hrbp_mgr', '=', null);
-       })->get();
+        })->get();
         // $data['kopindosat'] = OffboardingCheckpoint::where('acc_kopindosat', '=', null)->with('offboarding')->get();
         return response()->json($data);
     }
 
-    private function retireOffboarding($ID,$date){
+    private function retireOffboarding($ID, $date)
+    {
         $employeeID = $ID;
         $offboardingTicket = new Offboarding;
         $offboardingTicket->employee_id = $employeeID;

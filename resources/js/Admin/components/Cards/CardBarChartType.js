@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { Chart, registerables } from "chart.js";
 
-export default function CardBarChart({ chartData, idName }) {
+export default function CardBarChartType({ chartData, idName }) {
     const [countOffboardingData, setCountOffboardingData] = useState(null);
 
     const randomNum = () => Math.floor(Math.random() * (235 - 52 + 1) + 52);
@@ -13,19 +13,18 @@ export default function CardBarChart({ chartData, idName }) {
         chartData?.name.forEach(element => {
             color.push(randomRGB())
         });
-
         Chart.register(...registerables);
         const data = {
             labels: chartData?.name,
             datasets: [{
-                label: 'Offboarding Process',
+                label: 'Offboarding Type',
                 data: chartData?.count,
                 backgroundColor: color,
                 hoverOffset: 4
             }],
         }
         const config = {
-            type: 'bar',
+            type: 'doughnut',
             data: data,
             options: {
                 maintainAspectRatio: false,
@@ -46,7 +45,7 @@ export default function CardBarChart({ chartData, idName }) {
                                 Total
                             </h6>
                             <h2 className="text-blueGray-700 text-xl font-semibold">
-                                Offboarding Progress
+                                Offboarding Type
                             </h2>
                         </div>
                     </div>

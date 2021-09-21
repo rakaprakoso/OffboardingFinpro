@@ -8,6 +8,23 @@ import PagesDropdown from "../Dropdowns/PagesDropdown.js";
 
 export default function Navbar(props) {
     const [navbarOpen, setNavbarOpen] = React.useState(false);
+    const links = [
+        {
+            name: 'Pages',
+            children: [
+                {name: 'Home',path: '/'},
+                {name: 'Resignation Form',path: '/resignform'},
+                {name: 'Offboarding Form',path: '/newOffboarding'},
+            ],
+        },
+        {
+            name: 'Admin',
+            children: [
+                {name: 'Dashboard',path: '/admin'},
+                {name: 'Admin Offboarding Form',path: '/admin/newOffboarding'},
+            ],
+        }
+    ];
     return (
         <>
             <nav className="top-0 absolute z-50 w-full flex flex-wrap items-center justify-between px-2 py-3 navbar-expand-lg">
@@ -40,16 +57,24 @@ export default function Navbar(props) {
                     >
                         <ul className="flex flex-col lg:flex-row list-none lg:ml-auto">
                             <li className="flex items-center">
-                                <PagesDropdown />
+                                <PagesDropdown data={links}/>
                             </li>
-                            <li className="flex items-center">
+                            {/* <li className="flex items-center">
                                 <a
                                     className="lg:text-white lg:hover:text-blueGray-200 text-blueGray-700 px-3 py-4 lg:py-2 flex items-center text-xs uppercase font-bold"
                                     href="/resignform"
                                 >
-                                    Submit Resign
+                                    Resignation Request
                                 </a>
                             </li>
+                            <li className="flex items-center">
+                                <a
+                                    className="lg:text-white lg:hover:text-blueGray-200 text-blueGray-700 px-3 py-4 lg:py-2 flex items-center text-xs uppercase font-bold"
+                                    href="/newOffboarding"
+                                >
+                                    Create New Offboarding
+                                </a>
+                            </li> */}
 
                             {/* <li className="flex items-center">
                 <a

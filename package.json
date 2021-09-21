@@ -85,10 +85,12 @@
         "react-responsive-tabs": "^4.4.3",
         "react-router-dom": "^5.2.0",
         "react-simple-modal-provider": "^1.7.1",
+        "react-table-filter": "^2.0.2",
         "react-tabs": "^3.2.2",
         "redux": "^4.1.1",
         "redux-thunk": "^2.3.0",
         "swiper": "^6.7.0",
+        "tablesort": "^5.2.1",
         "uipath-orchestrator-api-node": "^0.8.3",
         "yup": "^0.32.9"
     }

@@ -3,23 +3,39 @@ import { Formik, Field, Form, FieldArray } from 'formik'
 import axios from 'axios';
 import {
     useParams,
-    useLocation
+    useLocation,
+    useRouteMatch
 } from "react-router-dom";
 import ManagerModal from '../Modals/ManagerModal';
 import { isNull } from 'lodash';
 import { IoTrashBin } from "react-icons/io5";
 
 import * as Yup from 'yup';
-const OffboardingSchema = Yup.object().shape({
-    employeeID: Yup.string()
-        .required('Required').nullable(),
-    type: Yup.string()
-        .required('Required').nullable(),
-    accept: Yup.bool().oneOf([true], 'Accept Terms & Conditions is required'),
-});
+
 export default function StartOffboarding() {
     const [isOpen, setIsOpen] = useState(false);
     const [submitted, setSubmitted] = useState(false);
+    const match = useRouteMatch("/newOffboarding");
+    // if (match) {
+    //     setAdmin(true);
+    // }
+    const OffboardingSchema = match ? Yup.object().shape({
+        employeeID: Yup.string()
+            .required('Required').nullable(),
+        type: Yup.string()
+            .required('Required').nullable(),
+        svpID: Yup.string()
+            .required('Required').nullable(),
+        svpPassword: Yup.string()
+            .required('Required').nullable(),
+        accept: Yup.bool().oneOf([true], 'Accept Terms & Conditions is required'),
+    }) : Yup.object().shape({
+        employeeID: Yup.string()
+            .required('Required').nullable(),
+        type: Yup.string()
+            .required('Required').nullable(),
+        accept: Yup.bool().oneOf([true], 'Accept Terms & Conditions is required'),
+    });
     return (
         <>
             <h2 className="text-2xl font-bold">New Offboarding</h2>
@@ -27,8 +43,11 @@ export default function StartOffboarding() {
             <Formik
                 initialValues={{
                     employeeID: '',
+                    svpID: '',
+                    svpPassword: '',
                     type: '',
                     effectiveDate: '',
+                    resignLetter: '',
                     accept: false,
                 }}
                 validationSchema={OffboardingSchema}
@@ -36,10 +55,15 @@ export default function StartOffboarding() {
                     setIsOpen(true);
                     const formData = new FormData();
                     formData.append('employeeID', values.employeeID);
+                    formData.append('svpID', values.svpID);
+                    formData.append('svpPassword', values.svpPassword);
                     formData.append('type', values.type);
+                    formData.append('resign_letter', values.resignLetter);
                     formData.append('effective_date', values.effectiveDate);
                     formData.append('admin', 'true');
-
+                    if(match){
+                        formData.append('adminPublic', 'true');
+                    }
                     const res = await axios.post('/api/resignform', formData, {
                         headers: {
                             'Content-Type': 'multipart/form-data'
@@ -64,6 +88,7 @@ export default function StartOffboarding() {
                             <option value="e102">Pensiun Dini</option>
                             <option value="e103">Meninggal Dunia</option>
                             <option value="e201">Pengunduran Diri</option>
+                            <option value="e202">Pengunduran Diri APS</option>
                             <option value="e301">Pemberhentian Tidak Hormat (Belum Pernah)</option>
                             <option value="e302">Pemberhentian Bukan Atas Permintaan</option>
                             <option value="e303">Karyawan yang didiskualifikasi mengundurkan diri (Belum Pernah)</option>
@@ -71,6 +96,35 @@ export default function StartOffboarding() {
                         {errors.type && touched.type ? (
                             <div className="-mt-4 mb-4 text-red-600 text-sm">{errors.type}</div>
                         ) : null}
+                        {values.type == 'e201' || values.type == 'e202' ?
+                            <>
+                                <label htmlFor="resignLetter">Resign Letter</label>
+                                <input id="resignLetter" name="resignLetter" type="file" placeholder="Resign Letter"
+                                    onChange={(event) => {
+                                        setFieldValue("resignLetter", event.target.files[0]);
+                                    }}
+                                />
+                                {errors.resignLetter && touched.resignLetter ? (
+                                    <div className="-mt-4 mb-4 text-red-600 text-sm">{errors.resignLetter}</div>
+                                ) : null}
+                            </>
+                            : null
+                        }
+
+                        {match && <>
+                            <label htmlFor="svpID">SVP ID</label>
+                            <Field id="svpID" name="svpID" placeholder="SVP ID" />
+                            {errors.svpID && touched.svpID ? (
+                                <div className="-mt-4 mb-4 text-red-600 text-sm">{errors.svpID}</div>
+                            ) : null}
+
+                            <label htmlFor="svpPassword">SVP Password</label>
+                            <Field id="svpPassword" name="svpPassword" type="password" placeholder="SVP Password" />
+                            {errors.svpPassword && touched.svpPassword ? (
+                                <div className="-mt-4 mb-4 text-red-600 text-sm">{errors.svpPassword}</div>
+                            ) : null}
+                        </>}
+
 
                         <label htmlFor="effectiveDate">Effective Date</label>
                         <Field type="date" id="effectiveDate" name="effectiveDate" />
