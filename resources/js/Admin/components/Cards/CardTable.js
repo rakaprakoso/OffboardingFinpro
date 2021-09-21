@@ -73,7 +73,7 @@ export default function CardTable({ color }) {
                                             : "bg-lightBlue-800 text-lightBlue-300 border-lightBlue-700")
                                     }
                                 >
-                                    Offboarding ID
+                                    No.
                                 </th>
                                 <th
                                     className={
@@ -161,7 +161,7 @@ export default function CardTable({ color }) {
                             {offboardingData && offboardingData.map((item, i) => (
                                 <tr>
                                     <td className="border-t-0 px-6 align-middle border-l-0 border-r-0 text-xs whitespace-nowrap p-6">
-                                        {item.id}
+                                        {i+1}
                                     </td>
                                     <td className="border-t-0 px-6 align-middle border-l-0 border-r-0 text-xs whitespace-nowrap p-6 text-left flex items-center">
                                         {/* <img

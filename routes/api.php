@@ -76,6 +76,7 @@ Route::post('/employeeReject',[APIController::class,'postEmployeeReject'])->name
 Route::post('/managerconfirmation',[APIController::class,'postManagerConfirmation'])->name('postManagerConfirmation');
 Route::post('/requestdocument',[APIController::class,'postRequestDocument'])->name('postRequestDocument');
 Route::post('/returndocument',[APIController::class,'postReturnDocument'])->name('postReturnDocument');
+Route::post('/bast',[APIController::class,'postBast'])->name('postBast');
 
 Route::get('/employeePendingReturnDocument',[APIController::class,'employeePendingReturnDocument'])->name('employeePendingReturnDocument');
 Route::get('/offboardingstatus',[APIController::class,'offboardingStatus'])->name('offboardingStatus');

@@ -150,7 +150,7 @@ class APIController extends Controller
         }
 
         if ($offboardingTicket->type != "e202" && $offboardingTicket->type != "e201") {
-            $offboardingTicket->status = "2";
+            $offboardingTicket->status = "3";
         }
 
         $offboardingTicket->save();
@@ -284,9 +284,9 @@ class APIController extends Controller
         if ($request->type == 'PL' || $request->type == 'exitinterview') {
             $doc = null;
             if ($request->type == 'PL') {
-                $doc = ["pl", "termination_letter", "paklaring"];
+                $doc = ["pl", "paklaring"];
             } else {
-                $doc = ["exit_interview_form", "note_procedure", "opers"];
+                $doc = ["exit_interview_form", "note_procedure"];
             }
             foreach ($doc as $key => $value) {
                 $file = $request->file($value);
@@ -342,13 +342,13 @@ class APIController extends Controller
             case 'hrss':
                 $offboardingTicket->details->personnel_letter_link = $docLink["pl"];
                 $offboardingTicket->details->paklaring = $docLink["paklaring"];
-                $offboardingTicket->details->termination_letter_link = $docLink["termination_letter"];
+                // $offboardingTicket->details->termination_letter_link = $docLink["termination_letter"];
                 $offboardingTicket->checkpoint->acc_hrss = true;
                 break;
             case 'hrbp':
                 $offboardingTicket->details->exit_interview_form = $docLink["exit_interview_form"];
                 $offboardingTicket->details->note_procedure = $docLink["note_procedure"];
-                $offboardingTicket->details->change_opers = $docLink["opers"];
+                // $offboardingTicket->details->change_opers = $docLink["opers"];
                 $offboardingTicket->checkpoint->exit_interview = true;
                 break;
             default:
@@ -449,6 +449,13 @@ class APIController extends Controller
                         break;
                     case 'hrss_softfile':
                         $offboardingTicket->checkpoint->return_hrss_softfile = true;
+                        $input = array(
+                            'processTypeIn' => 5,
+                            'offboardingIDIn' => $request->offboardingID,
+                            'IN_confirm' => 1,
+                        );
+                        $input = json_encode($input);
+                        $this->startProcess($input);
                         break;
                     case 'hrss_it':
                         $offboardingTicket->checkpoint->return_hrss_it = true;
@@ -487,30 +494,49 @@ class APIController extends Controller
             $offboardingTicket->status = "5";
             $offboardingTicket->save();
 
-            if ($request->file('signedDocument')) {
-                $file = $request->file('signedDocument');
+            // if ($request->file('signedDocument')) {
+            //     $file = $request->file('signedDocument');
+            //     $fileHash = str_replace('.' . $file->extension(), '', $file->hashName());
+            //     $fileName = $offboardingTicket->employee->name . '-' . $fileHash . '.' . $file->getClientOriginalExtension();
+            //     $path = Storage::putFileAs(
+            //         'public/Documents/Return Data',
+            //         $request->file('signedDocument'),
+            //         $fileName
+            //     );
+            //     $signedDocument = config('app.url') . Storage::url($path);
+            // }
+            // if ($request->file('formDocument')) {
+            //     $file = $request->file('formDocument');
+            //     $fileHash = str_replace('.' . $file->extension(), '', $file->hashName());
+            //     $fileName = $offboardingTicket->employee->name . '-' . $fileHash . '.' . $file->getClientOriginalExtension();
+            //     $path = Storage::putFileAs(
+            //         'public/Documents/Return Data',
+            //         $request->file('formDocument'),
+            //         $fileName
+            //     );
+            //     $formDocument = config('app.url') . Storage::url($path);
+            // }
+
+
+            $doc = ["signedDocument", "formDocument", "opers", "jobTransfer", "bpjs"];
+            foreach ($doc as $key => $value) {
+                $file = $request->file($value);
                 $fileHash = str_replace('.' . $file->extension(), '', $file->hashName());
                 $fileName = $offboardingTicket->employee->name . '-' . $fileHash . '.' . $file->getClientOriginalExtension();
+
                 $path = Storage::putFileAs(
-                    'public/Documents/Return Data',
-                    $request->file('signedDocument'),
+                    'public/Documents/Offboarding/' . $offboardingTicket->id,
+                    $request->file($value),
                     $fileName
                 );
-                $signedDocument = config('app.url') . Storage::url($path);
+                $docLink[$value] = config('app.url') . Storage::url($path);
             }
-            if ($request->file('formDocument')) {
-                $file = $request->file('formDocument');
-                $fileHash = str_replace('.' . $file->extension(), '', $file->hashName());
-                $fileName = $offboardingTicket->employee->name . '-' . $fileHash . '.' . $file->getClientOriginalExtension();
-                $path = Storage::putFileAs(
-                    'public/Documents/Return Data',
-                    $request->file('formDocument'),
-                    $fileName
-                );
-                $formDocument = config('app.url') . Storage::url($path);
-            }
-            $offboardingTicket->details->exitDocument = $signedDocument;
-            $offboardingTicket->details->returnDocument = $formDocument;
+
+            $offboardingTicket->details->exitDocument = $docLink["signedDocument"];
+            $offboardingTicket->details->returnDocument = $docLink["formDocument"];
+            $offboardingTicket->details->change_opers = $docLink["opers"];
+            $offboardingTicket->details->job_tranfer_attachment = $docLink["jobTransfer"];
+            $offboardingTicket->details->bpjs_attachment = $docLink["bpjs"];
             $offboardingTicket->details->returnType = $request->type;
             $offboardingTicket->push();
 
@@ -529,6 +555,23 @@ class APIController extends Controller
         }
 
 
+        return response()->json("Success", 200);
+    }
+
+    public function postBast(Request $request)
+    {
+        $offboardingTicket = Offboarding::find($request->offboardingID);
+        $file = $request->file('bast');
+        $fileHash = str_replace('.' . $file->extension(), '', $file->hashName());
+        $fileName = $offboardingTicket->employee->name . '-' . $fileHash . '.' . $file->getClientOriginalExtension();
+        $path = Storage::putFileAs(
+            'public/Documents/Offboarding/' . $offboardingTicket->id,
+            $request->file('formDocument'),
+            'BAST-' . $fileName
+        );
+        $directory = config('app.url') . Storage::url($path);
+        $offboardingTicket->details->bast_attachment = $directory;
+        $offboardingTicket->push();
         return response()->json("Success", 200);
     }
 
@@ -608,7 +651,7 @@ class APIController extends Controller
                 $data['ongoing'] = Offboarding::whereBetween('status', [0, 5])->get()->count();
                 $data['completed'] = Offboarding::where("status", "6")->get()->count();
                 $data['failed'] = Offboarding::where('status', '<', 0)->get()->count();
-                $data['turnoverratio'] = ($data['ongoing']+$data['completed']) / Employee::get()->count() * 100;
+                $data['turnoverratio'] = ($data['ongoing'] + $data['completed']) / Employee::get()->count() * 100;
                 break;
         }
         return response()->json($data);
@@ -675,6 +718,7 @@ class APIController extends Controller
         // $data['kopindosat'] = OffboardingCheckpoint::where('acc_kopindosat', '=', null)->with('offboarding')->get();
         return response()->json($data);
     }
+
 
     private function retireOffboarding($ID, $date)
     {
