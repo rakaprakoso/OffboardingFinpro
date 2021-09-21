@@ -107,7 +107,7 @@ export default function CardEmployee({ data, visibility }) {
             'link': `&process=4`,
         },
         {
-            'name': 'Employee Return Document',
+            'name': 'BAST Return',
             'data': data?.details?.bast_attachment ? 1 : null,
             'link': `&bast=true`,
         },
