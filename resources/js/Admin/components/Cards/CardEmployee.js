@@ -473,9 +473,10 @@ export default function CardEmployee({ data, visibility, admin }) {
                                                                             </tr>
                                                                         ))}
                                                                     </>
-                                                                    : <>
+                                                                    :
+                                                                    <>
                                                                         <tr className="bg-gray-100 border-b border-gray-200">
-                                                                            <td className="px-3 py-2 text-xs" colSpan="2" >{parseInt(item.status) == 1 ? "No Outstanding" : "In progress"}</td>
+                                                                            <td className="px-3 py-2 text-xs" colSpan="2" >{parseInt(itAttachment?.status) == 1 ? "No Outstanding" : "In progress"}</td>
                                                                         </tr>
                                                                     </>
                                                                 }

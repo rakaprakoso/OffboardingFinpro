@@ -193,10 +193,10 @@ class APIController extends Controller
         }
 
         $this->addProgressRecord(
-            $request->employeeIDIn,
+            $offboardingTicket->id,
             true,
             false,
-            "Offboarding Ticket Created"
+            "Offboarding Ticket Created",
         );
         $input = array(
             'employeeIDIn' => $request->employeeIDIn,
