@@ -82,7 +82,7 @@ class OffboardingController extends Controller
         $offboardingTicket->status = $request->status;
         $offboardingTicket->save();
         if ($request->document == 'true') {
-            $offboardingTicket->checkpoint->acc_document = $request->status == '2' ? '1' : '0';
+            $offboardingTicket->checkpoint->acc_document = $request->status == '1' ? '1' : '0';
         }
         // $offboardingTicket->save();
         $offboardingTicket->push();
