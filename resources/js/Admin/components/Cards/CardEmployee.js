@@ -1,9 +1,10 @@
 import React, { useEffect, useState } from "react";
 
-export default function CardEmployee({ data, visibility }) {
+export default function CardEmployee({ data, visibility, admin }) {
     const [toggle, setToggle] = useState(false);
     const [toggleAttachment, setToggleAttachment] = useState(false);
     const [togglePayroll, setTogglePayroll] = useState(false);
+    const [toggleIT, setToggleIT] = useState(false);
     const {
         acc_document,
         acc_svp,
@@ -136,13 +137,43 @@ export default function CardEmployee({ data, visibility }) {
     const clearanceAttachment = [
         { name: 'Catatan Pengembalian Barang', file: data?.details?.returnDocument },
     ]
+    // const payrollAttachment = [
+    //     { name: 'Fastel Calculation', file: data?.exit_clearance?.attachment_fastel, status: acc_fastel },
+    //     { name: 'Kopindosat Calculation', file: data?.exit_clearance?.attachment_kopindosat, status: acc_kopindosat },
+    //     { name: 'HR DEV Calculation', file: data?.exit_clearance?.attachment_hrdev, status: acc_hrdev },
+    //     { name: 'Medical Calculation', file: data?.exit_clearance?.attachment_medical, status: acc_medical },
+    //     { name: 'Finance Calculation', file: data?.exit_clearance?.attachment_finance, status: acc_finance },
+    // ]
     const payrollAttachment = [
-        { name: 'Fastel Calculation', file: data?.exit_clearance?.attachment_fastel, status: acc_fastel },
-        { name: 'Kopindosat Calculation', file: data?.exit_clearance?.attachment_kopindosat, status: acc_kopindosat },
-        { name: 'HR DEV Calculation', file: data?.exit_clearance?.attachment_hrdev, status: acc_hrdev },
-        { name: 'Medical Calculation', file: data?.exit_clearance?.attachment_medical, status: acc_medical },
-        { name: 'Finance Calculation', file: data?.exit_clearance?.attachment_finance, status: acc_finance },
+        {
+            name: 'Fastel Calculation',
+            file: data?.right_obligation?.fastel,
+            status: acc_fastel,
+            children: ['MSISDN', 'Outstanding']
+        },
+        {
+            name: 'Finance Calculation', file: data?.right_obligation?.finance, status: acc_finance,
+            children: ['Vendor', 'Text', 'Amount'], row: true
+        },
+        {
+            name: 'HR DEV Calculation', file: data?.right_obligation?.hrdev, status: acc_hrdev,
+            children: ['Perihal', 'Tujuan', 'Tanggal Kegiatan', 'Penyelenggara', 'Periode Ikadin']
+        },
+        {
+            name: 'Kopindosat Calculation', file: data?.right_obligation?.kopindosat, status: acc_kopindosat,
+            children: ['Hak', 'Kewajiban']
+        },
+        {
+            name: 'Medical Calculation', file: data?.right_obligation?.medical, status: acc_medical,
+            children: ['Ekses Medical']
+        },
     ]
+    const itAttachment = {
+        name: 'IT Attacgment',
+        file: data?.right_obligation?.it,
+        status: acc_it,
+        children: ['Code', 'Item', 'Qty'],
+    }
     return (
         <>
             <div className="relative flex flex-col min-w-0 break-words bg-white w-full mb-6 shadow-xl rounded-lg mt-16 lg:mt-0 border border-gray-50">
@@ -159,18 +190,18 @@ export default function CardEmployee({ data, visibility }) {
                             <i className="fas fa-university mr-2 text-lg text-blueGray-400"></i>
                             Indosat
                         </div>
-                        <table class="rounded-t-lg w-full m-5 mx-auto bg-gray-200 text-gray-800">
-                            <tr class="bg-gray-100 border-b border-gray-200">
-                                <td class="px-3 py-2 text-xs">ID</td>
-                                <td class="px-3 py-2 text-xs">{data.employee.id}</td>
+                        <table className="rounded-t-lg w-full m-5 mx-auto bg-gray-200 text-gray-800">
+                            <tr className="bg-gray-100 border-b border-gray-200">
+                                <td className="px-3 py-2 text-xs">ID</td>
+                                <td className="px-3 py-2 text-xs">{data.employee.id}</td>
                             </tr>
-                            <tr class="bg-gray-100 border-b border-gray-200">
-                                <td class="px-3 py-2 text-xs">Email</td>
-                                <td class="px-3 py-2 text-xs">{data.employee.email}</td>
+                            <tr className="bg-gray-100 border-b border-gray-200">
+                                <td className="px-3 py-2 text-xs">Email</td>
+                                <td className="px-3 py-2 text-xs">{data.employee.email}</td>
                             </tr>
-                            <tr class="bg-gray-100 border-b border-gray-200">
-                                <td class="px-3 py-2 text-xs">NIK</td>
-                                <td class="px-3 py-2 text-xs">{data.employee.rawNIK}</td>
+                            <tr className="bg-gray-100 border-b border-gray-200">
+                                <td className="px-3 py-2 text-xs">NIK</td>
+                                <td className="px-3 py-2 text-xs">{data.employee.rawNIK}</td>
                             </tr>
                         </table>
                     </div>
@@ -182,26 +213,30 @@ export default function CardEmployee({ data, visibility }) {
                                 >
                                     <span className="font-bold">Offboarding Type :</span> {data.type_detail.name}
                                 </div>
-                                {parseInt(data.status) >= 0 ?
-                                    <div className="w-full mb-3">
-                                        <span className="text-gray-800 font-semibold text-xl">{Math.round(parseInt(data.status) / 6 * 100)} % - {data?.status_details?.name}</span>
-                                        <div className="relative w-full">
-                                            <div className="overflow-hidden h-3 flex rounded bg-blue-200">
-                                                <div
-                                                    style={{ width: `${parseInt(data.status) / 6 * 100}%` }}
-                                                    className="shadow-none flex flex-col text-center whitespace-nowrap text-white justify-center bg-blue-500"
-                                                ></div>
-                                            </div>
-                                        </div>
-                                    </div> :
+                                {admin && admin == 'true' ?
                                     <>
-                                        <div className="shadow-none flex flex-col text-center whitespace-nowrap text-white justify-center bg-red-600 w-full px-1 rounded"
-                                        >
-                                            Failed
-                                        </div>
-                                    </>
+                                        {parseInt(data.status) >= 0 ?
+                                            <div className="w-full mb-3">
+                                                <span className="text-gray-800 font-semibold text-xl">{Math.round(parseInt(data.status) / 6 * 100)} % - {data?.status_details?.name}</span>
+                                                <div className="relative w-full">
+                                                    <div className="overflow-hidden h-3 flex rounded bg-blue-200">
+                                                        <div
+                                                            style={{ width: `${parseInt(data.status) / 6 * 100}%` }}
+                                                            className="shadow-none flex flex-col text-center whitespace-nowrap text-white justify-center bg-blue-500"
+                                                        ></div>
+                                                    </div>
+                                                </div>
+                                            </div> :
+                                            <>
+                                                <div className="shadow-none flex flex-col text-center whitespace-nowrap text-white justify-center bg-red-600 w-full px-1 rounded"
+                                                >
+                                                    Failed
+                                                </div>
+                                            </>
+                                        }
+                                    </> : null
                                 }
-                                {data.details.reason &&
+                                {data?.details?.reason &&
                                     <>
                                         <p className="text-lg leading-relaxed text-blueGray-700">
                                             <strong>Reason :</strong>
@@ -217,21 +252,21 @@ export default function CardEmployee({ data, visibility }) {
                                             <>
                                                 {visibility && visibility == 'employee' || visibility == 'admin' || visibility == 'clearance' ?
                                                     <div className="mb-2">
-                                                        <button className="btn shadow w-full bg-gray-100 mb-3" onClick={() => setToggleAttachment(!toggleAttachment)}>
+                                                        <button className="btn shadow w-full bg-blue-600 text-white mb-3" onClick={() => setToggleAttachment(!toggleAttachment)}>
                                                             Attachment - Click Here
                                                         </button>
                                                         {toggleAttachment &&
-                                                            <table class="rounded-t-lg w-full m-5 mx-auto bg-gray-200 text-gray-800">
-                                                                <tr class="border-b-2 border-gray-300">
-                                                                    <th class="px-3 py-2">Data</th>
-                                                                    <th class="px-3 py-2">File</th>
+                                                            <table className="rounded-t-lg w-full m-5 mx-auto bg-gray-200 text-gray-800">
+                                                                <tr className="border-b-2 border-gray-300">
+                                                                    <th className="px-3 py-2">Data</th>
+                                                                    <th className="px-3 py-2">File</th>
                                                                 </tr>
 
                                                                 {visibility == 'admin' ? dataAttachment.map((item, i) => (
                                                                     <>
-                                                                        {item.resign && data?.type.includes("e2") ? <tr class="bg-gray-100 border-b border-gray-200">
-                                                                            <td class="px-3 py-2 text-xs">{item.name}</td>
-                                                                            <td class="px-3 py-2 text-xs">
+                                                                        {item.resign && data?.type.includes("e2") ? <tr className="bg-gray-100 border-b border-gray-200">
+                                                                            <td className="px-3 py-2 text-xs">{item.name}</td>
+                                                                            <td className="px-3 py-2 text-xs">
                                                                                 {item.file ?
                                                                                     <a
                                                                                         href={item.file}
@@ -246,9 +281,9 @@ export default function CardEmployee({ data, visibility }) {
                                                                         </tr>
                                                                             : null
                                                                         }
-                                                                        {!item.resign ? <tr class="bg-gray-100 border-b border-gray-200">
-                                                                            <td class="px-3 py-2 text-xs">{item.name}</td>
-                                                                            <td class="px-3 py-2 text-xs">
+                                                                        {!item.resign ? <tr className="bg-gray-100 border-b border-gray-200">
+                                                                            <td className="px-3 py-2 text-xs">{item.name}</td>
+                                                                            <td className="px-3 py-2 text-xs">
                                                                                 {item.file ?
                                                                                     <a
                                                                                         href={item.file}
@@ -266,9 +301,9 @@ export default function CardEmployee({ data, visibility }) {
                                                                     </>
                                                                 )) : null}
                                                                 {visibility == 'clearance' || visibility == 'admin' ? clearanceAttachment.map((item, i) => (
-                                                                    <tr class="bg-gray-100 border-b border-gray-200">
-                                                                        <td class="px-3 py-2 text-xs">{item.name}</td>
-                                                                        <td class="px-3 py-2 text-xs">
+                                                                    <tr className="bg-gray-100 border-b border-gray-200">
+                                                                        <td className="px-3 py-2 text-xs">{item.name}</td>
+                                                                        <td className="px-3 py-2 text-xs">
                                                                             {item.file ?
                                                                                 <a
                                                                                     href={item.file}
@@ -287,9 +322,9 @@ export default function CardEmployee({ data, visibility }) {
                                                                         {item.noNeed && data?.type.includes("e3") ?
                                                                             null :
                                                                             item.noNeed ?
-                                                                                <tr class="bg-gray-100 border-b border-gray-200">
-                                                                                    <td class="px-3 py-2 text-xs">{item.name}</td>
-                                                                                    <td class="px-3 py-2 text-xs">
+                                                                                <tr className="bg-gray-100 border-b border-gray-200">
+                                                                                    <td className="px-3 py-2 text-xs">{item.name}</td>
+                                                                                    <td className="px-3 py-2 text-xs">
                                                                                         {item.file ?
                                                                                             <a
                                                                                                 href={item.file}
@@ -305,9 +340,9 @@ export default function CardEmployee({ data, visibility }) {
                                                                                 : null
                                                                         }
                                                                         {!item.noNeed ?
-                                                                            <tr class="bg-gray-100 border-b border-gray-200">
-                                                                                <td class="px-3 py-2 text-xs">{item.name}</td>
-                                                                                <td class="px-3 py-2 text-xs">
+                                                                            <tr className="bg-gray-100 border-b border-gray-200">
+                                                                                <td className="px-3 py-2 text-xs">{item.name}</td>
+                                                                                <td className="px-3 py-2 text-xs">
                                                                                     {item.file ?
                                                                                         <a
                                                                                             href={item.file}
@@ -329,67 +364,157 @@ export default function CardEmployee({ data, visibility }) {
                                                     </div> : null
                                                 }
                                                 {visibility == 'admin' || visibility == 'payroll' ? <div className="mb-2">
-                                                    <button className="btn shadow w-full bg-gray-100 mb-3" onClick={() => setTogglePayroll(!togglePayroll)}>
+                                                    <button className="btn shadow w-full bg-blue-600 text-white mb-3" onClick={() => setTogglePayroll(!togglePayroll)}>
                                                         Payroll Attachment - Click Here
                                                     </button>
-                                                    {togglePayroll && <table class="rounded-t-lg w-full m-5 mx-auto bg-gray-200 text-gray-800">
-                                                        <tr class="border-b-2 border-gray-300">
-                                                            <th class="px-3 py-2">Data</th>
-                                                            <th class="px-3 py-2">File</th>
-                                                        </tr>
-                                                        {payrollAttachment.map((item, i) => (
-                                                            <tr class="bg-gray-100 border-b border-gray-200">
-                                                                <td class="px-3 py-2 text-xs">{item.name}</td>
-                                                                <td class="px-3 py-2 text-xs">
+                                                    {togglePayroll &&
+                                                        <>
+                                                            {/* <table className="rounded-t-lg w-full m-5 mx-auto bg-gray-200 text-gray-800">
+                                                             <tr className="border-b-2 border-gray-300">
+                                                                 <th className="px-3 py-2">Data</th>
+                                                                 <th className="px-3 py-2">File</th>
+                                                             </tr> */}
+                                                            {/* {payrollAttachment.map((item, i) => (
+                                                            <tr className="bg-gray-100 border-b border-gray-200">
+                                                                <td className="px-3 py-2 text-xs">{item.name}</td>
+                                                                <td className="px-3 py-2 text-xs">
                                                                     {parseInt(item.status) == 1 && item.file ?
-                                                                        <a
-                                                                            href={item.file}
-                                                                            className="text-xs text-lightBlue-500 border rounded px-2 inline-block"
-                                                                        >
-                                                                            <i className="fas fa-file mr-2 text-xs"></i>
-                                                                            Download
-                                                                        </a>
+                                                                        // <a
+                                                                        //     href={item.file}
+                                                                        //     className="text-xs text-lightBlue-500 border rounded px-2 inline-block"
+                                                                        // >
+                                                                        //     <i className="fas fa-file mr-2 text-xs"></i>
+                                                                        //     Download
+                                                                        // </a>
+                                                                        JSON.stringify(item.file)
                                                                         : parseInt(item.status) == 1 ? "No Outstanding" : "In progress"
                                                                     }
                                                                 </td>
                                                             </tr>
                                                         ))
-                                                        }
-                                                    </table>
+                                                        } */}
+                                                            {payrollAttachment.map((item, i) => (
+                                                                <>
+                                                                    <table className="rounded-t-lg w-full m-5 mx-auto bg-gray-200 text-gray-800">
+                                                                        <tr className="border-b-2 border-gray-300">
+                                                                            <th className="px-3 py-2" colSpan="2">{item.name}</th>
+                                                                        </tr>
+                                                                        {parseInt(item.status) == 1 && item.file != null && item.file != 0 ?
+                                                                            <>
+                                                                                {item.file && item?.file?.map((item2, j) => (
+                                                                                    item.row ?
+                                                                                        <tr className="bg-gray-100 border-b border-gray-200">
+                                                                                            <td className="px-3 py-2 text-xs" colSpan="2">
+                                                                                                {item.children && item?.children.map((item3, k) => (
+                                                                                                    <span className={"px-2 " + (item.children.length == k + 1 ? "" : "border-r")}>
+                                                                                                        <strong>{item3}</strong> : {item2[item3]}
+                                                                                                    </span>
+                                                                                                ))}
+                                                                                            </td>
+                                                                                        </tr>
+                                                                                        :
+                                                                                        item.children && item?.children.map((item3, k) => (
+                                                                                            <tr className="bg-gray-100 border-b border-gray-200">
+                                                                                                <td className="px-3 py-2 text-xs" >{item3}</td>
+                                                                                                <td className="px-3 py-2 text-xs">
+                                                                                                    {item2[item3]}
+
+                                                                                                </td>
+                                                                                            </tr>
+                                                                                        ))
+                                                                                    //      {item.children && item?.children.map((item3, k) => (
+                                                                                    //     <tr className="bg-gray-100 border-b border-gray-200">
+                                                                                    //         <td className="px-3 py-2 text-xs" >{item3}</td>
+                                                                                    //         <td className="px-3 py-2 text-xs">
+                                                                                    //             {item2[item3]}
+                                                                                    //              {parseInt(item.status) == 1 && item.file ?
+                                                                                    //     JSON.stringify(item.file)
+                                                                                    //     : parseInt(item.status) == 1 ? "No Outstanding" : "In progress"
+                                                                                    // }
+                                                                                    //         </td>
+                                                                                    //     </tr>
+                                                                                    // ))}
+
+                                                                                ))}
+                                                                            </>
+                                                                            : <>
+                                                                                <tr className="bg-gray-100 border-b border-gray-200">
+                                                                                    <td className="px-3 py-2 text-xs" colSpan="2" >{parseInt(item.status) == 1 ? "No Outstanding" : "In progress"}</td>
+                                                                                </tr>
+                                                                            </>
+                                                                        }
+                                                                    </table>
+                                                                </>
+                                                            ))
+                                                            }
+                                                        </>
                                                     }
                                                 </div> : null}
+
+                                                {visibility == 'admin' || visibility == 'employee' ?
+                                                    <div className="mb-2">
+                                                        <button className="btn shadow w-full bg-blue-600 text-white mb-3" onClick={() => setToggleIT(!toggleIT)}>
+                                                            IT Attachment - Click Here
+                                                        </button>
+                                                        {toggleIT &&
+                                                            <table className="rounded-t-lg w-full m-5 mx-auto bg-gray-200 text-gray-800">
+                                                                <tr className="border-b-2 border-gray-300">
+                                                                    <th className="px-3 py-2">Code</th>
+                                                                    <th className="px-3 py-2">Item</th>
+                                                                    <th className="px-3 py-2">Qty</th>
+                                                                </tr>
+                                                                {parseInt(itAttachment.status) == 1 && itAttachment.file != null && itAttachment.file != 0 ?
+                                                                    <>
+                                                                        {itAttachment.file && itAttachment?.file?.map((item2, j) => (
+                                                                            <tr className="bg-gray-100 border-b border-gray-200">
+                                                                                <td className="px-3 py-2 text-xs" >{item2.Code}</td>
+                                                                                <td className="px-3 py-2 text-xs" >{item2.Item}</td>
+                                                                                <td className="px-3 py-2 text-xs" >{item2.Qty}</td>
+                                                                            </tr>
+                                                                        ))}
+                                                                    </>
+                                                                    : <>
+                                                                        <tr className="bg-gray-100 border-b border-gray-200">
+                                                                            <td className="px-3 py-2 text-xs" colSpan="2" >{parseInt(item.status) == 1 ? "No Outstanding" : "In progress"}</td>
+                                                                        </tr>
+                                                                    </>
+                                                                }
+                                                            </table>
+                                                        }
+                                                    </div> : null
+                                                }
                                             </>
                                             : null}
                                     </>
                                 }
-                                <button className="btn shadow w-full bg-gray-100" onClick={() => setToggle(!toggle)}>
+                                <button className="btn shadow w-full bg-blue-600 text-white" onClick={() => setToggle(!toggle)}>
                                     Checkpoint Detail - Click Here
                                 </button>
                                 {toggle &&
-                                    <table class="rounded-t-lg w-full m-5 mx-auto bg-gray-200 text-gray-800">
-                                        <tr class="border-b-2 border-gray-300">
-                                            <th class="px-4 py-3">Checkpoint</th>
-                                            <th class="px-4 py-3">Status</th>
+                                    <table className="rounded-t-lg w-full m-5 mx-auto bg-gray-200 text-gray-800">
+                                        <tr className="border-b-2 border-gray-300">
+                                            <th className="px-4 py-3">Checkpoint</th>
+                                            <th className="px-4 py-3">Status</th>
                                             {visibility == "admin" ?
-                                                <th class="px-4 py-3">Status</th>
+                                                <th className="px-4 py-3">Status</th>
                                                 : null
                                             }
                                         </tr>
                                         {dataCheckpoint.map((item, i) => (
                                             <>
                                                 {!item.resign && !item.noNeed ?
-                                                    <tr class="bg-gray-100 border-b border-gray-200">
-                                                        <td class="px-4 py-3 text-xs">{item.name}</td>
-                                                        <td class="px-4 py-3 text-xs">
+                                                    <tr className="bg-gray-100 border-b border-gray-200">
+                                                        <td className="px-4 py-3 text-xs">{item.name}</td>
+                                                        <td className="px-4 py-3 text-xs">
                                                             {parseInt(item.data) == 1 ?
-                                                                <i class="fas fa-check text-green-600"></i> :
+                                                                <i className="fas fa-check text-green-600"></i> :
                                                                 parseInt(item.data) == 0 ?
-                                                                    <i class="fas fa-times text-red-600"></i> :
+                                                                    <i className="fas fa-times text-red-600"></i> :
                                                                     "Waiting"
                                                             }
                                                         </td>
                                                         {visibility == "admin" && item.link ?
-                                                            <td class="px-4 py-3 text-xs">
+                                                            <td className="px-4 py-3 text-xs">
                                                                 <a
                                                                     href={`/offboarding/${data.id}?token=${data.token}${item?.link}`}
                                                                     className="text-blue-600"
@@ -405,18 +530,18 @@ export default function CardEmployee({ data, visibility }) {
                                                     : null
                                                 }
                                                 {item.resign && data?.type.includes("e2") ?
-                                                    <tr class="bg-gray-100 border-b border-gray-200">
-                                                        <td class="px-4 py-3 text-xs">{item.name}</td>
-                                                        <td class="px-4 py-3 text-xs">
+                                                    <tr className="bg-gray-100 border-b border-gray-200">
+                                                        <td className="px-4 py-3 text-xs">{item.name}</td>
+                                                        <td className="px-4 py-3 text-xs">
                                                             {parseInt(item.data) == 1 ?
-                                                                <i class="fas fa-check text-green-600"></i> :
+                                                                <i className="fas fa-check text-green-600"></i> :
                                                                 parseInt(item.data) == 0 ?
-                                                                    <i class="fas fa-times text-red-600"></i> :
+                                                                    <i className="fas fa-times text-red-600"></i> :
                                                                     "Waiting"
                                                             }
                                                         </td>
                                                         {visibility == "admin" && item.link ?
-                                                            <td class="px-4 py-3 text-xs">
+                                                            <td className="px-4 py-3 text-xs">
                                                                 <a
                                                                     href={`/offboarding/${data.id}?token=${data.token}${item?.link}`}
                                                                     className="text-blue-600"
@@ -434,18 +559,18 @@ export default function CardEmployee({ data, visibility }) {
                                                 {item.noNeed && data?.type.includes("e3") ?
                                                     null
                                                     : item.noNeed ?
-                                                        <tr class="bg-gray-100 border-b border-gray-200">
-                                                            <td class="px-4 py-3 text-xs">{item.name}</td>
-                                                            <td class="px-4 py-3 text-xs">
+                                                        <tr className="bg-gray-100 border-b border-gray-200">
+                                                            <td className="px-4 py-3 text-xs">{item.name}</td>
+                                                            <td className="px-4 py-3 text-xs">
                                                                 {parseInt(item.data) == 1 ?
-                                                                    <i class="fas fa-check text-green-600"></i> :
+                                                                    <i className="fas fa-check text-green-600"></i> :
                                                                     parseInt(item.data) == 0 ?
-                                                                        <i class="fas fa-times text-red-600"></i> :
+                                                                        <i className="fas fa-times text-red-600"></i> :
                                                                         "Waiting"
                                                                 }
                                                             </td>
                                                             {visibility == "admin" && item.link ?
-                                                                <td class="px-4 py-3 text-xs">
+                                                                <td className="px-4 py-3 text-xs">
                                                                     <a
                                                                         href={`/offboarding/${data.id}?token=${data.token}${item?.link}`}
                                                                         className="text-blue-600"

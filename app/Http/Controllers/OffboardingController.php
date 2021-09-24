@@ -46,9 +46,13 @@ class OffboardingController extends Controller
      * @param  int  $id
      * @return \Illuminate\Http\Response
      */
-    public function show($id)
+    public function show($id, Request $request)
     {
-        $offboarding = Offboarding::with('Employee', 'Details')->find($id);
+        if ($request->progress == "true") {
+            $offboarding = Offboarding::with('progressRecord')->find($id);
+        }else{
+            $offboarding = Offboarding::with('Employee', 'Details')->find($id);
+        }
         return response()->json($offboarding, 200);
     }
 

@@ -22,7 +22,7 @@ class Offboarding extends Model
     //     return $this->belongsTo('Category');
     // }
 
-    protected $with = ['employee','checkpoint','exitClearance','statusDetails','typeDetail'];
+    protected $with = ['employee','checkpoint','exitClearance','statusDetails','typeDetail','rightObligation'];
 
     public function employee()
     {
@@ -44,8 +44,16 @@ class Offboarding extends Model
     {
         return $this->hasOne(ExitClearance::class, 'offboarding_id','id');
     }
+    public function rightObligation()
+    {
+        return $this->hasOne(RightObligation::class, 'offboarding_id','id');
+    }
     public function statusDetails()
     {
         return $this->hasOne(StatusDetail::class, 'code','status');
+    }
+    public function progressRecord()
+    {
+        return $this->hasMany(ProgressRecord::class, 'offboarding_id','id');
     }
 }

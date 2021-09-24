@@ -7,8 +7,10 @@ use App\Models\OffboardingDetail;
 use App\Models\Employee;
 use App\Models\OffboardingCheckpoint;
 use App\Models\ExitClearance;
+use App\Models\RightObligation;
 use App\Models\StatusDetail;
 use App\Models\TypeDetail;
+use App\Models\ProgressRecord;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
@@ -134,9 +136,11 @@ class APIController extends Controller
                 return response()->json('Fail', 400);
             }
             $employeeID = $request->employeeID;
-        } else {
-            $employeeID = $request->employeeID;
         }
+        // else {
+        //     $employeeID = $request->employeeID;
+        // }
+
         $offboardingTicket = new Offboarding;
         $offboardingTicket->employee_id = $employeeID;
         $offboardingTicket->effective_date = $request->effective_date;
@@ -170,6 +174,7 @@ class APIController extends Controller
             $offboardingDetail->resignation_letter_link = config('app.url') . Storage::url($path);
         }
         $offboardingTicket->details()->save($offboardingDetail);
+
         $checkpoint = new OffboardingCheckpoint();
         $checkpoint->acc_employee = true;
         if ($offboardingTicket->type != "e202" && $offboardingTicket->type != "e201") {
@@ -178,26 +183,27 @@ class APIController extends Controller
         }
         $offboardingTicket->checkpoint()->save($checkpoint);
         $exitClearance = new ExitClearance();
-        $offboardingTicket->checkpoint()->save($exitClearance);
+        $offboardingTicket->exitClearance()->save($exitClearance);
+        $rightObligation = new RightObligation();
+        $offboardingTicket->rightObligation()->save($rightObligation);
 
         $processType = 1;
         if ($offboardingTicket->type != "e202") {
             $processType = 2;
         }
 
+        $this->addProgressRecord(
+            $request->employeeIDIn,
+            true,
+            false,
+            "Offboarding Ticket Created"
+        );
         $input = array(
             'employeeIDIn' => $request->employeeIDIn,
             'processTypeIn' => $processType,
             'offboardingIDIn' => $offboardingTicket->id,
         );
         $input = json_encode($input);
-        // $input = '{"employeeIDIn":"' . $request->employeeIDIn . '",}';
-        // $input = json_encode($request->all());
-
-        // return gettype($input);
-        // return json_encode($request->all());
-
-        //Start the process with parameters
         $this->startProcess($input);
         return response()->json("Success", 200);
     }
@@ -224,7 +230,16 @@ class APIController extends Controller
         } elseif ($request->hrmgr == '1') {
             $offboardingTicket->checkpoint->acc_hrbp_mgr = $request->status == '1' ? true : false;
             $offboardingTicket->push();
-            $offboardingTicket->save();
+            if (
+                $offboardingTicket->save()
+            ) {
+                $this->addProgressRecord(
+                    $request->offboardingID,
+                    true,
+                    false,
+                    "HR Manager Confirmed Offboarding",
+                );
+            }
             return response()->json("Success");
         } else {
             $offboardingTicket->checkpoint->acc_svp = $request->status == '1' ? true : false;
@@ -239,7 +254,16 @@ class APIController extends Controller
         if ($offboardingTicket->checkpoint->acc_employee == false) {
             if ($offboardingTicket->status != "-3") {
                 $offboardingTicket->status = "-3";
-                $offboardingTicket->save();
+                if (
+                    $offboardingTicket->save()
+                ) {
+                    $this->addProgressRecord(
+                        $request->offboardingID,
+                        true,
+                        false,
+                        "Employee Cancel Offboarding",
+                    );
+                }
                 $input = array(
                     'processTypeIn' => 2,
                     'offboardingIDIn' => $offboardingTicket->id,
@@ -250,7 +274,16 @@ class APIController extends Controller
         } elseif ($offboardingTicket->checkpoint->acc_svp == true) {
             $offboardingTicket->status = "2";
             // $offboardingTicket->token = Str::random(64);
-            $offboardingTicket->save();
+            if (
+                $offboardingTicket->save()
+            ) {
+                $this->addProgressRecord(
+                    $request->offboardingID,
+                    true,
+                    false,
+                    "SVP Confirm Offboarding",
+                );
+            }
 
             $input = array(
                 'processTypeIn' => 2,
@@ -313,6 +346,16 @@ class APIController extends Controller
             );
             $docLink = config('app.url') . Storage::url($path);
             $offboardingTicket->details->employee_CV_link = $docLink;
+            if (
+                $offboardingTicket->push()
+            ) {
+                $this->addProgressRecord(
+                    $request->offboardingID,
+                    true,
+                    false,
+                    "CV Uploaded",
+                );
+            }
         }
         switch ($request->dept) {
             case 'fastel':
@@ -362,7 +405,16 @@ class APIController extends Controller
             $offboardingTicket->checkpoint->acc_payroll = true;
             $offboardingTicket->status = "4";
             $offboardingTicket->save();
-            $offboardingTicket->push();
+            if (
+                $offboardingTicket->push()
+            ) {
+                $this->addProgressRecord(
+                    $request->offboardingID,
+                    true,
+                    false,
+                    "Payroll Calculated",
+                );
+            }
             $input = array(
                 'processTypeIn' => 3,
                 'offboardingIDIn' => $request->offboardingID,
@@ -464,14 +516,31 @@ class APIController extends Controller
                         # code...
                         break;
                 }
-                $offboardingTicket->push();
+                if ($offboardingTicket->push()) {
+                    $this->addProgressRecord(
+                        $request->offboardingID,
+                        true,
+                        false,
+                        "Exit Clearance Confirmed by " . $request->dept,
+                    );
+                }
                 if (
                     $offboardingTicket->checkpoint->return_svp == true &&
                     $offboardingTicket->checkpoint->return_hrss_softfile == true &&
                     $offboardingTicket->checkpoint->return_hrss_it == true
                 ) {
                     $offboardingTicket->status = "6";
-                    $offboardingTicket->save();
+                    if (
+                        $offboardingTicket->save()
+                    ) {
+                        $this->addProgressRecord(
+                            $request->offboardingID,
+                            true,
+                            false,
+                            "Exit Clearance Completed",
+                        );
+                    }
+
                     $input = array(
                         'processTypeIn' => 5,
                         'offboardingIDIn' => $request->offboardingID,
@@ -489,6 +558,12 @@ class APIController extends Controller
                 );
                 $input = json_encode($input);
                 $this->startProcess($input);
+                $this->addProgressRecord(
+                    $request->offboardingID,
+                    true,
+                    false,
+                    "Dept ".$request->dept." notify employees there are still not completed",
+                );
             }
         } else {
             $offboardingTicket->status = "5";
@@ -538,8 +613,16 @@ class APIController extends Controller
             $offboardingTicket->details->job_tranfer_attachment = $docLink["jobTransfer"];
             $offboardingTicket->details->bpjs_attachment = $docLink["bpjs"];
             $offboardingTicket->details->returnType = $request->type;
-            $offboardingTicket->push();
-
+            if (
+                $offboardingTicket->push()
+            ) {
+                $this->addProgressRecord(
+                    $request->offboardingID,
+                    true,
+                    false,
+                    "Employees Return Exit Clearance",
+                );
+            }
             $input = array(
                 'processTypeIn' => 4,
                 'offboardingIDIn' => $request->offboardingID,
@@ -571,7 +654,15 @@ class APIController extends Controller
         );
         $directory = config('app.url') . Storage::url($path);
         $offboardingTicket->details->bast_attachment = $directory;
-        $offboardingTicket->push();
+        if ($offboardingTicket->push()) {
+            $this->addProgressRecord(
+                $request->offboardingID,
+                true,
+                false,
+                $request->message,
+            );
+        }
+
         return response()->json("Success", 200);
     }
 
@@ -740,6 +831,12 @@ class APIController extends Controller
         $offboardingTicket->checkpoint()->save($checkpoint);
         $exitClearance = new ExitClearance();
         $offboardingTicket->checkpoint()->save($exitClearance);
+        $this->addProgressRecord(
+            $offboardingTicket->id,
+            true,
+            false,
+            "Offboarding Process Created",
+        );
         $processType = 2;
         $input = array(
             'employeeIDIn' => $ID,
@@ -749,5 +846,133 @@ class APIController extends Controller
         $input = json_encode($input);
         $this->startProcess($input);
         return true;
+    }
+
+    public function postRightObligation(Request $request)
+    {
+        // return response()->json($request->all());
+        $finalData = [];
+        $offboardingTicket = Offboarding::find($request->offboardingID);
+        $data = json_decode($request->items);
+        // $i=0;
+        // foreach($data as $key => $value){
+        //     foreach($value as $key2 => $value2){
+        //         $finalData[$i]["item"] = $key2;
+        //         $finalData[$i]["data"] = $value2;
+        //         $i++;
+        //     }
+        //     // $finalData[$i]["item"] = $key;
+        //     // $finalData[$i]["data"] = $value;
+
+        // }
+        // return response($finalData);
+
+        switch ($request->dept) {
+            case 'fastel':
+                $offboardingTicket->rightObligation->fastel = $data;
+                $offboardingTicket->checkpoint->acc_fastel = true;
+                break;
+            case 'kopindosat':
+                $offboardingTicket->rightObligation->kopindosat = $data;
+                $offboardingTicket->checkpoint->acc_kopindosat = true;
+                break;
+            case 'it':
+                $offboardingTicket->rightObligation->it = $data;
+                $offboardingTicket->checkpoint->acc_it = true;
+                break;
+            case 'hrdev':
+                $offboardingTicket->rightObligation->hrdev = $data;
+                $offboardingTicket->checkpoint->acc_hrdev = true;
+                break;
+            case 'medical':
+                $offboardingTicket->rightObligation->medical = $data;
+                $offboardingTicket->checkpoint->acc_medical = true;
+                break;
+            case 'finance':
+                $offboardingTicket->rightObligation->finance = $data;
+                $offboardingTicket->checkpoint->acc_finance = true;
+                break;
+            default:
+                # code...
+                break;
+        }
+        if ($offboardingTicket->push()) {
+            $this->addProgressRecord(
+                $request->offboardingID,
+                true,
+                false,
+                "Document Request Responded by " . $request->dept,
+            );
+        } else {
+            $this->addProgressRecord(
+                $request->offboardingID,
+                false,
+                false,
+                "Document Request Failed Responded by " . $request->dept,
+            );
+        }
+        if ($request->dept == "it") {
+            $input = array(
+                'processTypeIn' => 3,
+                'offboardingIDIn' => $request->offboardingID,
+                'IN_dept' => $request->dept,
+            );
+            $input = json_encode($input);
+            $this->startProcess($input);
+            return response()->json("Success", 200);
+        }
+        if (
+            $request->dept != "hrbp" &&
+            $request->dept != "hrss" &&
+            $offboardingTicket->checkpoint->acc_fastel == true &&
+            $offboardingTicket->checkpoint->acc_kopindosat == true &&
+            // $offboardingTicket->checkpoint->acc_it == true &&
+            $offboardingTicket->checkpoint->acc_hrdev == true &&
+            $offboardingTicket->checkpoint->acc_medical == true &&
+            $offboardingTicket->checkpoint->acc_finance == true &&
+            $offboardingTicket->checkpoint->sent_payroll != true
+        ) {
+            $offboardingTicket->checkpoint->sent_payroll = true;
+            $offboardingTicket->save();
+            $offboardingTicket->push();
+            if ($offboardingTicket->push()) {
+                $this->addProgressRecord(
+                    $request->offboardingID,
+                    true,
+                    false,
+                    "Document Request Completed",
+                );
+            }
+            $input = array(
+                'processTypeIn' => 3,
+                'offboardingIDIn' => $request->offboardingID,
+            );
+            $input = json_encode($input);
+            $this->startProcess($input);
+            return response()->json("Success", 200);
+        }
+        return response()->json('Success');
+    }
+    public function postProgressRecord(Request $request)
+    {
+        $status = $request->status == '1' ? true : false;
+        $uipath = $request->uipath == '1' ? true : false;
+        $this->addProgressRecord(
+            $request->offboardingID,
+            $status,
+            $uipath,
+            $request->message,
+        );
+        return response()->json("Success");
+    }
+    private function addProgressRecord($offboardingID, $status, $uipath, $message)
+    {
+        $record = new ProgressRecord;
+        $record->offboarding_id = $offboardingID;
+        $record->status = $status;
+        $record->uipath = $uipath;
+        $record->message = $message;
+        $record->save();
+        return $record;
     }
 }
