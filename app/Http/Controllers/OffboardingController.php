@@ -81,7 +81,9 @@ class OffboardingController extends Controller
         $offboardingTicket = Offboarding::find($id);
         $offboardingTicket->status = $request->status;
         $offboardingTicket->save();
-        $offboardingTicket->checkpoint->acc_document = $request->status == '3' ? '1' : '0';
+        if ($request->document == 'true') {
+            $offboardingTicket->checkpoint->acc_document = $request->status == '2' ? '1' : '0';
+        }
         // $offboardingTicket->save();
         $offboardingTicket->push();
         return response()->json($offboardingTicket, 200);
