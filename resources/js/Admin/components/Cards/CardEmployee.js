@@ -335,7 +335,9 @@ export default function CardEmployee({ data, visibility, admin }) {
                                                                                                 <i className="fas fa-file mr-2 text-xs"></i>
                                                                                                 Download
                                                                                             </a>
-                                                                                            : "In progress"
+                                                                                            :
+                                                                                            null
+
                                                                                         }
                                                                                     </td>
                                                                                 </tr>
@@ -562,14 +564,14 @@ export default function CardEmployee({ data, visibility, admin }) {
                                                                     <a
                                                                         href={`${item.acceptance}token=${data.token}&id=${data.id}&action=accept`}
                                                                         className="text-blue-600 mx-3"
-                                                                        // target="_blank"
+                                                                    // target="_blank"
                                                                     >
                                                                         Accept
                                                                     </a>
                                                                     <a
                                                                         href={`${item.acceptance}token=${data.token}&id=${data.id}&action=reject`}
                                                                         className="text-red-600 mx-3"
-                                                                        // target="_blank"
+                                                                    // target="_blank"
                                                                     >
                                                                         Reject
                                                                     </a>

@@ -118,7 +118,13 @@ export default function CardProgressRecord({ color, data }) {
                                         {parseInt(item.uipath) == 0 ? "Web" : "UiPath"}
                                     </td>
                                     <td className="border-t-0 px-6 align-middle border-l-0 border-r-0 text-xs whitespace-nowrap p-6">
-                                        {item?.message}
+                                        {item?.message.includes("CV Failed") &&
+                                            <a
+                                                href={`/api/retryCV?id=${item.offboarding_id}&action=retry`}
+                                                className="text-white bg-blue-600 px-3 mr-3 py-1 rounded"
+                                            >
+                                                Retry
+                                            </a>} {item?.message}
                                     </td>
                                 </tr>
 

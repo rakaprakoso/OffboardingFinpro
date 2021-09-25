@@ -121,6 +121,12 @@ class APIController extends Controller
     {
         $employeeID = $request->employeeIDIn;
         // return $request->all();
+
+        $processOffboarding = Offboarding::where('employee_id', $employeeID)->whereBetween('status', [0, 6])->get()->count();
+        if ($processOffboarding>0) {
+            return response()->json('Fail', 400);
+        }
+
         if ($request->admin != "true") {
             $this->validate($request, [
                 'employeeIDIn' => 'required|exists:employees,id',
@@ -742,7 +748,7 @@ class APIController extends Controller
                 $data['ongoing'] = Offboarding::whereBetween('status', [0, 5])->get()->count();
                 $data['completed'] = Offboarding::where("status", "6")->get()->count();
                 $data['failed'] = Offboarding::where('status', '<', 0)->get()->count();
-                $data['turnoverratio'] = ($data['ongoing'] + $data['completed']) / Employee::get()->count() * 100;
+                $data['turnoverratio'] = $data['completed'] / Employee::get()->count() * 100;
                 break;
         }
         return response()->json($data);
@@ -1032,6 +1038,27 @@ class APIController extends Controller
                 $input = json_encode($input);
                 $this->startProcess($input);
         }
+        $path= config('app.url') . "/offboarding/".$offboarding->id."?token=".$offboarding->token."&tracking=true";
+        return redirect()->back();
+        return redirect($path);
+        // return response()->json("Success");
+    }
+
+    public function retryCV(Request $request)
+    {
+        $offboarding = Offboarding::where('id', $request->id)->first();
+        if (!$offboarding) {
+            return response()->json('Fail', 400);
+        }
+
+        $input = array(
+            'processTypeIn' => 2,
+            'offboardingIDIn' => $offboarding->id,
+            'IN_CV'=>"1"
+        );
+        $input = json_encode($input);
+        $this->startProcess($input);
+
         $path= config('app.url') . "/offboarding/".$offboarding->id."?token=".$offboarding->token."&tracking=true";
         return redirect()->back();
         return redirect($path);

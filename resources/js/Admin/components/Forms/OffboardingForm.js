@@ -69,7 +69,7 @@ const OffboardingForm = () => {
                 if (query.get('employee') == 'true') {
                     setEmployee(true);
                 }
-                if (query.get('tracking') == 'true') {
+                if (query.get('tracking') == 'true' || query.get('process') == '4') {
                     setTracking('employee');
                 }
                 if (query.get('approval') == 'hrmgr') {
@@ -590,10 +590,11 @@ const OffboardingForm = () => {
                                                                                     </>
                                                                                     :
                                                                                     query.get('newVersion') == 'true' ?
-                                                                                        <DocExitForm
+                                                                                        data && <DocExitForm
                                                                                             id={id}
                                                                                             setSubmitted={setSubmitted}
                                                                                             setOpenModal={setIsOpen}
+                                                                                            checkpoint={data.checkpoint}
                                                                                         />
                                                                                         : <>
                                                                                             <h2 className="text-2xl font-bold">Document Exit Form</h2>

@@ -22,10 +22,67 @@ const DocExitForm = ({
     id,
     data,
     setSubmitted,
-    setOpenModal
+    setOpenModal,
+    checkpoint
 }) => {
     // const [isOpen, setIsOpen] = useState(false);
     // const [submitted, setSubmitted] = useState(false);
+
+    const DeptInput = ({ dept, index }) => {
+        const deptSelected = deptList.findIndex((element) => element.value == dept);
+        return (
+            <>
+                {
+                    deptList[deptSelected].children?.map((item, i) => (
+                        <div className="flex-grow">
+                            <label htmlFor={`items.${index}.${item}`}>{item}</label>
+                            <Field name={`items.${index}.${item}`} />
+                        </div>
+                    ))
+                }
+            </>
+        )
+    }
+
+    const deptList = [
+        {
+            name: 'Fastel',
+            value: 'fastel',
+            children: ['MSISDN', 'Outstanding'],
+            cp : checkpoint?.acc_fastel,
+        },
+        {
+            name: 'Finance',
+            value: 'finance',
+            children: ['Vendor', 'Amount', 'Text'],
+            cp : checkpoint?.acc_finance,
+        },
+        {
+            name: 'HR Dev',
+            value: 'hrdev',
+            children: ['Perihal', 'Tujuan', 'Tanggal Kegiatan', 'Penyelenggara', 'Periode Ikadin'],
+            cp : checkpoint?.acc_hrdev,
+        },
+        {
+            name: 'Kopindosat',
+            value: 'kopindosat',
+            children: ['Hak', 'Kewajiban'],
+            cp : checkpoint?.acc_kopindosat,
+        },
+        {
+            name: 'IT',
+            value: 'it',
+            children: ['Code', 'Item', 'Qty'],
+            cp : checkpoint?.acc_it,
+        },
+        {
+            name: 'Medical',
+            value: 'medical',
+            children: ['Ekses Medical'],
+            cp : checkpoint?.medical,
+        },
+    ]
+
 
     return (
         <>
@@ -84,7 +141,9 @@ const DocExitForm = ({
                             <option value="" disabled>Select Dept</option>
                             {/* <option value="payroll">Payroll</option> */}
                             {deptList.map((item, i) => (
-                                <option value={item.value}>{item.name}</option>
+                                <option value={item.value}
+                                disabled={item.cp == "1" ? true : false}
+                                >{item.name} </option>
                             ))}
                         </Field>
                         {errors.dept && touched.dept ? (
@@ -156,53 +215,5 @@ const DocExitForm = ({
     )
 }
 
-const DeptInput = ({ dept, index }) => {
-    const deptSelected = deptList.findIndex((element) => element.value == dept);
-    return (
-        <>
-            {
-                deptList[deptSelected].children?.map((item, i) => (
-                    <div className="flex-grow">
-                        <label htmlFor={`items.${index}.${item}`}>{item}</label>
-                        <Field name={`items.${index}.${item}`} />
-                    </div>
-                ))
-            }
-        </>
-    )
-}
-
-const deptList = [
-    {
-        name: 'Fastel',
-        value: 'fastel',
-        children: ['MSISDN', 'Outstanding'],
-    },
-    {
-        name: 'Finance',
-        value: 'finance',
-        children: ['Vendor', 'Amount', 'Text'],
-    },
-    {
-        name: 'HR Dev',
-        value: 'hrdev',
-        children: ['Perihal', 'Tujuan', 'Tanggal Kegiatan', 'Penyelenggara', 'Periode Ikadin'],
-    },
-    {
-        name: 'Kopindosat',
-        value: 'kopindosat',
-        children: ['Hak', 'Kewajiban'],
-    },
-    {
-        name: 'IT',
-        value: 'it',
-        children: ['Code', 'Item', 'Qty'],
-    },
-    {
-        name: 'Medical',
-        value: 'medical',
-        children: ['Ekses Medical'],
-    },
-]
 
 export default DocExitForm
