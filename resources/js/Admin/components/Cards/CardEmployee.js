@@ -29,6 +29,8 @@ export default function CardEmployee({ data, visibility, admin }) {
             'name': 'Resignation Letter',
             'data': acc_document,
             'resign': true,
+            // 'link': `/api/accResignDocument?`,
+            acceptance: '/api/accResignDocument?',
         },
         {
             'name': 'Acc Supervisor',
@@ -476,7 +478,7 @@ export default function CardEmployee({ data, visibility, admin }) {
                                                                     :
                                                                     <>
                                                                         <tr className="bg-gray-100 border-b border-gray-200">
-                                                                            <td className="px-3 py-2 text-xs" colSpan="2" >{parseInt(itAttachment?.status) == 1 ? "No Outstanding" : "In progress"}</td>
+                                                                            <td className="px-3 py-2 text-xs" colSpan="3" >{parseInt(itAttachment?.status) == 1 ? "No Outstanding" : "In progress"}</td>
                                                                         </tr>
                                                                     </>
                                                                 }
@@ -554,6 +556,27 @@ export default function CardEmployee({ data, visibility, admin }) {
                                                             </td>
                                                             : null
                                                         }
+                                                        {visibility == "admin" && item.acceptance ?
+                                                            <>
+                                                                {item.data == null ? <td className="px-4 py-3 text-xs">
+                                                                    <a
+                                                                        href={`${item.acceptance}token=${data.token}&id=${data.id}&action=accept`}
+                                                                        className="text-blue-600 mx-3"
+                                                                        // target="_blank"
+                                                                    >
+                                                                        Accept
+                                                                    </a>
+                                                                    <a
+                                                                        href={`${item.acceptance}token=${data.token}&id=${data.id}&action=reject`}
+                                                                        className="text-red-600 mx-3"
+                                                                        // target="_blank"
+                                                                    >
+                                                                        Reject
+                                                                    </a>
+
+                                                                </td> : null
+                                                                }
+                                                            </> : null}
                                                     </tr>
                                                     : null
                                                 }
@@ -571,18 +594,41 @@ export default function CardEmployee({ data, visibility, admin }) {
                                                                 }
                                                             </td>
                                                             {visibility == "admin" && item.link ?
-                                                                <td className="px-4 py-3 text-xs">
-                                                                    <a
-                                                                        href={`/offboarding/${data.id}?token=${data.token}${item?.link}`}
-                                                                        className="text-blue-600"
-                                                                        target="_blank"
-                                                                    >
-                                                                        Link
-                                                                    </a>
+                                                                <>
+                                                                    <td className="px-4 py-3 text-xs">
+                                                                        <a
+                                                                            href={`/offboarding/${data.id}?token=${data.token}${item?.link}`}
+                                                                            className="text-blue-600"
+                                                                            target="_blank"
+                                                                        >
+                                                                            Link
+                                                                        </a>
 
-                                                                </td>
+                                                                    </td>
+
+                                                                </>
                                                                 : null
                                                             }
+                                                            {visibility == "admin" && item.acceptance ?
+                                                                <>
+                                                                    <td className="px-4 py-3 text-xs">
+                                                                        <a
+                                                                            href={`${item.acceptance}token=${data.token}&id=${data.id}&action=accept`}
+                                                                            className="text-blue-600"
+                                                                        // target="_blank"
+                                                                        >
+                                                                            Accept
+                                                                        </a>
+                                                                        <a
+                                                                            href={`${item.acceptance}token=${data.token}&id=${data.id}&action=reject`}
+                                                                            className="text-blue-600"
+                                                                        // target="_blank"
+                                                                        >
+                                                                            Reject
+                                                                        </a>
+
+                                                                    </td>
+                                                                </> : null}
                                                         </tr>
                                                         : null
                                                 }

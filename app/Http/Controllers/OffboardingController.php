@@ -49,7 +49,7 @@ class OffboardingController extends Controller
     public function show($id, Request $request)
     {
         if ($request->progress == "true") {
-            $offboarding = Offboarding::with('progressRecord')->find($id);
+            $offboarding = Offboarding::with('progressRecord','Details')->find($id);
         }else{
             $offboarding = Offboarding::with('Employee', 'Details')->find($id);
         }

@@ -16,6 +16,7 @@ import {Modify as ModifyOffboarding} from '../pages/offboarding/Modify';
 import Dashboard from "../views/admin/Dashboard.js";
 import Settings from "../views/admin/Settings.js";
 import { CreateOffboarding } from "../pages/offboarding/CreateOffboarding.js";
+import { DashboardScheduler } from "../pages/schedulerReport/DashboardScheduler.js";
 // import Maps from "views/admin/Maps.js";
 // import Tables from "views/admin/Tables.js";
 
@@ -62,6 +63,7 @@ export default function Admin() {
                         <Route path="/admin/product/" exact component={Home} />
                         <Route path="/admin/product/:method/:id?" exact component={Modify} />
                         <Route path="/admin/newOffboarding" exact component={CreateOffboarding} />
+                        <Route path="/admin/schedulerRecord" exact component={DashboardScheduler} />
                         {/* <Route path="/admin/maps" exact component={Maps} />
             <Route path="/admin/settings" exact component={Settings} />
             <Route path="/admin/tables" exact component={Tables} />

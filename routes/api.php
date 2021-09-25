@@ -85,4 +85,6 @@ Route::get('/offboardingstatus',[APIController::class,'offboardingStatus'])->nam
 Route::get('/exitDocument',[APIController::class,'exitDocument'])->name('exitDocument');
 Route::get('/retireEmployee',[APIController::class,'retireEmployee'])->name('retireEmployee');
 Route::get('/reminderDocRequest',[APIController::class,'reminderDocRequest'])->name('reminderDocRequest');
+Route::get('/reportScheduler',[APIController::class,'reportScheduler'])->name('reportScheduler');
+Route::get('/accResignDocument',[APIController::class,'accResignDocument'])->name('accResignDocument');
 

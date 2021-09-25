@@ -17,7 +17,12 @@ export default function Sidebar() {
             path: "/admin/newOffboarding",
             name: "New Offboarding",
             icon: "fas fa-user-edit",
-        }
+        },
+        {
+            path: "/admin/schedulerRecord",
+            name: "Scheduler Record",
+            icon: "fas fa-user-edit",
+        },
     ]
     // alert(window.location.href.indexOf('/admin/newOffboarding'))
     return (

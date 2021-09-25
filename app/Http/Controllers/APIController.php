@@ -562,7 +562,7 @@ class APIController extends Controller
                     $request->offboardingID,
                     true,
                     false,
-                    "Dept ".$request->dept." notify employees there are still not completed",
+                    "Dept " . $request->dept . " notify employees there are still not completed",
                 );
             }
         } else {
@@ -957,21 +957,96 @@ class APIController extends Controller
     {
         $status = $request->status == '1' ? true : false;
         $uipath = $request->uipath == '1' ? true : false;
-        $this->addProgressRecord(
-            $request->offboardingID,
-            $status,
-            $uipath,
-            $request->message,
-        );
+        $reminder = $request->reminder == '1' ? true : false;
+        $process_type = $request->process_type != null ? $request->process_type : null;
+        if ($reminder) {
+            $this->addProgressRecord(
+                $request->offboardingID,
+                $status,
+                $uipath,
+                $request->message,
+                $reminder,
+                $process_type,
+            );
+        } else {
+            $this->addProgressRecord(
+                $request->offboardingID,
+                $status,
+                $uipath,
+                $request->message,
+            );
+        }
         return response()->json("Success");
     }
-    private function addProgressRecord($offboardingID, $status, $uipath, $message)
+    public function reportScheduler()
+    {
+        $data = ProgressRecord::where("reminder", true)->get();
+        return response()->json($data);
+    }
+
+    public function accResignDocument(Request $request)
+    {
+        $offboarding = Offboarding::where('token', $request->token)->where('id', $request->id)->first();
+        if (!$offboarding) {
+            return response()->json('Fail', 400);
+        }
+        $action = $request->action == "accept" ? true : false;
+        if ($action) {
+            $offboarding->status = "1";
+            $offboarding->checkpoint->acc_document = "1";
+                if (
+                    $offboarding->push()
+                ) {
+                    $this->addProgressRecord(
+                        $offboarding->id,
+                        true,
+                        false,
+                        "Admin Approve Resign Letter Manually",
+                    );
+                }
+                $input = array(
+                    'processTypeIn' => 1,
+                    'offboardingIDIn' => $offboarding->id,
+                    'IN_accResignDocument'=>"1"
+                );
+                $input = json_encode($input);
+                $this->startProcess($input);
+        }else{
+            $offboarding->status = "-1";
+            $offboarding->checkpoint->acc_document = "0";
+                if (
+                    $offboarding->push()
+                ) {
+                    $this->addProgressRecord(
+                        $offboarding->id,
+                        true,
+                        false,
+                        "Admin Reject Resign Letter Manually",
+                    );
+                }
+                $input = array(
+                    'processTypeIn' => 1,
+                    'offboardingIDIn' => $offboarding->id,
+                    'IN_accResignDocument'=>"-1"
+                );
+                $input = json_encode($input);
+                $this->startProcess($input);
+        }
+        $path= config('app.url') . "/offboarding/".$offboarding->id."?token=".$offboarding->token."&tracking=true";
+        return redirect()->back();
+        return redirect($path);
+        // return response()->json("Success");
+    }
+
+    private function addProgressRecord($offboardingID, $status, $uipath, $message, $reminder = null, $process_type = null)
     {
         $record = new ProgressRecord;
         $record->offboarding_id = $offboardingID;
         $record->status = $status;
         $record->uipath = $uipath;
         $record->message = $message;
+        $record->reminder = $reminder;
+        $record->process_type = $process_type;
         $record->save();
         return $record;
     }
