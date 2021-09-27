@@ -112,6 +112,8 @@ class APIController extends Controller
                 return response()->json('Fail', 400);
             }
             $employeeID = $request->employeeID;
+        }else{
+            $employeeID = $request->employeeID;
         }
 
         $offboardingTicket = new Offboarding;
