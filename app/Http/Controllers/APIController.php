@@ -63,7 +63,6 @@ class APIController extends Controller
             "RobotIds" => [],
             "NoOfRobots" => 0,
             "JobsCount" => 1,
-            // 'Strategy' => 'All',
             'InputArguments' => $argumentIn,
         );
         $payload = json_encode(array("startInfo" => $data));
@@ -78,7 +77,6 @@ class APIController extends Controller
         ));
 
         curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
-        // curl_setopt($ch, CURLOPT_TIMEOUT,60);
 
         curl_setopt($ch, CURLOPT_SSL_VERIFYHOST, false);
         curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false);
@@ -88,39 +86,11 @@ class APIController extends Controller
         curl_close($ch);
 
         $obj = json_decode($result);
-        $procid = $obj->value[0]->Id;
-        $waitloop = true;
-
-        // do {
-        //     sleep(5);
-        //     //Check the status of the process
-        //     $url = 'https://platform.uipath.com/presiaykbmhx/Indosat/odata/Jobs?$filter=Id%20eq%20' . $procid;
-        //     $ch = curl_init($url);
-        //     curl_setopt($ch, CURLOPT_CUSTOMREQUEST, "GET");
-        //     curl_setopt($ch, CURLOPT_HTTPHEADER, array('Accept: application/json', 'Content-Type: application/json', 'X-UIPATH-TenantName: INDOSAT', 'Authorization: Bearer ' . $auth, 'User-Agent: telnet'));
-
-        //     curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
-        //     curl_setopt($ch, CURLOPT_TIMEOUT, 60);
-
-        //     curl_setopt($ch, CURLOPT_SSL_VERIFYHOST, false);
-        //     curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false);
-
-        //     $result = curl_exec($ch);
-        //     curl_close($ch);
-
-        //     $obj = json_decode($result);
-        //     //echo $obj->value[0]->State;
-        //     if (substr($obj->value[0]->State, 0, 4) === "Succ") {
-        //         echo $obj->value[0]->OutputArguments;
-        //         $waitloop = false;
-        //     }
-        // } while ($waitloop);
     }
 
     public function postResignForm(Request $request)
     {
         $employeeID = $request->employeeIDIn;
-        // return $request->all();
 
         $processOffboarding = Offboarding::where('employee_id', $employeeID)->whereBetween('status', [0, 6])->get()->count();
         if ($processOffboarding>0) {
@@ -130,7 +100,7 @@ class APIController extends Controller
         if ($request->admin != "true") {
             $this->validate($request, [
                 'employeeIDIn' => 'required|exists:employees,id',
-                'resign_letter' => 'required|file|max:7000', // max 7MB
+                'resign_letter' => 'required|file|max:7000',
             ]);
             $employee = Employee::where('id', $employeeID)->where('password', $request->password)->first();
             if (!$employee) {
@@ -143,9 +113,6 @@ class APIController extends Controller
             }
             $employeeID = $request->employeeID;
         }
-        // else {
-        //     $employeeID = $request->employeeID;
-        // }
 
         $offboardingTicket = new Offboarding;
         $offboardingTicket->employee_id = $employeeID;
@@ -229,8 +196,6 @@ class APIController extends Controller
         if ($offboardingTicket->effective_date != $request->effective_date) {
             $dateChanged = "1";
         }
-        // $offboardingTicket->status = $request->status;
-        // $offboardingTicket->save();
         if ($request->employee == '1') {
             $offboardingTicket->checkpoint->acc_employee = $request->status == '1' ? true : false;
         } elseif ($request->hrmgr == '1') {
@@ -254,9 +219,6 @@ class APIController extends Controller
         $offboardingTicket->push();
         $offboardingTicket->save();
 
-        // $offboardingTicket = Offboarding::find($request->offboardingID);
-
-
         if ($offboardingTicket->checkpoint->acc_employee == false) {
             if ($offboardingTicket->status != "-3") {
                 $offboardingTicket->status = "-3";
@@ -279,7 +241,6 @@ class APIController extends Controller
             }
         } elseif ($offboardingTicket->checkpoint->acc_svp == true) {
             $offboardingTicket->status = "2";
-            // $offboardingTicket->token = Str::random(64);
             if (
                 $offboardingTicket->save()
             ) {
@@ -304,7 +265,6 @@ class APIController extends Controller
     }
     public function postRequestDocument(Request $request)
     {
-        // return response()->json($request->all());
         $offboardingTicket = Offboarding::find($request->offboardingID);
 
         $docLink = null;
@@ -391,13 +351,11 @@ class APIController extends Controller
             case 'hrss':
                 $offboardingTicket->details->personnel_letter_link = $docLink["pl"];
                 $offboardingTicket->details->paklaring = $docLink["paklaring"];
-                // $offboardingTicket->details->termination_letter_link = $docLink["termination_letter"];
                 $offboardingTicket->checkpoint->acc_hrss = true;
                 break;
             case 'hrbp':
                 $offboardingTicket->details->exit_interview_form = $docLink["exit_interview_form"];
                 $offboardingTicket->details->note_procedure = $docLink["note_procedure"];
-                // $offboardingTicket->details->change_opers = $docLink["opers"];
                 $offboardingTicket->checkpoint->exit_interview = true;
                 break;
             default:
@@ -463,40 +421,11 @@ class APIController extends Controller
             }
         }
 
-
-        // if ($request->dept == '1') {
-        //     $offboardingTicket->checkpoint->acc_employee = $request->status == '1' ? true : false;
-        // } else {
-        //     $offboardingTicket->checkpoint->acc_svp = $request->status == '1' ? true : false;
-        //     $offboardingTicket->effective_date = $request->effective_date;
-        // }
-
-
-        // return response()->json($request->all(), 200);
-        // $offboardingTicket = Offboarding::find($request->offboardingID);
-        // // $offboardingTicket->status = $request->status == "1" ? "2" : "-2";
-        // $offboardingTicket->item = $request->item;
-        // $offboardingTicket->qty = $request->qty;
-        // // $offboardingTicket->token = Str::random(64);
-        // $offboardingTicket->save();
-        // $items = $request->items;
-        // $items = array(
-        //     'data1',
-        //     'data2',
-        //     'data3',
-        //     'data4',
-        // );
-        // return response()->json($items, 200);
-
-
-
-
         return response()->json("Success", 200);
     }
 
     public function postReturnDocument(Request $request)
     {
-        // return $request->all();
         $offboardingTicket = Offboarding::find($request->offboardingID);
         $input = null;
         if ($request->type == "confirmation") {
@@ -519,7 +448,6 @@ class APIController extends Controller
                         $offboardingTicket->checkpoint->return_hrss_it = true;
                         break;
                     default:
-                        # code...
                         break;
                 }
                 if ($offboardingTicket->push()) {
@@ -575,30 +503,6 @@ class APIController extends Controller
             $offboardingTicket->status = "5";
             $offboardingTicket->save();
 
-            // if ($request->file('signedDocument')) {
-            //     $file = $request->file('signedDocument');
-            //     $fileHash = str_replace('.' . $file->extension(), '', $file->hashName());
-            //     $fileName = $offboardingTicket->employee->name . '-' . $fileHash . '.' . $file->getClientOriginalExtension();
-            //     $path = Storage::putFileAs(
-            //         'public/Documents/Return Data',
-            //         $request->file('signedDocument'),
-            //         $fileName
-            //     );
-            //     $signedDocument = config('app.url') . Storage::url($path);
-            // }
-            // if ($request->file('formDocument')) {
-            //     $file = $request->file('formDocument');
-            //     $fileHash = str_replace('.' . $file->extension(), '', $file->hashName());
-            //     $fileName = $offboardingTicket->employee->name . '-' . $fileHash . '.' . $file->getClientOriginalExtension();
-            //     $path = Storage::putFileAs(
-            //         'public/Documents/Return Data',
-            //         $request->file('formDocument'),
-            //         $fileName
-            //     );
-            //     $formDocument = config('app.url') . Storage::url($path);
-            // }
-
-
             $doc = ["signedDocument", "formDocument", "opers", "jobTransfer", "bpjs"];
             foreach ($doc as $key => $value) {
                 $file = $request->file($value);
@@ -633,11 +537,6 @@ class APIController extends Controller
                 'processTypeIn' => 4,
                 'offboardingIDIn' => $request->offboardingID,
                 'IN_confirm' => 0,
-                // 'IN_dept' => $request->dept,
-                // 'IN_processPayroll' => 1
-                // 'IN_item' => $request->item,
-                // 'IN_qty' => $request->qty,
-                // 'IN_items' => json_decode($items),
             );
             $input = json_encode($input);
             $this->startProcess($input);
@@ -691,13 +590,8 @@ class APIController extends Controller
                     ->orderBy('status')
                     ->get()
                     ->groupBy('status')
-                    // ->withoutRelations()
                 ;
                 $data['progress'] = [];
-                // for ($i=0; $i < count($data['total']); $i++) {
-                //     $data['progress'][$i]['name'] = count($data['total']);
-                //     $data['progress'][$i]['count'] = count($data['total']);
-                // }
                 $i = 0;
                 foreach ($data['total'] as $key => $value) {
                     $name = StatusDetail::where('code', $key)->first()->name;
@@ -717,15 +611,7 @@ class APIController extends Controller
                     $i++;
                 }
 
-                // $data['rawMonths'] = Offboarding::
-                // select(DB::raw('count(*) as count, status'))
-                // ->where('status', '>=', 0)
-                // ->groupBy('status')
-                // ->get()
-                // ;
-
                 $data['rawMonths'] = Offboarding::select(
-                    // "id",
                     DB::raw('count(*) as count'),
                     DB::raw("(DATE_FORMAT(effective_date, '%M %Y')) as month_year")
                 )
@@ -856,22 +742,9 @@ class APIController extends Controller
 
     public function postRightObligation(Request $request)
     {
-        // return response()->json($request->all());
         $finalData = [];
         $offboardingTicket = Offboarding::find($request->offboardingID);
         $data = json_decode($request->items);
-        // $i=0;
-        // foreach($data as $key => $value){
-        //     foreach($value as $key2 => $value2){
-        //         $finalData[$i]["item"] = $key2;
-        //         $finalData[$i]["data"] = $value2;
-        //         $i++;
-        //     }
-        //     // $finalData[$i]["item"] = $key;
-        //     // $finalData[$i]["data"] = $value;
-
-        // }
-        // return response($finalData);
 
         switch ($request->dept) {
             case 'fastel':
@@ -932,7 +805,6 @@ class APIController extends Controller
             $request->dept != "hrss" &&
             $offboardingTicket->checkpoint->acc_fastel == true &&
             $offboardingTicket->checkpoint->acc_kopindosat == true &&
-            // $offboardingTicket->checkpoint->acc_it == true &&
             $offboardingTicket->checkpoint->acc_hrdev == true &&
             $offboardingTicket->checkpoint->acc_medical == true &&
             $offboardingTicket->checkpoint->acc_finance == true &&
@@ -1041,7 +913,6 @@ class APIController extends Controller
         $path= config('app.url') . "/offboarding/".$offboarding->id."?token=".$offboarding->token."&tracking=true";
         return redirect()->back();
         return redirect($path);
-        // return response()->json("Success");
     }
 
     public function retryCV(Request $request)
@@ -1062,7 +933,6 @@ class APIController extends Controller
         $path= config('app.url') . "/offboarding/".$offboarding->id."?token=".$offboarding->token."&tracking=true";
         return redirect()->back();
         return redirect($path);
-        // return response()->json("Success");
     }
 
     private function addProgressRecord($offboardingID, $status, $uipath, $message, $reminder = null, $process_type = null)

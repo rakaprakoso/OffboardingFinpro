@@ -29,12 +29,7 @@ Route::view('/admin/{path?}', 'index_admin')->where('path', '([A-z\d\-\/_.]+)?')
 
 Route::middleware('cache.headers:public;max_age=2628000;etag')->group(function () {
     Route::get('/{path?}', [PageController::class, 'index'])->where('path', '([A-z\d\-\/_.]+)?');
-    // Route::view('/{path?}', 'index')->where('path', '([A-z\d\-\/_.]+)?');
 });
 
-
-
-// Route::view('/{any}', 'index')->where('any', '.*');
-// Route::get('/', [PageController::class, 'home']);
 
 
