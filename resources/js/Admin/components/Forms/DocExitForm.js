@@ -79,7 +79,7 @@ const DocExitForm = ({
             name: 'Medical',
             value: 'medical',
             children: ['Ekses Medical'],
-            cp : checkpoint?.medical,
+            cp : checkpoint?.acc_medical,
         },
     ]
 
