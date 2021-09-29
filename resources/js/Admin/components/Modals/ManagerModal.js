@@ -33,7 +33,7 @@ const ManagerModal = ({ openModal, submitted, stateChanger }) => {
                 {
                 // !submitted ?
                 submitted == 'loading' ?
-                    <LoadingResignSubmit /> : <ResignSubmitted closeModal={closeModal} />
+                    <LoadingResignSubmit /> : <ResignSubmitted closeModal={closeModal} success={submitted} />
                 }
             </Modal>
         </>
@@ -50,14 +50,22 @@ const LoadingResignSubmit = () => {
         </>
     )
 }
-const ResignSubmitted = ({ closeModal }) => {
+const ResignSubmitted = ({ closeModal, success }) => {
     return (
         <>
             <button className="flex ml-auto text-2xl text-red-700" onClick={closeModal}><AiOutlineCloseCircle /></button>
-            <div className="flex flex-col items-center p-8">
-                <AiOutlineCheck className="text-4xl mb-4 text-green-700" />
-                Submitted
-            </div>
+            {success &&
+                success ?
+                    <div className="flex flex-col items-center p-8">
+                        <AiOutlineCheck className="text-4xl mb-4 text-green-700" />
+                        Submitted
+                    </div>
+                    :
+                    <div className="flex flex-col items-center p-8">
+                        <AiOutlineCloseCircle className="text-4xl mb-4 text-red-600" />
+                        Failed
+                    </div>
+            }
         </>
     )
 }

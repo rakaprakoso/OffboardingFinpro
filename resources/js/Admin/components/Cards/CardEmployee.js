@@ -46,32 +46,32 @@ export default function CardEmployee({ data, visibility, admin }) {
         {
             'name': 'Outstanding Fastel',
             'data': acc_fastel,
-            'link': `&process=3`,
+            'link': `&process=3&newVersion=true`,
         },
         {
             'name': 'Outstanding Kopindosat',
             'data': acc_kopindosat,
-            'link': `&process=3`,
+            'link': `&process=3&newVersion=true`,
         },
         {
             'name': 'Outstanding IT',
             'data': acc_it,
-            'link': `&process=3`,
+            'link': `&process=3&newVersion=true`,
         },
         {
             'name': 'Outstanding HR Dev',
             'data': acc_hrdev,
-            'link': `&process=3`,
+            'link': `&process=3&newVersion=true`,
         },
         {
             'name': 'Outstanding Medical',
             'data': acc_medical,
-            'link': `&process=3`,
+            'link': `&process=3&newVersion=true`,
         },
         {
             'name': 'Outstanding Finance',
             'data': acc_finance,
-            'link': `&process=3`,
+            'link': `&process=3&newVersion=true`,
         },
         {
             'name': 'Payroll Calculated',
