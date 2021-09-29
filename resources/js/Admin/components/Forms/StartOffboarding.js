@@ -61,16 +61,30 @@ export default function StartOffboarding() {
                     formData.append('resign_letter', values.resignLetter);
                     formData.append('effective_date', values.effectiveDate);
                     formData.append('admin', 'true');
-                    if(match){
+                    if (match) {
                         formData.append('adminPublic', 'true');
                     }
                     const res = await axios.post('/api/resignform', formData, {
                         headers: {
                             'Content-Type': 'multipart/form-data'
                         }
+                        // });
+                    }).then(response => {
+                        console.log(response)
+                        return response
+                    }).catch(error => {
+                        // console.log(error.response)
+                        // setSubmitted(true)
+                        return error.response
                     });
                     console.log(res.data);
-                    setSubmitted(true)
+                    if (res.status == '200') {
+                        setSubmitted(true)
+                    } else {
+                        setSubmitted(false)
+                    }
+                    // console.log(res.data);
+                    // setSubmitted(true)
                 }}
             >
                 {({ values, errors, touched, setFieldValue }) => (
