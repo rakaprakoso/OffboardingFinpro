@@ -89,9 +89,9 @@ export default function StartOffboarding() {
                             <option value="e103">Meninggal Dunia</option>
                             <option value="e201">Pengunduran Diri</option>
                             <option value="e202">Pengunduran Diri APS</option>
-                            <option value="e301">Pemberhentian Tidak Hormat (Belum Pernah)</option>
+                            <option value="e301">Pemberhentian Tidak Hormat</option>
                             <option value="e302">Pemberhentian Bukan Atas Permintaan</option>
-                            <option value="e303">Karyawan yang didiskualifikasi mengundurkan diri (Belum Pernah)</option>
+                            <option value="e303">Karyawan yang didiskualifikasi mengundurkan diri</option>
                         </Field>
                         {errors.type && touched.type ? (
                             <div className="-mt-4 mb-4 text-red-600 text-sm">{errors.type}</div>

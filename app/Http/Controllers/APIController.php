@@ -108,7 +108,8 @@ class APIController extends Controller
             }
         } elseif ($request->adminPublic == "true") {
             $svp = Employee::where('id', $request->svpID)->where('password', $request->svpPassword)->first();
-            if (!$svp) {
+            $employee = Employee::where('manager_id', $request->svpID)->where('id', $request->employeeID)->first();
+            if (!$svp || !$employee) {
                 return response()->json('Fail', 400);
             }
             $employeeID = $request->employeeID;

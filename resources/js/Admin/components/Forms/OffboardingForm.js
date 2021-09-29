@@ -369,7 +369,7 @@ const OffboardingForm = () => {
                                                                                     initialValues={{
                                                                                         type: '',
                                                                                         exit_interview_form: '',
-                                                                                        note_procedure: '',
+                                                                                        // note_procedure: '',
                                                                                         // opers: '',
                                                                                         accept: false,
                                                                                     }}
@@ -384,7 +384,7 @@ const OffboardingForm = () => {
                                                                                         formData.append('type', 'exitinterview');
                                                                                         formData.append('dept', 'hrbp');
                                                                                         formData.append('exit_interview_form', values.exit_interview_form);
-                                                                                        formData.append('note_procedure', values.note_procedure);
+                                                                                        // formData.append('note_procedure', values.note_procedure);
                                                                                         // formData.append("opers", values.opers);
                                                                                         const res = await axios.post('/api/requestdocument', formData, {
                                                                                             headers: {
@@ -417,7 +417,7 @@ const OffboardingForm = () => {
                                                                                                 <div className="-mt-4 mb-4 text-red-600 text-sm">{errors.exit_interview_form}</div>
                                                                                             ) : null}
 
-                                                                                            <label htmlFor="note_procedure">Note Procedure</label>
+                                                                                            {/* <label htmlFor="note_procedure">Note Procedure</label>
                                                                                             <input id="note_procedure" name="note_procedure" type="file" placeholder="Attachment"
                                                                                                 onChange={(event) => {
                                                                                                     setFieldValue("note_procedure", event.target.files[0]);
@@ -425,7 +425,7 @@ const OffboardingForm = () => {
                                                                                             />
                                                                                             {errors.note_procedure && touched.note_procedure ? (
                                                                                                 <div className="-mt-4 mb-4 text-red-600 text-sm">{errors.note_procedure}</div>
-                                                                                            ) : null}
+                                                                                            ) : null} */}
 
                                                                                             {/* <label htmlFor="opers">Change Opers</label>
                                                                                     <input id="opers" name="opers" type="file" placeholder="Attachment"
