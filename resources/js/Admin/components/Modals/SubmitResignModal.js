@@ -29,7 +29,9 @@ const SubmitResignModal = ({ openModal, submitted, stateChanger }) => {
                 style={customStyles}
                 shouldCloseOnOverlayClick={false}
             >
-                {submitted == 'loading' ?
+                {
+                // !submitted ?
+                submitted == 'loading' ?
                     <LoadingResignSubmit /> :
                     <ResignSubmitted closeModal={closeModal} success={submitted} />
                 }

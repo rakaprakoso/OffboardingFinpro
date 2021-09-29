@@ -47,7 +47,7 @@ const OffboardingForm = () => {
     const [rejectEmployee, setRejectEmployee] = useState(false)
     const [data, setData] = useState(false)
     const [isOpen, setIsOpen] = useState(false);
-    const [submitted, setSubmitted] = useState(false);
+    const [submitted, setSubmitted] = useState('loading');
     const [tracking, setTracking] = useState(false);
     const [templateData, setTemplateData] = useState(null);
 

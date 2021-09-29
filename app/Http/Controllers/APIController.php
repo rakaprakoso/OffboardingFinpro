@@ -93,7 +93,7 @@ class APIController extends Controller
         $employeeID = $request->employeeIDIn;
 
         $processOffboarding = Offboarding::where('employee_id', $employeeID)->whereBetween('status', [0, 6])->get()->count();
-        if ($processOffboarding>0) {
+        if ($processOffboarding > 0) {
             return response()->json('Fail', 400);
         }
 
@@ -112,8 +112,14 @@ class APIController extends Controller
             if (!$svp || !$employee) {
                 return response()->json('Fail', 400);
             }
+
+            $processOffboarding = Offboarding::where('employee_id', $request->employeeID)->whereBetween('status', [0, 6])->get()->count();
+            if ($processOffboarding > 0) {
+                return response()->json('Fail', 400);
+            }
+
             $employeeID = $request->employeeID;
-        }else{
+        } else {
             $employeeID = $request->employeeID;
         }
 
@@ -592,8 +598,7 @@ class APIController extends Controller
                 $data['total'] = Offboarding::whereBetween('status', [0, 5])
                     ->orderBy('status')
                     ->get()
-                    ->groupBy('status')
-                ;
+                    ->groupBy('status');
                 $data['progress'] = [];
                 $i = 0;
                 foreach ($data['total'] as $key => $value) {
@@ -875,45 +880,45 @@ class APIController extends Controller
         if ($action) {
             $offboarding->status = "1";
             $offboarding->checkpoint->acc_document = "1";
-                if (
-                    $offboarding->push()
-                ) {
-                    $this->addProgressRecord(
-                        $offboarding->id,
-                        true,
-                        false,
-                        "Admin Approve Resign Letter Manually",
-                    );
-                }
-                $input = array(
-                    'processTypeIn' => 1,
-                    'offboardingIDIn' => $offboarding->id,
-                    'IN_accResignDocument'=>"1"
+            if (
+                $offboarding->push()
+            ) {
+                $this->addProgressRecord(
+                    $offboarding->id,
+                    true,
+                    false,
+                    "Admin Approve Resign Letter Manually",
                 );
-                $input = json_encode($input);
-                $this->startProcess($input);
-        }else{
+            }
+            $input = array(
+                'processTypeIn' => 1,
+                'offboardingIDIn' => $offboarding->id,
+                'IN_accResignDocument' => "1"
+            );
+            $input = json_encode($input);
+            $this->startProcess($input);
+        } else {
             $offboarding->status = "-1";
             $offboarding->checkpoint->acc_document = "0";
-                if (
-                    $offboarding->push()
-                ) {
-                    $this->addProgressRecord(
-                        $offboarding->id,
-                        true,
-                        false,
-                        "Admin Reject Resign Letter Manually",
-                    );
-                }
-                $input = array(
-                    'processTypeIn' => 1,
-                    'offboardingIDIn' => $offboarding->id,
-                    'IN_accResignDocument'=>"-1"
+            if (
+                $offboarding->push()
+            ) {
+                $this->addProgressRecord(
+                    $offboarding->id,
+                    true,
+                    false,
+                    "Admin Reject Resign Letter Manually",
                 );
-                $input = json_encode($input);
-                $this->startProcess($input);
+            }
+            $input = array(
+                'processTypeIn' => 1,
+                'offboardingIDIn' => $offboarding->id,
+                'IN_accResignDocument' => "-1"
+            );
+            $input = json_encode($input);
+            $this->startProcess($input);
         }
-        $path= config('app.url') . "/offboarding/".$offboarding->id."?token=".$offboarding->token."&tracking=true";
+        $path = config('app.url') . "/offboarding/" . $offboarding->id . "?token=" . $offboarding->token . "&tracking=true";
         return redirect()->back();
         return redirect($path);
     }
@@ -928,12 +933,12 @@ class APIController extends Controller
         $input = array(
             'processTypeIn' => 2,
             'offboardingIDIn' => $offboarding->id,
-            'IN_CV'=>"1"
+            'IN_CV' => "1"
         );
         $input = json_encode($input);
         $this->startProcess($input);
 
-        $path= config('app.url') . "/offboarding/".$offboarding->id."?token=".$offboarding->token."&tracking=true";
+        $path = config('app.url') . "/offboarding/" . $offboarding->id . "?token=" . $offboarding->token . "&tracking=true";
         return redirect()->back();
         return redirect($path);
     }

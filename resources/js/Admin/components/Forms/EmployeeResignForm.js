@@ -26,6 +26,8 @@ const EmployeeResignForm = () => {
 
     return (
         <>
+            <h2 className="text-2xl font-bold">Resignation Form</h2>
+            <hr className="mb-3" />
             <Formik
                 initialValues={{
                     // employeeName: '',
@@ -111,7 +113,7 @@ const EmployeeResignForm = () => {
                         {errors.resignLetter && touched.resignLetter ? (
                             <div className="-mt-4 mb-4 text-red-600 text-sm">{errors.resignLetter}</div>
                         ) : null}
-                        <button type="submit">Submit</button>
+                        <button type="submit" className="bg-primary text-white">Submit</button>
                     </Form>
 
 

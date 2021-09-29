@@ -11,6 +11,7 @@ import { isNull } from 'lodash';
 import { IoTrashBin } from "react-icons/io5";
 
 import * as Yup from 'yup';
+import SubmitResignModal from '../Modals/SubmitResignModal';
 
 export default function StartOffboarding() {
     const [isOpen, setIsOpen] = useState(false);
@@ -53,6 +54,7 @@ export default function StartOffboarding() {
                 validationSchema={OffboardingSchema}
                 onSubmit={async (values) => {
                     setIsOpen(true);
+                    setSubmitted("loading");
                     const formData = new FormData();
                     formData.append('employeeID', values.employeeID);
                     formData.append('svpID', values.svpID);
@@ -73,11 +75,12 @@ export default function StartOffboarding() {
                         console.log(response)
                         return response
                     }).catch(error => {
-                        // console.log(error.response)
+                        console.log(error.response)
                         // setSubmitted(true)
+                        // setSubmitted(false)
                         return error.response
                     });
-                    console.log(res.data);
+                    // console.log(res.data);
                     if (res.status == '200') {
                         setSubmitted(true)
                     } else {
@@ -161,7 +164,7 @@ export default function StartOffboarding() {
                     </Form>
                 )}
             </Formik>
-            <ManagerModal
+            <SubmitResignModal
                 openModal={isOpen}
                 submitted={submitted}
                 stateChanger={setIsOpen}

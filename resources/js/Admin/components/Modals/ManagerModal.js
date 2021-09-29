@@ -30,7 +30,9 @@ const ManagerModal = ({ openModal, submitted, stateChanger }) => {
                 style={customStyles}
                 shouldCloseOnOverlayClick={false}
             >
-                {!submitted ?
+                {
+                // !submitted ?
+                submitted == 'loading' ?
                     <LoadingResignSubmit /> : <ResignSubmitted closeModal={closeModal} />
                 }
             </Modal>
