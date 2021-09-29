@@ -79,7 +79,7 @@ export default function CardEmployee({ data, visibility, admin }) {
             'link': `&process=3&payroll=true`,
         },
         {
-            'name': 'Exit Clearance by Supervisor',
+            'name': 'Exit Clearance by SVP',
             'data': return_svp,
             'link': `&process=5`,
         },
@@ -106,7 +106,7 @@ export default function CardEmployee({ data, visibility, admin }) {
         },
         {
             'name': 'Employee Return Document',
-            'data': data?.status == 4 ? 1 : null,
+            'data': parseInt(data?.status) > 4 ? 1 : null,
             'link': `&process=4`,
         },
         {
@@ -335,9 +335,7 @@ export default function CardEmployee({ data, visibility, admin }) {
                                                                                                 <i className="fas fa-file mr-2 text-xs"></i>
                                                                                                 Download
                                                                                             </a>
-                                                                                            :
-                                                                                            null
-
+                                                                                            : "In progress"
                                                                                         }
                                                                                     </td>
                                                                                 </tr>

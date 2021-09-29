@@ -294,7 +294,7 @@ class APIController extends Controller
             if ($request->type == 'PL') {
                 $doc = ["pl", "paklaring"];
             } else {
-                $doc = ["exit_interview_form", "note_procedure"];
+                $doc = ["exit_interview_form"];
             }
             foreach ($doc as $key => $value) {
                 $file = $request->file($value);
@@ -364,7 +364,7 @@ class APIController extends Controller
                 break;
             case 'hrbp':
                 $offboardingTicket->details->exit_interview_form = $docLink["exit_interview_form"];
-                $offboardingTicket->details->note_procedure = $docLink["note_procedure"];
+                // $offboardingTicket->details->note_procedure = $docLink["note_procedure"];
                 $offboardingTicket->checkpoint->exit_interview = true;
                 break;
             default:
@@ -563,17 +563,19 @@ class APIController extends Controller
         $fileName = $offboardingTicket->employee->name . '-' . $fileHash . '.' . $file->getClientOriginalExtension();
         $path = Storage::putFileAs(
             'public/Documents/Offboarding/' . $offboardingTicket->id,
-            $request->file('formDocument'),
+            $request->file('bast'),
             'BAST-' . $fileName
         );
         $directory = config('app.url') . Storage::url($path);
         $offboardingTicket->details->bast_attachment = $directory;
+        // $offboardingTicket->push();
+        // return response()->json($directory);
         if ($offboardingTicket->push()) {
             $this->addProgressRecord(
                 $request->offboardingID,
                 true,
                 false,
-                $request->message,
+               "BAST Returned",
             );
         }
 
