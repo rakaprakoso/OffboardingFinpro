@@ -45,7 +45,7 @@ class DocumentExitRequest extends Mailable
                 break;
         }
 
-        return $this->from('noreply@indosat.com', 'noreply')
+        return $this->from('noreply@deprakoso.site', 'HR Info')
             ->subject($subject)
             ->view('emails.documentExitRequest')
             ->with('offboardingData', $this->offboardingData)
