@@ -20,6 +20,8 @@ class CreateProgressRecordsTable extends Migration
             $table->boolean('status')->nullable();
             $table->boolean('uipath')->nullable();
             $table->text('message')->nullable();
+            $table->boolean('reminder')->nullable();
+            $table->string('process_type')->nullable();
             $table->timestamps();
         });
     }

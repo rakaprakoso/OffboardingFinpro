@@ -121,8 +121,8 @@ const OffboardingForm = () => {
 
     const ConfirmSchema = employee == false ?
         Yup.object().shape({
-            managerID: Yup.string()
-                .required('Required'),
+            // managerID: Yup.string()
+            //     .required('Required'),
             status: Yup.string()
                 .required('Required'),
             effectiveDate: Yup.date('Invalid Date').required('Required'),
@@ -142,13 +142,13 @@ const OffboardingForm = () => {
                     data &&
                     <div className="row">
                         <div className="col-lg-12">
-                            {parseInt(data.status) >= 0 ?
+                            {parseInt(data.status_id) >= 0 ?
                                 <div className="w-full mb-3 text-center">
-                                    <span className="text-gray-800 font-semibold text-xl">{Math.round(parseInt(data.status) / 6 * 100)} % - {data?.status_details?.name}</span>
+                                    <span className="text-gray-800 font-semibold text-xl">{Math.round(parseInt(data.status_id) / 6 * 100)} % - {data?.status_details?.name}</span>
                                     <div className="relative w-full">
                                         <div className="overflow-hidden h-3 flex rounded bg-blue-200">
                                             <div
-                                                style={{ width: `${parseInt(data.status) / 6 * 100}%` }}
+                                                style={{ width: `${parseInt(data.status_id) / 6 * 100}%` }}
                                                 className="shadow-none flex flex-col text-center whitespace-nowrap text-white justify-center bg-blue-500"
                                             ></div>
                                         </div>
@@ -164,9 +164,9 @@ const OffboardingForm = () => {
                         </div>
                         <div className="col-lg-6">
                             {
-                                parseInt(data?.status) < 0 ?
+                                parseInt(data?.status_id) < 0 ?
                                     "Process Terminated" :
-                                    parseInt(data?.status) == 1 ? (
+                                    parseInt(data?.status_id) == 1 ? (
                                         query.get('process') != 3 ? (
                                             data && data?.checkpoint.acc_svp == 1 ? 'Already Acc' :
                                                 data && data?.checkpoint.acc_employee == 1 && employee ? 'Employee Already Acc' :
@@ -187,7 +187,7 @@ const OffboardingForm = () => {
                                                                     formData.append('offboardingID', id);
                                                                     if (employee == false) {
                                                                         formData.append('employee', 0);
-                                                                        formData.append('IN_managerID', values.managerID);
+                                                                        // formData.append('IN_managerID', values.managerID);
                                                                         formData.append('effective_date', values.effectiveDate);
                                                                     } else {
                                                                         formData.append('employee', 1);
@@ -210,11 +210,11 @@ const OffboardingForm = () => {
                                                                     <Form>
                                                                         {employee == false ?
                                                                             <>
-                                                                                <label htmlFor="managerID">Manager ID</label>
+                                                                                {/* <label htmlFor="managerID">Manager ID</label>
                                                                                 <Field id="managerID" name="managerID" placeholder="Manager ID" />
                                                                                 {errors.managerID && touched.managerID ? (
                                                                                     <div className="-mt-4 mb-4 text-red-600 text-sm">{errors.managerID}</div>
-                                                                                ) : null}
+                                                                                ) : null} */}
 
                                                                                 <label htmlFor="effectiveDate">Effective Date</label>
                                                                                 <Field type="date" id="effectiveDate" name="effectiveDate" />
@@ -244,10 +244,10 @@ const OffboardingForm = () => {
                                                         </>
                                         ) : "Still waiting document verification"
                                     ) :
-                                        parseInt(data?.status) == 2 ? "Already Acc process 2" :
-                                            parseInt(data?.status) == -2 ? "Declined" :
-                                                parseInt(data?.status) == 0 ? "Still Waiting Document Verification" :
-                                                    parseInt(data?.status) >= 3 ? (
+                                        parseInt(data?.status_id) == 2 ? "Already Acc process 2" :
+                                            parseInt(data?.status_id) == -2 ? "Declined" :
+                                                parseInt(data?.status_id) == 0 ? "Still Waiting Document Verification" :
+                                                    parseInt(data?.status_id) >= 3 ? (
                                                         query.get('tracking') == 'true' ?
                                                             "Don't Forget always check your offboarding status"
                                                             :

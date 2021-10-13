@@ -8,4 +8,5 @@ use Illuminate\Database\Eloquent\Model;
 class StatusDetail extends Model
 {
     use HasFactory;
+    protected $table = "offboarding_status";
 }

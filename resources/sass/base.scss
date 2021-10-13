@@ -244,3 +244,27 @@ ul.slider {
         @apply inline-block m-0;
     }
 }
+
+.employee{
+    .react-tabs__tab--selected {
+        background: #eab308;
+        color: white;
+        border: none;
+    }
+    .react-tabs__tab {
+        display: inline-block;
+        border: 1px solid transparent;
+        border-bottom: none;
+        bottom: -1px;
+        position: relative;
+        list-style: none;
+        padding: 6px 12px;
+        cursor: pointer;
+        border: 1px solid #d1d1d1;
+        border-radius: 4px;
+        margin: 0 0 8px 8px;
+    }
+    .react-tabs__tab-list {
+        border-bottom: none;
+    }
+}

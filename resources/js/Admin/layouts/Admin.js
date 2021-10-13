@@ -60,8 +60,8 @@ export default function Admin() {
                     <Switch>
                         <Route path="/admin" exact component={Dashboard} />
                         <Route path="/admin/offboarding/:id?/:method?" exact component={ModifyOffboarding} />
-                        <Route path="/admin/product/" exact component={Home} />
-                        <Route path="/admin/product/:method/:id?" exact component={Modify} />
+                        {/* <Route path="/admin/product/" exact component={Home} />
+                        <Route path="/admin/product/:method/:id?" exact component={Modify} /> */}
                         <Route path="/admin/newOffboarding" exact component={CreateOffboarding} />
                         <Route path="/admin/schedulerRecord" exact component={DashboardScheduler} />
                         {/* <Route path="/admin/maps" exact component={Maps} />

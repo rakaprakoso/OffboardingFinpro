@@ -15,12 +15,14 @@ class CreateOffboardingsTable extends Migration
     {
         Schema::create('offboardings', function (Blueprint $table) {
             $table->id();
-            $table->timestamps();
             $table->bigInteger('employee_id')->unsigned()->nullable();
             $table->foreign('employee_id')->references('id')->on('employees')->onDelete('cascade');
-            $table->string('type')->nullable();
-            $table->string('status')->nullable();
+            $table->string('type_id')->nullable();
+            $table->string('status_id')->nullable();
             $table->date('effective_date')->nullable();
+            $table->string('token')->unique();
+            $table->string('employee_token')->unique();
+            $table->timestamps();
         });
     }
 

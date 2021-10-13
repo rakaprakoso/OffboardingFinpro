@@ -8,4 +8,5 @@ use Illuminate\Database\Eloquent\Model;
 class TypeDetail extends Model
 {
     use HasFactory;
+    protected $table = "offboarding_type";
 }

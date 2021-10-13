@@ -158,6 +158,14 @@ export default function CardTable({ color }) {
                             </tr>
                         </thead>
                         <tbody>
+                            {offboardingData && offboardingData.length == 0 ?
+                                <tr>
+                                    <td colSpan="8" className="border-t-0 px-6 align-middle border-l-0 border-r-0 text-xs whitespace-nowrap p-6 text-center items-center">
+                                        Data Not Found
+                                    </td>
+                                </tr>
+                                : null
+                            }
                             {offboardingData && offboardingData.map((item, i) => (
                                 <tr>
                                     <td className="border-t-0 px-6 align-middle border-l-0 border-r-0 text-xs whitespace-nowrap p-6">
@@ -175,7 +183,7 @@ export default function CardTable({ color }) {
                                                 +(color === "light" ? "text-blueGray-600" : "text-white")
                                             }
                                         >
-                                            {item.employee.name} - {item.employee.rawNIK}
+                                            {item.employee.name} - {item.employee.nik}
                                         </span>
                                     </td>
                                     <td className="border-t-0 px-6 align-middle border-l-0 border-r-0 text-xs whitespace-nowrap p-6">
@@ -201,7 +209,7 @@ export default function CardTable({ color }) {
                                         <i
                                             className={
                                                 "fas fa-circle mr-2 " +
-                                                (parseInt(item.status) < 0 ? "text-red-600" : "text-green-600")
+                                                (parseInt(item.status_id) < 0 ? "text-red-600" : "text-green-600")
                                             }
                                         ></i>
                                         {item?.status_details?.name}
@@ -231,16 +239,16 @@ export default function CardTable({ color }) {
                                         </div>
                                     </td> */}
                                     <td className="border-t-0 px-6 align-middle border-l-0 border-r-0 text-xs whitespace-nowrap p-6"
-                                        data-sort={item.status}
+                                        data-sort={item.status_id}
                                     >
                                         <div className="flex items-center">
-                                            {parseInt(item.status) >= 0 ?
+                                            {parseInt(item.status_id) >= 0 ?
                                                 <>
-                                                    <span className="mr-2">{Math.round(parseInt(item.status) / 6 * 100)} %</span>
+                                                    <span className="mr-2">{Math.round(parseInt(item.status_id) / 6 * 100)} %</span>
                                                     <div className="relative w-full">
                                                         <div className="overflow-hidden h-2 text-xs flex rounded bg-blue-200">
                                                             <div
-                                                                style={{ width: `${parseInt(item.status) / 6 * 100}%` }}
+                                                                style={{ width: `${parseInt(item.status_id) / 6 * 100}%` }}
                                                                 className="shadow-none flex flex-col text-center whitespace-nowrap text-white justify-center bg-blue-500"
                                                             ></div>
                                                         </div>

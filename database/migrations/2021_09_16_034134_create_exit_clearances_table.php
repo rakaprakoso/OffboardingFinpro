@@ -15,14 +15,14 @@ class CreateExitClearancesTable extends Migration
     {
         Schema::create('exit_clearances', function (Blueprint $table) {
             $table->id();
-            $table->bigInteger('offboarding_id')->unsigned()->nullable();
-            $table->foreign('offboarding_id')->references('id')->on('offboardings')->onDelete('cascade');
-            $table->string('attachment_fastel')->nullable();
-            $table->string('attachment_kopindosat')->nullable();
-            $table->string('attachment_it')->nullable();
-            $table->string('attachment_hrdev')->nullable();
-            $table->string('attachment_medical')->nullable();
-            $table->string('attachment_finance')->nullable();
+            $table->bigInteger('employee_id')->unsigned()->nullable();
+            $table->foreign('employee_id')->references('id')->on('employees')->onDelete('cascade');
+            $table->jsonb('fastel')->nullable();
+            $table->jsonb('finance')->nullable();
+            $table->jsonb('hrdev')->nullable();
+            $table->jsonb('it')->nullable();
+            $table->jsonb('kopindosat')->nullable();
+            $table->jsonb('medical')->nullable();
             $table->timestamps();
         });
     }

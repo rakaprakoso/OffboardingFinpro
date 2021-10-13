@@ -7,12 +7,14 @@
     <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
     <link rel="shortcut icon" href="/images/Logo%20Big.png" type="image/x-icon" />
-    @if (Request::is('admin/cvPreview'))
+    {{-- <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css"> --}}
+    <!-- Latest compiled and minified CSS -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-table/1.13.1/bootstrap-table.min.css">
+    @if (Route::is('pdfPreview'))
         <link rel="stylesheet" href="{{ asset(mix('/css/app.css')) }}">
     @endif
-
     <title>CV - {{ $data->name }}</title>
-    @if (Request::is('admin/cvGenerate'))
+    @if (Route::is('pdfGenerate'))
         <style type="text/css">
             @font-face {
                 font-family: 'PoppinsPDF';
@@ -37,12 +39,13 @@
         } */
 
             @page {
-                margin: 0px;
+                margin: 2.5cm;
             }
 
             body {
                 background: #ffffff;
                 margin: 0px;
+                font-size: 11pt;
             }
 
             * {
@@ -59,11 +62,10 @@
             }
 
             table {
-                border-spacing: 0;
-            }
-
-            .text-small {
-                font-size: x-small;
+                /* border-spacing: 0; */
+                /* width: 100%; */
+                /* margin-bottom: 1rem; */
+                border-collapse: collapse;
             }
 
             pre {
@@ -77,30 +79,85 @@
                 font-size: x-small;
             }
 
+            p,
+            hr {
+                line-height: 1;
+                margin: 0;
+            }
+
+            table.no-spacing tr {
+                line-height: 1;
+            }
+
+            br {
+                line-height: 1;
+            }
+
+            .overlay {
+                position: fixed;
+            }
+
+            .overlay-top {
+                width: 3.1cm;
+                right: 0cm;
+                top: -2cm;
+            }
+
+            .overlay-bottom {
+                left: 0;
+                bottom: -1cm;
+            }
+
+            .text-small {
+                font-size: 0.7rem;
+            }
+
+        </style>
+    @else
+        <style type="text/css">
+            body {
+                margin: 40px;
+            }
+
+            * {
+                font-family: 'PoppinsPDF', 'Poppins', sans-serif;
+            }
+
+            .overlay {
+                position: fixed;
+                display: none;
+            }
+
         </style>
     @endif
     <style type="text/css">
-        .detail table {
-            margin: 15px;
+        .detail,
+        .list-data {
+            color: #2c2c2c;
         }
 
-        .detail h3 {
-            margin-left: 15px;
-        }
-
-        .information {
+        .header {
             background-color: #eab308;
-            color: #FFF;
+            color: #FFF!important;
         }
 
-        .information .pic {
-            width: 50%;
+        .header .pic {
+            width: 100%;
             border-radius: 10px;
             object-fit: cover;
         }
 
         .p-10 {
             padding: 40px;
+        }
+
+        .profile {
+            padding-left: 1cm;
+        }
+
+        .profile h2,
+        .profile h3 {
+            margin: 0;
         }
 
         .profile h3 {
@@ -115,32 +172,55 @@
             width: 100%;
         }
 
-        .overlay {
-            position: fixed;
+        .divider {
+            background-color: #dee2e6;
+            width: 100%;
+            height: 1px;
         }
 
-        .overlay-top {
-            width: 100px;
-            right: 10px;
-            top: 10px;
+        .table {
+            /* border-spacing: 0; */
+            /* width: 100%; */
+            /* margin-bottom: 1rem; */
+            background-color: transparent;
+            border-collapse: collapse;
         }
 
-        .overlay-bottom {
-            /* width: 100%;
-            bottom: 10px;
-            width: 100px; */
-            left: 10px;
-            top: 100%;
-            margin-top: -5%;
-            /* bottom: 10px; */
+        .table thead th {
+            vertical-align: bottom;
+            border-bottom: 2px solid #dee2e6;
         }
 
-        .overlay-bottom p {
-            text-align: left;
-            font-size: small;
+        .table td,
+        .table th {
+            text-align:justify;
+            padding: .75rem;
+            vertical-align: top;
+            border-top: 1px solid #dee2e6;
+        }
+
+        .table.table-striped tbody tr:nth-of-type(odd) {
+            background-color: rgba(0, 0, 0, .05);
         }
 
     </style>
+    @if (Route::is('pdfGenerate'))
+        <style type="text/css">
+            .header {
+                background-color: #eab308;
+                color: #FFF;
+                margin: -2.5cm -2.5cm 0;
+                padding: 2cm 2.5cm 1cm;
+            }
+
+            .header .pic {
+                width: 100%;
+                border-radius: 10px;
+                object-fit: cover;
+            }
+
+        </style>
+    @endif
 </head>
 
 <body>
@@ -148,16 +228,19 @@
         <img src="https://tiptronic.deprakoso.site/images/Logo%20Big.png" alt="Logo" class="logo" />
     </div>
     <div class="overlay overlay-bottom">
-        <p>Approved : Raka D P | {{ date('Y-m-d H:i:s') }}</p>
+        <div class="divider"></div>
+        <div class="text-small">
+            Print Date : {{ date('d F Y') }}
+        </div>
     </div>
-    <div class="information">
-        <table class="p-10" width="100%">
+    <div class="header">
+        <table class="" width=" 100%">
             <tr>
-                <td align="center" style="width: 40%;">
+                <td align="center" style="width: 30%;">
                     <img src="https://image.kpopmap.com/2020/11/More__More_Dahyun_Promo_2.jpg" alt="Logo"
                         {{-- width="100" height="100" --}} class="pic" />
                 </td>
-                <td align="left" class="profile" style="width: 60%;">
+                <td align="left" class="profile" style="width: 70%;">
                     <h2>Employee Data</h2>
                     <h3>{{ $data->name }}</h3>
                     <table width="100%">
@@ -187,10 +270,9 @@
 
         </table>
     </div>
-    <div class="detail p-10">
+    <div class="detail">
         <h3>Profile</h3>
-        <hr />
-        <table class="text-small" width="100%">
+        <table class="table text-small" width="100%">
             <tr>
                 <td>Birthplace/Birthdate</td>
                 <td>: {{ $data->birth_date }}</td>
@@ -226,10 +308,52 @@
         </table>
     </div>
     <div class="page-break"></div>
-    <div class="work-history p-10">
+    <div class="list-data">
+        <h3>Formal Education</h3>
+        <div class="divider"></div>
+        <table class="text-small table table-striped" width="100%">
+            <thead>
+                <tr>
+                    <th>Institute</th>
+                    <th>Branch of Study</th>
+                    <th>Year Graduation</th>
+                    <th>Educational Esthablishment</th>
+                </tr>
+            </thead>
+            <tr>
+                <td>President University</td>
+                <td>Information Systems</td>
+                <td>2021</td>
+                <td>S1</td>
+            </tr>
+        </table>
+    </div>
+    <div class="list-data">
+        <h3>Non Formal Education</h3>
+        <div class="divider"></div>
+        <table class="text-small table table-striped" width="100%">
+            <thead>
+                <tr>
+                    <th>No</th>
+                    <th>Course Name</th>
+                    <th>Location</th>
+                    <th>Date</th>
+                </tr>
+            </thead>
+            @for ($i = 1; $i <= 20; $i++)
+            <tr>
+                <td>{{$i}}</td>
+                <td>Talk Like a Winner</td>
+                <td>Vara Percinka</td>
+                <td>2020</td>
+            </tr>
+            @endfor
+        </table>
+    </div>
+    <div class="list-data">
         <h3>Work History</h3>
-        <hr />
-        <table class="text-small" width="100%" border="1">
+        <div class="divider"></div>
+        <table class="text-small table table-striped" width="100%">
             <thead>
                 <tr>
                     <th>Position</th>
@@ -249,7 +373,23 @@
             </tr>
         </table>
     </div>
-    @if (Request::is('admin/cvPreview'))
+    <div class="list-data">
+        <h3>Achievements</h3>
+        <div class="divider"></div>
+        <table class="text-small table table-striped" width="100%">
+            <thead>
+                <tr>
+                    <th>Award Name</th>
+                    <th>Date</th>
+                </tr>
+            </thead>
+            <tr>
+                <td>Staff-GTM & Marcomm</td>
+                <td>01.07.2020</td>
+            </tr>
+        </table>
+    </div>
+    @if (Route::is('pdfPreview'))
         {!! json_encode($data) !!}
     @endif
     <br />

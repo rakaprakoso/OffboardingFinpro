@@ -8,6 +8,7 @@ import EmployeeResignForm from '../components/Forms/EmployeeResignForm.js';
 import ConfirmResignForm from '../components/Forms/ConfirmResignFormDisabled.js';
 import OffboardingForm from '../components/Forms/OffboardingForm.js';
 import StartOffboarding from '../components/Forms/StartOffboarding.js';
+import OffboardingEmployee from '../components/Forms/OffboardingEmployee.js';
 
 
 const ResignForm = () => {
@@ -27,7 +28,8 @@ const ResignForm = () => {
                         <Switch>
                             <Route path="/resignform" exact component={EmployeeResignForm} />
                             <Route path="/newOffboarding" exact component={StartOffboarding} />
-                            <Route path="/offboarding/:id" component={OffboardingForm} />
+                            <Route path="/offboarding/:id" exact component={OffboardingForm} />
+                            <Route path="/offboarding/employee/:id" component={OffboardingEmployee} />
                             <Route path="/exitDocument" component={Folder} />
                             <Route path="/exitClearance" component={FolderClearance} />
                         </Switch>

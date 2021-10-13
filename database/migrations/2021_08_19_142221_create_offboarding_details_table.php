@@ -15,17 +15,20 @@ class CreateOffboardingDetailsTable extends Migration
     {
         Schema::create('offboarding_details', function (Blueprint $table) {
             $table->id();
-            $table->timestamps();
             $table->bigInteger('offboarding_id')->unsigned()->nullable();
             $table->foreign('offboarding_id')->references('id')->on('offboardings')->onDelete('cascade');
             $table->text('reason')->nullable();
             $table->dateTime('exit_interview_time')->nullable();
-            $table->text('resignation_letter_link')->nullable();
             $table->text('exit_interview_link')->nullable();
-            $table->text('employee_CV_link')->nullable();
-            $table->text('personnel_letter_link')->nullable();
-            $table->text('reference_letter_link')->nullable();
-            $table->text('termination_letter_link')->nullable();
+            $table->text('exit_clearance_type')->nullable();
+
+            // $table->text('cv_link')->nullable();
+            // $table->text('personnel_letter_link')->nullable();
+            // $table->text('reference_letter_link')->nullable();
+            // $table->text('resignation_letter_link')->nullable();
+            // $table->text('exit_interview_link')->nullable();
+            // $table->text('termination_letter_link')->nullable();
+            $table->timestamps();
         });
     }
 

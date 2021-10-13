@@ -13,7 +13,7 @@ class CreateStatusDetailsTable extends Migration
      */
     public function up()
     {
-        Schema::create('status_details', function (Blueprint $table) {
+        Schema::create('offboarding_status', function (Blueprint $table) {
             $table->id();
             $table->string('code');
             // $table->integer('code')->unsigned();

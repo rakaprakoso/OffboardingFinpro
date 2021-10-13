@@ -25,8 +25,9 @@ Route::get('/dashboard', function () {
     return view('dashboard');
 })->middleware(['auth'])->name('dashboard');
 
-Route::get('/admin/cvGenerate', [AdminController::class, 'cvGenerate']);
-Route::get('/admin/cvPreview', [AdminController::class, 'cvPreview']);
+Route::get('/admin/pdfGenerate', [AdminController::class, 'pdfGenerate'])->name('pdfGenerate');
+Route::get('/admin/pdfPreview', [AdminController::class, 'pdfPreview'])->name('pdfPreview');
+Route::get('/admin/pdfStore', [AdminController::class, 'pdfStore']);
 Route::view('/admin/{path?}', 'index_admin')->where('path', '([A-z\d\-\/_.]+)?')->middleware(['auth']);
 
 

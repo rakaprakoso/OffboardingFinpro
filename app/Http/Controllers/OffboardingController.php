@@ -79,10 +79,17 @@ class OffboardingController extends Controller
         // return "test";
         // return $request->all();
         $offboardingTicket = Offboarding::find($id);
-        $offboardingTicket->status = $request->status;
-        $offboardingTicket->save();
+        // $offboardingTicket->status = $request->status;
+
+        // $offboardingTicket->save();
         if ($request->document == 'true') {
             $offboardingTicket->checkpoint->acc_document = $request->status == '1' ? '1' : '0';
+        }
+        if ($request->type == 'exitInterview') {
+            $rawInterviewTime = explode(" ", $request->interviewTime);
+            $interviewDate = explode("/", $rawInterviewTime[0]);
+            $interviewTime = $interviewDate[2].'-'.$interviewDate[1].'-'.$interviewDate[0].' '.$rawInterviewTime[1];
+            $offboardingTicket->details->exit_interview_time = $interviewTime;
         }
         // $offboardingTicket->save();
         $offboardingTicket->push();

@@ -46,9 +46,13 @@ class EmployeeController extends Controller
      * @param  int  $id
      * @return \Illuminate\Http\Response
      */
-    public function show($id)
+    public function show($id, Request $request)
     {
-        $employee = Employee::find($id);
+        if ($request->type == 'full') {
+            $employee = Employee::with(['job_history','formal_education','non_formal_education','achievements'])->find($id);
+        }else{
+            $employee = Employee::find($id);
+        }
         return response()->json($employee, 200);
     }
 

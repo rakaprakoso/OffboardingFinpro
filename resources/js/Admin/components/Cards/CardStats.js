@@ -21,7 +21,7 @@ export default function CardStats({
                 {statSubtitle}
               </h5>
               <span className="font-semibold text-xl text-blueGray-700">
-                {statTitle}
+                {statTitle == 'NaN %' ? 'No Data' : statTitle}
               </span>
             </div>
             <div className="relative w-auto pl-4 flex-initial">
@@ -57,10 +57,10 @@ export default function CardStats({
 }
 
 CardStats.defaultProps = {
-  statSubtitle: "Traffic",
-  statTitle: "350,897",
+  statSubtitle: "Data",
+  statTitle: "0",
   statArrow: "up",
-  statPercent: "3.48",
+  statPercent: "0",
   statPercentColor: "text-emerald-500",
   statDescripiron: "Since last month",
   statIconName: "far fa-chart-bar",

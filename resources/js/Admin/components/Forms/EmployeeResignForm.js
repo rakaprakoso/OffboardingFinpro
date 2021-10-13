@@ -13,11 +13,11 @@ const ResignSchema = Yup.object().shape({
         .min(5, 'Too Short!')
         .required('Required'),
     effectiveDate: Yup.date('Invalid Date').required('Required'),
-    resignLetter: Yup.mixed().required('Required').test(
-        "fileSize",
-        "Your video is too big :(",
-        value => value && value.size <= 262144000
-    ),
+    // resignLetter: Yup.mixed().required('Required').test(
+    //     "fileSize",
+    //     "Your video is too big :(",
+    //     value => value && value.size <= 262144000
+    // ),
 });
 
 const EmployeeResignForm = () => {
@@ -34,7 +34,7 @@ const EmployeeResignForm = () => {
                     employeeID: '',
                     password: '',
                     reason: '',
-                    resignLetter: '',
+                    // resignLetter: '',
                     effectiveDate: '',
                 }}
                 validationSchema={ResignSchema}
@@ -52,7 +52,6 @@ const EmployeeResignForm = () => {
                     formData.append('process_type', 1);
                     formData.append("resign_letter", values.resignLetter);
                     console.log(formData);
-                    // // Post the form, just make sure to set the 'Content-Type' header
                     const res = await axios.post('/api/resignform', formData, {
                         headers: {
                             'Content-Type': 'multipart/form-data'
@@ -104,7 +103,7 @@ const EmployeeResignForm = () => {
                             <div className="-mt-4 mb-4 text-red-600 text-sm">{errors.effectiveDate}</div>
                         ) : null}
 
-                        <label htmlFor="resignLetter">Resign Letter</label>
+                        {/* <label htmlFor="resignLetter">Resign Letter</label>
                         <input id="resignLetter" name="resignLetter" type="file" placeholder="Resign Letter"
                             onChange={(event) => {
                                 setFieldValue("resignLetter", event.target.files[0]);
@@ -112,7 +111,7 @@ const EmployeeResignForm = () => {
                         />
                         {errors.resignLetter && touched.resignLetter ? (
                             <div className="-mt-4 mb-4 text-red-600 text-sm">{errors.resignLetter}</div>
-                        ) : null}
+                        ) : null} */}
                         <button type="submit" className="bg-primary text-white">Submit</button>
                     </Form>
 

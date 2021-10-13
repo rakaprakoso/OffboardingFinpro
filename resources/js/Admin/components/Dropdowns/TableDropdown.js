@@ -4,10 +4,10 @@ import { createPopper } from "@popperjs/core";
 const NotificationDropdown = ({ data }) => {
 
     const dataCheckpoint = [
-        {
-            'name': 'Resignation Letter',
-            'data': data?.acc_document,
-        },
+        // {
+        //     'name': 'Resignation Letter',
+        //     'data': data?.acc_document,
+        // },
         {
             'name': 'Acc Supervisor',
             'data': data?.acc_svp,
