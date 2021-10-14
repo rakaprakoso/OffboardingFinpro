@@ -48,10 +48,15 @@ class OffboardingController extends Controller
      */
     public function show($id, Request $request)
     {
-        if ($request->progress == "true") {
-            $offboarding = Offboarding::with('progressRecord','Details')->find($id);
-        }else{
-            $offboarding = Offboarding::with('Employee', 'Details')->find($id);
+        if ($request->type == 'full') {
+            $offboarding = Offboarding::with('Employee', 'Details', 'offboardingForm')->find($id);
+        } else {
+            if ($request->progress == "true") {
+                $offboarding = Offboarding::with('progressRecord', 'exitClearance', 'Details')->find($id);
+                // return response()->json($offboarding, 200);
+            } else {
+                $offboarding = Offboarding::with('Employee', 'exitClearance','Details')->find($id);
+            }
         }
         return response()->json($offboarding, 200);
     }
@@ -88,7 +93,7 @@ class OffboardingController extends Controller
         if ($request->type == 'exitInterview') {
             $rawInterviewTime = explode(" ", $request->interviewTime);
             $interviewDate = explode("/", $rawInterviewTime[0]);
-            $interviewTime = $interviewDate[2].'-'.$interviewDate[1].'-'.$interviewDate[0].' '.$rawInterviewTime[1];
+            $interviewTime = $interviewDate[2] . '-' . $interviewDate[1] . '-' . $interviewDate[0] . ' ' . $rawInterviewTime[1];
             $offboardingTicket->details->exit_interview_time = $interviewTime;
         }
         // $offboardingTicket->save();

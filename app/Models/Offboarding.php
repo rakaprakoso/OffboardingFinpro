@@ -36,6 +36,10 @@ class Offboarding extends Model
     {
         return $this->hasOne(OffboardingDetail::class, 'offboarding_id','id');
     }
+    public function offboardingForm()
+    {
+        return $this->hasOne(OffboardingForm::class, 'offboarding_id','id');
+    }
     public function typeDetail()
     {
         return $this->hasOne(TypeDetail::class, 'code','type_id');

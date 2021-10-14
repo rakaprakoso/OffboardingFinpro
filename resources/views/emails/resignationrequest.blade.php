@@ -1,7 +1,7 @@
 @extends('emails.template')
 @if ($type == 1)
     @section('title')
-        Resignation Approval
+        {{$subject}}
     @endsection
     @section('recipient')
         SVP
@@ -24,7 +24,7 @@
 
 @elseif ($type == 2)
     @section('title')
-        Resignation Verification
+        {{$subject}}
     @endsection
     @section('recipient')
         {{ $offboardingData->employee->name }}
@@ -44,7 +44,7 @@
 
 @elseif ($type == 3)
     @section('title')
-        Effective Date Changed
+        {{$subject}}
     @endsection
     @section('recipient')
         {{ $offboardingData->employee->name }}
@@ -53,9 +53,19 @@
         Proses pengunduran diri anda sudah disetujui oleh SVP anda tetapi ada perubahan tanggal effective date dari
         yang anda ajukan menjadi {{ $offboardingData->effective_date }}
     @endsection
+@elseif ($type == -2)
+    @section('title')
+        {{$subject}}
+    @endsection
+    @section('recipient')
+        {{ $offboardingData->employee->name }}
+    @endsection
+    @section('message')
+        Proses pengunduran diri anda tidak disetujui oleh SVP anda.
+    @endsection
 @elseif ($type == -3)
     @section('title')
-    Offboarding Cancel
+        {{$subject}}
     @endsection
     @section('recipient')
         HR SS

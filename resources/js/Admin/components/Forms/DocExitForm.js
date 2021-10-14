@@ -49,37 +49,37 @@ const DocExitForm = ({
             name: 'Fastel',
             value: 'fastel',
             children: ['MSISDN', 'Outstanding'],
-            cp : checkpoint?.acc_fastel,
+            cp : checkpoint?.confirm_fastel,
         },
         {
             name: 'Finance',
             value: 'finance',
             children: ['Vendor', 'Amount', 'Text'],
-            cp : checkpoint?.acc_finance,
+            cp : checkpoint?.confirm_finance,
         },
         {
             name: 'HR Dev',
             value: 'hrdev',
             children: ['Perihal', 'Tujuan', 'Tanggal Kegiatan', 'Penyelenggara', 'Periode Ikadin'],
-            cp : checkpoint?.acc_hrdev,
+            cp : checkpoint?.confirm_hrdev,
         },
         {
             name: 'Kopindosat',
             value: 'kopindosat',
             children: ['Hak', 'Kewajiban'],
-            cp : checkpoint?.acc_kopindosat,
+            cp : checkpoint?.confirm_kopindosat,
         },
         {
             name: 'IT',
             value: 'it',
             children: ['Code', 'Item', 'Qty'],
-            cp : checkpoint?.acc_it,
+            cp : checkpoint?.confirm_it,
         },
         {
             name: 'Medical',
             value: 'medical',
             children: ['Ekses Medical'],
-            cp : checkpoint?.acc_medical,
+            cp : checkpoint?.confirm_medical,
         },
     ]
 
@@ -113,6 +113,7 @@ const DocExitForm = ({
                     formData.append('offboardingID', id);
                     formData.append('dept', values.dept);
                     formData.append('process_type', 3);
+                    formData.append('outstanding_exist', values.outstandingExist);
                     formData.append('items', JSON.stringify(values.items));
                     // formData.append('qty', values.qty);
                     const res = await axios.post('/api/rightobligation', formData, {

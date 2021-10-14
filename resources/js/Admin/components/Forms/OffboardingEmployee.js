@@ -56,7 +56,7 @@ const OffboardingEmployee = () => {
 
     useEffect(async () => {
         const dataFetch = await axios
-            .get(`/api/offboarding/${id}`)
+            .get(`/api/offboarding/${id}?progress=true`)
             .then(function (response) {
                 // console.log(response);
                 return response.data;
@@ -67,7 +67,7 @@ const OffboardingEmployee = () => {
 
         if (dataFetch?.id) {
             setData(dataFetch);
-            if (dataFetch.token == query.get('token')) {
+            if (dataFetch.employee_token == query.get('token')) {
                 setToken(true);
                 if (query.get('employee') == 'true') {
                     setEmployee(true);
@@ -314,14 +314,14 @@ const OffboardingEmployee = () => {
                     data &&
                     <div className="row employee">
                         <div className="col-lg-12">
-                            {parseInt(data.status) >= 0 ?
+                            {parseInt(data?.status_id) >= 0 ?
                                 <>
                                     <div className="w-full mb-3 text-center">
-                                        <span className="text-gray-800 font-semibold text-xl">{Math.round(parseInt(data.status) / 6 * 100)} % - {data?.status_details?.name}</span>
+                                        <span className="text-gray-800 font-semibold text-xl">{Math.round(parseInt(data?.status_id) / 6 * 100)} % - {data?.status_details?.name}</span>
                                         <div className="relative w-full">
                                             <div className="overflow-hidden h-3 flex rounded bg-blue-200">
                                                 <div
-                                                    style={{ width: `${parseInt(data.status) / 6 * 100}%` }}
+                                                    style={{ width: `${parseInt(data?.status_id) / 6 * 100}%` }}
                                                     className="shadow-none flex flex-col text-center whitespace-nowrap text-white justify-center bg-blue-500"
                                                 ></div>
                                             </div>
@@ -356,7 +356,7 @@ const OffboardingEmployee = () => {
                                             // type: 'confirmation',
                                             // confirmation: false,
                                             dept: '',
-                                            activity: '',
+                                            otherActivity: '',
                                             comment: '',
                                             message: '',
                                             accept: false,
@@ -369,13 +369,13 @@ const OffboardingEmployee = () => {
                                             setIsOpen(true);
                                             const formData = new FormData();
                                             formData.append('offboardingID', id);
-                                            formData.append('type', 'confirmation');
+                                            formData.append('type', 'exit_interview_form');
                                             formData.append('data', JSON.stringify(values));
-                                            // formData.append('confirmation', values.confirmation);
                                             // formData.append("message", values.message);
+                                            // formData.append('confirmation', values.confirmation);
                                             // formData.append("completed", values.completed);
                                             // formData.append('type', 4);
-                                            const res = await axios.post('/api/employeeData', formData, {
+                                            const res = await axios.post('/api/offboardingForm', formData, {
                                                 headers: {
                                                     'Content-Type': 'multipart/form-data'
                                                 }
@@ -442,8 +442,8 @@ const OffboardingEmployee = () => {
                                                                                             Lain-Lain
                                                                                             {values.items[values.items.length - 1].value == "3" ?
                                                                                                 <div>
-                                                                                                    <label htmlFor="activity">Kegiatan Lainnya</label>
-                                                                                                    <Field id="activity" name="activity" placeholder="Kegiatan Lainnya" />
+                                                                                                    <label htmlFor="otherActivity">Kegiatan Lainnya</label>
+                                                                                                    <Field id="otherActivity" name="otherActivity" placeholder="Kegiatan Lainnya" />
                                                                                                 </div> : null
                                                                                             }
                                                                                         </div>
@@ -500,13 +500,14 @@ const OffboardingEmployee = () => {
                                         }}
                                         validationSchema={ConfirmDocument}
                                         onSubmit={async (values) => {
-                                            alert(JSON.stringify(values))
+                                            // alert(JSON.stringify(values))
                                             setIsOpen(true);
                                             const formData = new FormData();
                                             formData.append('offboardingID', id);
-                                            formData.append('type', 'confirmation');
+                                            formData.append('type', 'return_document');
+                                            formData.append('returnType', values.type);
                                             formData.append('data', JSON.stringify(values));
-                                            const res = await axios.post('/api/employeeData', formData, {
+                                            const res = await axios.post('/api/offboardingForm', formData, {
                                                 headers: {
                                                     'Content-Type': 'multipart/form-data'
                                                 }
@@ -595,8 +596,8 @@ const OffboardingEmployee = () => {
                                                                                                 Lain-Lain
                                                                                                 {values.items[values.items.length - 1].value == "3" ?
                                                                                                     <div>
-                                                                                                        <label htmlFor="activity">Kegiatan Lainnya</label>
-                                                                                                        <Field id="activity" name="activity" placeholder="Kegiatan Lainnya" />
+                                                                                                        <label htmlFor="otherActivity">Kegiatan Lainnya</label>
+                                                                                                        <Field id="otherActivity" name="otherActivity" placeholder="Kegiatan Lainnya" />
                                                                                                     </div> : null
                                                                                                 }
                                                                                             </div>
@@ -666,12 +667,12 @@ const OffboardingEmployee = () => {
                                         validationSchema={ConfirmDocument}
                                         onSubmit={async (values) => {
                                             // alert(JSON.stringify(values))
-                                            setIsOpen(true);
+                                            // setIsOpen(true);
                                             const formData = new FormData();
                                             formData.append('offboardingID', id);
                                             formData.append('type', 'confirmation');
                                             formData.append('data', JSON.stringify(values));
-                                            const res = await axios.post('/api/employeeData', formData, {
+                                            const res = await axios.post('/api/offboardingForm', formData, {
                                                 headers: {
                                                     'Content-Type': 'multipart/form-data'
                                                 }
@@ -685,9 +686,9 @@ const OffboardingEmployee = () => {
                                             });
                                             console.log(res.data);
                                             if (res.status == '200') {
-                                                setSubmitted(true)
+                                                // setSubmitted(true)
                                             } else {
-                                                setSubmitted(false)
+                                                // setSubmitted(false)
                                             }
                                         }}
                                         render={({ values, errors, touched, setFieldValue }) => (

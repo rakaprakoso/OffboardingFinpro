@@ -61,4 +61,38 @@
     @section('cta')
         Update Data
     @endsection
+@elseif ($type == 4)
+    @section('title')
+        {{ $subject }}
+    @endsection
+    @section('recipient')
+    {{ $offboardingData->employee->name }}
+    @endsection
+    @section('message')
+        Mohon cek proses offboarding anda, terdapat perangkat IT yang harus dikembalikan. Untuk detailnya silahkan lihat di dashboard Offboarding anda.
+        Data dapat dilihat dan diinput pada link dibawah ini :
+    @endsection
+    @section('url')
+        "{{ config('app.url') }}/offboarding/employee/{{ $offboardingData->id }}/?token={{ $offboardingData->employee_token }}"
+    @endsection
+    @section('cta')
+        Update Data
+    @endsection
+@elseif ($type == 5)
+    @section('title')
+        {{ $subject }}
+    @endsection
+    @section('recipient')
+    Payroll
+    @endsection
+    @section('message')
+        Untuk melanjutkan proses offboarding karyawan atas nama <strong>{{ $offboardingData->employee->name }}</strong> mohon mengonfirmasi perhitungan payroll.
+        Data dapat di input pada link dibawah ini :
+    @endsection
+    @section('url')
+        "{{ config('app.url') }}/offboarding/{{ $offboardingData->id }}/?token={{ $offboardingData->token }}&process=3&payroll=true"
+    @endsection
+    @section('cta')
+        Konfirmasi
+    @endsection
 @endif

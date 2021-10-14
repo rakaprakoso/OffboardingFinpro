@@ -6,6 +6,7 @@ import {
     AccordionItemButton,
     AccordionItemPanel,
 } from 'react-accessible-accordion';
+import { NumberFormat } from "../../../../../../../../Job/Keina Beauty/Code/keina-beauty-rw/resources/js/Client/components/Functions/NumberFormat";
 
 export default function CardEmployee({ data, visibility, admin }) {
     const [toggle, setToggle] = useState(false);
@@ -17,16 +18,16 @@ export default function CardEmployee({ data, visibility, admin }) {
         acc_svp,
         acc_hrbp_mgr,
         acc_hrss_mgr,
-        acc_fastel,
-        acc_kopindosat,
-        acc_it,
-        acc_hrdev,
-        acc_medical,
-        acc_finance,
-        return_svp,
-        return_hrss_softfile,
-        return_hrss_it,
-        acc_payroll,
+        confirm_fastel,
+        confirm_kopindosat,
+        confirm_it,
+        confirm_hrdev,
+        confirm_medical,
+        confirm_finance,
+        return_to_svp,
+        return_to_hrss_doc,
+        return_to_hrss_it,
+        confirm_payroll,
         acc_hrss,
         exit_interview,
     } = data.checkpoint;
@@ -52,60 +53,60 @@ export default function CardEmployee({ data, visibility, admin }) {
         },
         {
             'name': 'Outstanding Fastel',
-            'data': acc_fastel,
+            'data': confirm_fastel,
             'link': `&process=3&newVersion=true`,
         },
         {
             'name': 'Outstanding Kopindosat',
-            'data': acc_kopindosat,
+            'data': confirm_kopindosat,
             'link': `&process=3&newVersion=true`,
         },
         {
             'name': 'Outstanding IT',
-            'data': acc_it,
+            'data': confirm_it,
             'link': `&process=3&newVersion=true`,
         },
         {
             'name': 'Outstanding HR Dev',
-            'data': acc_hrdev,
+            'data': confirm_hrdev,
             'link': `&process=3&newVersion=true`,
         },
         {
             'name': 'Outstanding Medical',
-            'data': acc_medical,
+            'data': confirm_medical,
             'link': `&process=3&newVersion=true`,
         },
         {
             'name': 'Outstanding Finance',
-            'data': acc_finance,
+            'data': confirm_finance,
             'link': `&process=3&newVersion=true`,
         },
         {
             'name': 'Payroll Calculated',
-            'data': acc_payroll,
+            'data': confirm_payroll,
             'link': `&process=3&payroll=true`,
         },
         {
-            'name': 'Exit Clearance by SVP',
-            'data': return_svp,
+            'name': 'Exit Clearance Confirmed by SVP',
+            'data': return_to_svp,
             'link': `&process=5`,
         },
         {
-            'name': 'Exit Clearance by HR Shared Service (Soft File)',
-            'data': return_hrss_softfile,
+            'name': 'Exit Clearance Confirmed by HR Shared Service (Soft File)',
+            'data': return_to_hrss_doc,
             'link': `&process=5`,
         },
         {
-            'name': 'Exit Clearance by HR Shared Service (IT)',
-            'data': return_hrss_it,
+            'name': 'Exit Clearance Confirmed by HR Shared Service (IT)',
+            'data': return_to_hrss_it,
             'link': `&process=5`,
         },
-        {
-            'name': 'PL,Paklaring',
-            'data': acc_hrss,
-            'link': `&process=3&document=true`,
-            'noNeed': true,
-        },
+        // {
+        //     'name': 'PL,Paklaring',
+        //     'data': acc_hrss,
+        //     'link': `&process=3&document=true`,
+        //     'noNeed': true,
+        // },
         {
             'name': 'Acc HRBP Manager',
             'data': acc_hrbp_mgr,
@@ -156,36 +157,36 @@ export default function CardEmployee({ data, visibility, admin }) {
     const payrollAttachment = [
         {
             name: 'Fastel Calculation',
-            file: data?.right_obligation?.fastel,
-            status: acc_fastel,
+            file: data?.exit_clearance?.fastel,
+            status: confirm_fastel,
             children: ['MSISDN', 'Outstanding']
         },
         {
-            name: 'Finance Calculation', file: data?.right_obligation?.finance, status: acc_finance,
+            name: 'Finance Calculation', file: data?.exit_clearance?.finance, status: confirm_finance,
             children: ['Vendor', 'Text', 'Amount'], row: true
         },
         {
-            name: 'HR DEV Calculation', file: data?.right_obligation?.hrdev, status: acc_hrdev,
+            name: 'HR DEV Calculation', file: data?.exit_clearance?.hrdev, status: confirm_hrdev,
             children: ['Perihal', 'Tujuan', 'Tanggal Kegiatan', 'Penyelenggara', 'Periode Ikadin']
         },
         {
-            name: 'Kopindosat Calculation', file: data?.right_obligation?.kopindosat, status: acc_kopindosat,
+            name: 'Kopindosat Calculation', file: data?.exit_clearance?.kopindosat, status: confirm_kopindosat,
             children: ['Hak', 'Kewajiban']
         },
         {
-            name: 'Medical Calculation', file: data?.right_obligation?.medical, status: acc_medical,
+            name: 'Medical Calculation', file: data?.exit_clearance?.medical, status: confirm_medical,
             children: ['Ekses Medical']
         },
     ]
     const itAttachment = {
-        name: 'IT Attacgment',
-        file: data?.right_obligation?.it,
-        status: acc_it,
+        name: 'IT Attachment',
+        file: data?.exit_clearance?.it,
+        status: confirm_it,
         children: ['Code', 'Item', 'Qty'],
     }
     return (
         <>
-            <div className="relative flex flex-col min-w-0 break-words bg-white w-full mb-6 shadow-xl rounded-lg border border-gray-50">
+            <div className="relative lg:top-4 lg:sticky flex flex-col min-w-0 break-words bg-white w-full mb-6 shadow-xl rounded-lg border border-gray-50">
                 <div className="p-6">
                     <div className="px-4">
                         <div className="flex justify-center flex-col lg:flex-row">
@@ -193,8 +194,8 @@ export default function CardEmployee({ data, visibility, admin }) {
                                 <div className="relative w-24 h-24">
                                     <img
                                         alt="..."
-                                        src="https://i.pinimg.com/originals/41/8d/f0/418df06899117e8d678f39ec28a95756.jpg"
-                                        className="shadow-xl rounded-full align-middle border-none absolute w-full h-full object-cover"
+                                        src={data?.employee?.profile_pic}
+                                        className="shadow-xl rounded-full align-middle border-none absolute w-full h-full object-cover object-top"
                                     />
                                 </div>
                             </div>
@@ -400,9 +401,21 @@ export default function CardEmployee({ data, visibility, admin }) {
                                                                     Payroll Attachment
                                                                 </AccordionItemButton>
                                                             </AccordionItemHeading>
-
                                                             <AccordionItemPanel>
 
+                                                                <table className="rounded-t-lg w-full m-5 mx-auto bg-gray-200 text-gray-800">
+                                                                    <tr className="border-b-2 border-gray-300">
+                                                                        <th className="px-3 py-2" colSpan="2">Company Rights</th>
+                                                                    </tr>
+                                                                    <tr className="bg-gray-100 border-b border-gray-200">
+                                                                        <td className="px-3 py-2 text-xs" >Uang Kompensasi Akhir Kontrak PP 35/2021 </td>
+                                                                        <td className="px-3 py-2 text-xs" >{NumberFormat(data?.employee?.salary, 'Rp. ')}</td>
+                                                                    </tr>
+                                                                    <tr className="bg-gray-100 border-b border-gray-200">
+                                                                        <td className="px-3 py-2 text-xs" >Cuti yang dapat diuangkan</td>
+                                                                        <td className="px-3 py-2 text-xs" >{NumberFormat(parseInt(data?.employee?.salary) / 3, 'Rp. ')}</td>
+                                                                    </tr>
+                                                                </table>
                                                                 {payrollAttachment.map((item, i) => (
                                                                     <>
                                                                         <table className="rounded-t-lg w-full m-5 mx-auto bg-gray-200 text-gray-800">

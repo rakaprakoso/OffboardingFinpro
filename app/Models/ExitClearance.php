@@ -8,4 +8,12 @@ use Illuminate\Database\Eloquent\Model;
 class ExitClearance extends Model
 {
     use HasFactory;
+    protected $casts = [
+        'it' => 'array',
+        'fastel' => 'array',
+        'kopindosat' => 'array',
+        'finance' => 'array',
+        'medical' => 'array',
+        'hrdev' => 'array',
+    ];
 }
