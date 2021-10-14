@@ -55,6 +55,7 @@ class ResignationRequest extends Mailable
             ->subject('[OFFBOARDING]' . $subject . ' - ' . $this->offboardingData->employee->name)
             ->view('emails.resignationrequest')
             ->with('offboardingData', $this->offboardingData)
+            ->with('subject', $subject)
             ->with('options', $this->options)
             ->with('type', $this->type);
 

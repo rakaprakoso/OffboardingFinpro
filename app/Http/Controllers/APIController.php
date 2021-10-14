@@ -185,7 +185,7 @@ class APIController extends Controller
         $employee->exitClearance()->save($exitClearance);
 
         $offboardingForm = new OffboardingForm();
-        $employee->offboardingForm()->save($offboardingForm);
+        $offboardingTicket->offboardingForm()->save($offboardingForm);
 
         // $rightObligation = new RightObligation();
         // $offboardingTicket->rightObligation()->save($rightObligation);
