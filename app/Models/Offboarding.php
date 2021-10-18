@@ -24,7 +24,7 @@ class Offboarding extends Model
 
     protected $with = ['employee','checkpoint',
     // 'exitClearance',
-    'statusDetails','typeDetail',
+    'statusDetails','typeDetail','attachment'
     // 'rightObligation'
     ];
 
@@ -35,6 +35,10 @@ class Offboarding extends Model
     public function details()
     {
         return $this->hasOne(OffboardingDetail::class, 'offboarding_id','id');
+    }
+    public function attachment()
+    {
+        return $this->hasOne(OffboardingAttachment::class, 'offboarding_id','id');
     }
     public function offboardingForm()
     {
@@ -63,5 +67,9 @@ class Offboarding extends Model
     public function progressRecord()
     {
         return $this->hasMany(ProgressRecord::class, 'offboarding_id','id');
+    }
+    public function comments()
+    {
+        return $this->hasMany(Comment::class, 'offboarding_id','id')->orderBy('created_at','desc');
     }
 }

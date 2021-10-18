@@ -6,7 +6,8 @@ import {
     AccordionItemButton,
     AccordionItemPanel,
 } from 'react-accessible-accordion';
-import { NumberFormat } from "../../../../../../../../Job/Keina Beauty/Code/keina-beauty-rw/resources/js/Client/components/Functions/NumberFormat";
+import { NumberFormat } from "../../functions/NumberFormat";
+import ExitInterviewForm from "../Forms/ExitInterviewForm";
 
 export default function CardEmployee({ data, visibility, admin }) {
     const [toggle, setToggle] = useState(false);
@@ -82,7 +83,7 @@ export default function CardEmployee({ data, visibility, admin }) {
             'link': `&process=3&newVersion=true`,
         },
         {
-            'name': 'Payroll Calculated',
+            'name': 'Confirmation PIC Payroll',
             'data': confirm_payroll,
             'link': `&process=3&payroll=true`,
         },
@@ -108,44 +109,44 @@ export default function CardEmployee({ data, visibility, admin }) {
         //     'noNeed': true,
         // },
         {
-            'name': 'Acc HRBP Manager',
-            'data': acc_hrbp_mgr,
-            'link': `&approval=hrmgr`,
-        },
-        {
             'name': 'Employee Return Document',
             'data': parseInt(data?.status_id) > 4 ? 1 : null,
             'link': `&process=4`,
         },
         {
-            'name': 'BAST Return',
-            'data': data?.details?.bast_attachment ? 1 : null,
-            'link': `&bast=true`,
+            'name': 'Acc HRBP Manager',
+            'data': acc_hrbp_mgr,
+            'link': `&approval=hrmgr`,
         },
+        // {
+        //     'name': 'BAST Return',
+        //     'data': data?.details?.bast_attachment ? 1 : null,
+        //     'link': `&bast=true`,
+        // },
         // {
         //     'name': 'Acc HR Shared Service Manager',
         //     'data': acc_hrss_mgr,
         // },
     ]
     const employeeAttachment = [
-        { name: 'CV', file: data?.details?.employee_CV_link },
-        { name: 'Personnel Letter', file: data?.details?.personnel_letter_link, noNeed: true, },
-        { name: 'Payroll Calculation', file: data?.details?.payroll_link },
-        { name: 'Paklaring', file: data?.details?.paklaring },
+        { name: 'CV', file: data?.attachment?.cv_link },
+        { name: 'Personnel Letter', file: data?.attachment?.personnel_letter_link, noNeed: true, },
+        { name: 'Payroll Calculation', file: data?.attachment?.payroll_link },
+        { name: 'Paklaring', file: data?.attachment?.clearing_document_link },
     ]
     const dataAttachment = [
-        { name: 'Resign Letter', file: data?.details?.resignation_letter_link, resign: true },
-        { name: 'Note Prosedur', file: data?.details?.note_procedure },
-        { name: 'Interview Form', file: data?.details?.exit_interview_form, resign: true },
+        { name: 'Resign Letter', file: data?.attachment?.resignation_letter_link, resign: true },
+        { name: 'Note Prosedur', file: data?.attachment?.note_procedure },
+        { name: 'Interview Form', file: data?.attachment?.exit_interview_form, resign: true },
         // { name: 'Termination Letter', file: data?.details?.termination_letter_link },
         { name: 'Surat Pernyataan / Non Disclosure Agreement (Pernyataan, Pengalihan Pekerjaan)', file: data?.details?.exitDocument },
-        { name: 'Surat Pengalihan Pekerjaan', file: data?.details?.job_tranfer_attachment },
-        { name: 'Form perubahan fasilitas telepon', file: data?.details?.change_opers },
-        { name: 'BAST', file: data?.details?.bast_attachment },
-        { name: 'Berhenti BPJS', file: data?.details?.bpjs_attachment },
+        { name: 'Surat Pengalihan Pekerjaan', file: data?.attachment?.job_tranfer_attachment },
+        { name: 'Form perubahan fasilitas telepon', file: data?.attachment?.change_opers },
+        { name: 'BAST', file: data?.attachment?.bast_attachment },
+        { name: 'Berhenti BPJS', file: data?.attachment?.bpjs_attachment },
     ]
     const clearanceAttachment = [
-        { name: 'Catatan Pengembalian Barang', file: data?.details?.returnDocument },
+        { name: 'Catatan Pengembalian Barang', file: data?.attachment?.returnDocument },
     ]
     // const payrollAttachment = [
     //     { name: 'Fastel Calculation', file: data?.exit_clearance?.attachment_fastel, status: acc_fastel },
@@ -228,7 +229,7 @@ export default function CardEmployee({ data, visibility, admin }) {
                             </tr>
                         </table>
                     </div>
-                    <div className="mb-10 py-4 border-t border-blueGray-200 text-center">
+                    <div className="py-4 border-t border-blueGray-200 text-center">
                         <div className="flex flex-wrap justify-center">
                             <div className="w-full px-4">
                                 <h3 className="text-gray-800 font-bold text-lg">Offboarding Detail</h3>
@@ -271,251 +272,6 @@ export default function CardEmployee({ data, visibility, admin }) {
                                 }
 
                                 <Accordion allowMultipleExpanded allowZeroExpanded >
-                                    {visibility &&
-                                        <>
-                                            {visibility && visibility == 'payroll' || visibility == 'admin' || visibility == 'employee' || visibility == 'clearance' ?
-                                                <>
-                                                    {visibility && visibility == 'employee' || visibility == 'admin' || visibility == 'clearance' ?
-                                                        <AccordionItem>
-                                                            {/* <div className="mb-2"> */}
-                                                            <AccordionItemHeading>
-                                                                <AccordionItemButton>
-                                                                    Attachment
-                                                                </AccordionItemButton>
-                                                            </AccordionItemHeading>
-                                                            <AccordionItemPanel>
-                                                                <table className="rounded-t-lg w-full m-5 mx-auto bg-gray-200 text-gray-800">
-                                                                    <tr className="border-b-2 border-gray-300">
-                                                                        <th className="px-3 py-2">Data</th>
-                                                                        <th className="px-3 py-2">File</th>
-                                                                    </tr>
-
-                                                                    {visibility == 'admin' ? dataAttachment.map((item, i) => (
-                                                                        <>
-                                                                            {item.resign && data?.type_id?.includes("e2") ? <tr className="bg-gray-100 border-b border-gray-200">
-                                                                                <td className="px-3 py-2 text-xs">{item.name}</td>
-                                                                                <td className="px-3 py-2 text-xs">
-                                                                                    {item.file ?
-                                                                                        <a
-                                                                                            href={item.file}
-                                                                                            className="text-xs text-lightBlue-500 border rounded px-2 inline-block"
-                                                                                        >
-                                                                                            <i className="fas fa-file mr-2 text-xs"></i>
-                                                                                            Download
-                                                                                        </a>
-                                                                                        : "In progress"
-                                                                                    }
-                                                                                </td>
-                                                                            </tr>
-                                                                                : null
-                                                                            }
-                                                                            {!item.resign ? <tr className="bg-gray-100 border-b border-gray-200">
-                                                                                <td className="px-3 py-2 text-xs">{item.name}</td>
-                                                                                <td className="px-3 py-2 text-xs">
-                                                                                    {item.file ?
-                                                                                        <a
-                                                                                            href={item.file}
-                                                                                            className="text-xs text-lightBlue-500 border rounded px-2 inline-block"
-                                                                                        >
-                                                                                            <i className="fas fa-file mr-2 text-xs"></i>
-                                                                                            Download
-                                                                                        </a>
-                                                                                        : "In progress"
-                                                                                    }
-                                                                                </td>
-                                                                            </tr>
-                                                                                : null
-                                                                            }
-                                                                        </>
-                                                                    )) : null}
-                                                                    {visibility == 'clearance' || visibility == 'admin' ? clearanceAttachment.map((item, i) => (
-                                                                        <tr className="bg-gray-100 border-b border-gray-200">
-                                                                            <td className="px-3 py-2 text-xs">{item.name}</td>
-                                                                            <td className="px-3 py-2 text-xs">
-                                                                                {item.file ?
-                                                                                    <a
-                                                                                        href={item.file}
-                                                                                        className="text-xs text-lightBlue-500 border rounded px-2 inline-block"
-                                                                                    >
-                                                                                        <i className="fas fa-file mr-2 text-xs"></i>
-                                                                                        Download
-                                                                                    </a>
-                                                                                    : "In progress"
-                                                                                }
-                                                                            </td>
-                                                                        </tr>
-                                                                    )) : null}
-                                                                    {visibility != 'clearance' ? employeeAttachment.map((item, i) => (
-                                                                        <>
-                                                                            {item.noNeed && data?.type_id?.includes("e3") ?
-                                                                                null :
-                                                                                item.noNeed ?
-                                                                                    <tr className="bg-gray-100 border-b border-gray-200">
-                                                                                        <td className="px-3 py-2 text-xs">{item.name}</td>
-                                                                                        <td className="px-3 py-2 text-xs">
-                                                                                            {item.file ?
-                                                                                                <a
-                                                                                                    href={item.file}
-                                                                                                    className="text-xs text-lightBlue-500 border rounded px-2 inline-block"
-                                                                                                >
-                                                                                                    <i className="fas fa-file mr-2 text-xs"></i>
-                                                                                                    Download
-                                                                                                </a>
-                                                                                                : "In progress"
-                                                                                            }
-                                                                                        </td>
-                                                                                    </tr>
-                                                                                    : null
-                                                                            }
-                                                                            {!item.noNeed ?
-                                                                                <tr className="bg-gray-100 border-b border-gray-200">
-                                                                                    <td className="px-3 py-2 text-xs">{item.name}</td>
-                                                                                    <td className="px-3 py-2 text-xs">
-                                                                                        {item.file ?
-                                                                                            <a
-                                                                                                href={item.file}
-                                                                                                className="text-xs text-lightBlue-500 border rounded px-2 inline-block"
-                                                                                            >
-                                                                                                <i className="fas fa-file mr-2 text-xs"></i>
-                                                                                                Download
-                                                                                            </a>
-                                                                                            : "In progress"
-                                                                                        }
-                                                                                    </td>
-                                                                                </tr>
-                                                                                : null
-                                                                            }
-                                                                        </>
-                                                                    )) : null}
-                                                                </table>
-
-                                                            </AccordionItemPanel>
-                                                        </AccordionItem> : null
-
-
-                                                    }
-                                                    {visibility == 'admin' || visibility == 'payroll' ?
-                                                        <AccordionItem>
-                                                            <AccordionItemHeading>
-                                                                <AccordionItemButton>
-                                                                    Payroll Attachment
-                                                                </AccordionItemButton>
-                                                            </AccordionItemHeading>
-                                                            <AccordionItemPanel>
-
-                                                                <table className="rounded-t-lg w-full m-5 mx-auto bg-gray-200 text-gray-800">
-                                                                    <tr className="border-b-2 border-gray-300">
-                                                                        <th className="px-3 py-2" colSpan="2">Company Rights</th>
-                                                                    </tr>
-                                                                    <tr className="bg-gray-100 border-b border-gray-200">
-                                                                        <td className="px-3 py-2 text-xs" >Uang Kompensasi Akhir Kontrak PP 35/2021 </td>
-                                                                        <td className="px-3 py-2 text-xs" >{NumberFormat(data?.employee?.salary, 'Rp. ')}</td>
-                                                                    </tr>
-                                                                    <tr className="bg-gray-100 border-b border-gray-200">
-                                                                        <td className="px-3 py-2 text-xs" >Cuti yang dapat diuangkan</td>
-                                                                        <td className="px-3 py-2 text-xs" >{NumberFormat(parseInt(data?.employee?.salary) / 3, 'Rp. ')}</td>
-                                                                    </tr>
-                                                                </table>
-                                                                {payrollAttachment.map((item, i) => (
-                                                                    <>
-                                                                        <table className="rounded-t-lg w-full m-5 mx-auto bg-gray-200 text-gray-800">
-                                                                            <tr className="border-b-2 border-gray-300">
-                                                                                <th className="px-3 py-2" colSpan="2">{item.name}</th>
-                                                                            </tr>
-                                                                            {parseInt(item.status) == 1 && item.file != null && item.file != 0 ?
-                                                                                <>
-                                                                                    {item.file && item?.file?.map((item2, j) => (
-                                                                                        item.row ?
-                                                                                            <tr className="bg-gray-100 border-b border-gray-200">
-                                                                                                <td className="px-3 py-2 text-xs" colSpan="2">
-                                                                                                    {item.children && item?.children.map((item3, k) => (
-                                                                                                        <span className={"px-2 " + (item.children.length == k + 1 ? "" : "border-r")}>
-                                                                                                            <strong>{item3}</strong> : {item2[item3]}
-                                                                                                        </span>
-                                                                                                    ))}
-                                                                                                </td>
-                                                                                            </tr>
-                                                                                            :
-                                                                                            item.children && item?.children.map((item3, k) => (
-                                                                                                <tr className="bg-gray-100 border-b border-gray-200">
-                                                                                                    <td className="px-3 py-2 text-xs" >{item3}</td>
-                                                                                                    <td className="px-3 py-2 text-xs">
-                                                                                                        {item2[item3]}
-
-                                                                                                    </td>
-                                                                                                </tr>
-                                                                                            ))
-                                                                                        //      {item.children && item?.children.map((item3, k) => (
-                                                                                        //     <tr className="bg-gray-100 border-b border-gray-200">
-                                                                                        //         <td className="px-3 py-2 text-xs" >{item3}</td>
-                                                                                        //         <td className="px-3 py-2 text-xs">
-                                                                                        //             {item2[item3]}
-                                                                                        //              {parseInt(item.status) == 1 && item.file ?
-                                                                                        //     JSON.stringify(item.file)
-                                                                                        //     : parseInt(item.status) == 1 ? "No Outstanding" : "In progress"
-                                                                                        // }
-                                                                                        //         </td>
-                                                                                        //     </tr>
-                                                                                        // ))}
-
-                                                                                    ))}
-                                                                                </>
-                                                                                : <>
-                                                                                    <tr className="bg-gray-100 border-b border-gray-200">
-                                                                                        <td className="px-3 py-2 text-xs" colSpan="2" >{parseInt(item.status) == 1 ? "No Outstanding" : "In progress"}</td>
-                                                                                    </tr>
-                                                                                </>
-                                                                            }
-                                                                        </table>
-                                                                    </>
-                                                                ))
-                                                                }
-                                                            </AccordionItemPanel>
-
-                                                        </AccordionItem>
-                                                        : null}
-
-                                                    {visibility == 'admin' || visibility == 'employee' ?
-                                                        <AccordionItem>
-                                                            <AccordionItemHeading>
-                                                                <AccordionItemButton>
-                                                                    IT Attachment
-                                                                </AccordionItemButton>
-                                                            </AccordionItemHeading>
-                                                            <AccordionItemPanel>
-                                                                <table className="rounded-t-lg w-full m-5 mx-auto bg-gray-200 text-gray-800">
-                                                                    <tr className="border-b-2 border-gray-300">
-                                                                        <th className="px-3 py-2">Code</th>
-                                                                        <th className="px-3 py-2">Item</th>
-                                                                        <th className="px-3 py-2">Qty</th>
-                                                                    </tr>
-                                                                    {parseInt(itAttachment.status) == 1 && itAttachment.file != null && itAttachment.file != 0 ?
-                                                                        <>
-                                                                            {itAttachment.file && itAttachment?.file?.map((item2, j) => (
-                                                                                <tr className="bg-gray-100 border-b border-gray-200">
-                                                                                    <td className="px-3 py-2 text-xs" >{item2.Code}</td>
-                                                                                    <td className="px-3 py-2 text-xs" >{item2.Item}</td>
-                                                                                    <td className="px-3 py-2 text-xs" >{item2.Qty}</td>
-                                                                                </tr>
-                                                                            ))}
-                                                                        </>
-                                                                        :
-                                                                        <>
-                                                                            <tr className="bg-gray-100 border-b border-gray-200">
-                                                                                <td className="px-3 py-2 text-xs" colSpan="3" >{parseInt(itAttachment?.status) == 1 ? "No Outstanding" : "In progress"}</td>
-                                                                            </tr>
-                                                                        </>
-                                                                    }
-                                                                </table>
-                                                            </AccordionItemPanel>
-
-                                                        </AccordionItem> : null
-                                                    }
-                                                </>
-                                                : null}
-                                        </>
-                                    }
-
                                     <AccordionItem>
                                         <AccordionItemHeading>
                                             <AccordionItemButton>
@@ -669,6 +425,326 @@ export default function CardEmployee({ data, visibility, admin }) {
 
                                         </AccordionItemPanel>
                                     </AccordionItem>
+                                    {visibility &&
+                                        <>
+                                            {visibility && visibility == 'payroll' || visibility == 'admin' || visibility == 'employee' || visibility == 'clearance' ?
+                                                <>
+                                                    {visibility && visibility == 'employee' || visibility == 'admin' ?
+                                                        <AccordionItem>
+                                                            {/* <div className="mb-2"> */}
+                                                            <AccordionItemHeading>
+                                                                <AccordionItemButton>
+                                                                    Attachment
+                                                                </AccordionItemButton>
+                                                            </AccordionItemHeading>
+                                                            <AccordionItemPanel>
+                                                                <table className="rounded-t-lg w-full m-5 mx-auto bg-gray-200 text-gray-800">
+                                                                    <tr className="border-b-2 border-gray-300">
+                                                                        <th className="px-3 py-2">Data</th>
+                                                                        <th className="px-3 py-2">File</th>
+                                                                    </tr>
+
+                                                                    {visibility == 'admin' ? dataAttachment.map((item, i) => (
+                                                                        <>
+                                                                            {item.resign && data?.type_id?.includes("e2") ? <tr className="bg-gray-100 border-b border-gray-200">
+                                                                                <td className="px-3 py-2 text-xs">{item.name}</td>
+                                                                                <td className="px-3 py-2 text-xs">
+                                                                                    {item.file ?
+                                                                                        <a
+                                                                                            href={item.file}
+                                                                                            className="text-xs text-lightBlue-500 border rounded px-2 inline-block"
+                                                                                        >
+                                                                                            <i className="fas fa-file mr-2 text-xs"></i>
+                                                                                            Download
+                                                                                        </a>
+                                                                                        : "In progress"
+                                                                                    }
+                                                                                </td>
+                                                                            </tr>
+                                                                                : null
+                                                                            }
+                                                                            {!item.resign ? <tr className="bg-gray-100 border-b border-gray-200">
+                                                                                <td className="px-3 py-2 text-xs">{item.name}</td>
+                                                                                <td className="px-3 py-2 text-xs">
+                                                                                    {item.file ?
+                                                                                        <a
+                                                                                            href={item.file}
+                                                                                            className="text-xs text-lightBlue-500 border rounded px-2 inline-block"
+                                                                                        >
+                                                                                            <i className="fas fa-file mr-2 text-xs"></i>
+                                                                                            Download
+                                                                                        </a>
+                                                                                        : "In progress"
+                                                                                    }
+                                                                                </td>
+                                                                            </tr>
+                                                                                : null
+                                                                            }
+                                                                        </>
+                                                                    )) : null}
+                                                                    {/* {visibility == 'clearance' || visibility == 'admin' ? clearanceAttachment.map((item, i) => (
+                                                                        <tr className="bg-gray-100 border-b border-gray-200">
+                                                                            <td className="px-3 py-2 text-xs">{item.name}</td>
+                                                                            <td className="px-3 py-2 text-xs">
+                                                                                {item.file ?
+                                                                                    <a
+                                                                                        href={item.file}
+                                                                                        className="text-xs text-lightBlue-500 border rounded px-2 inline-block"
+                                                                                    >
+                                                                                        <i className="fas fa-file mr-2 text-xs"></i>
+                                                                                        Download
+                                                                                    </a>
+                                                                                    : "In progress"
+                                                                                }
+                                                                            </td>
+                                                                        </tr>
+                                                                    )) : null} */}
+                                                                    {visibility != 'clearance' ? employeeAttachment.map((item, i) => (
+                                                                        <>
+                                                                            {item.noNeed && data?.type_id?.includes("e3") ?
+                                                                                null :
+                                                                                item.noNeed ?
+                                                                                    <tr className="bg-gray-100 border-b border-gray-200">
+                                                                                        <td className="px-3 py-2 text-xs">{item.name}</td>
+                                                                                        <td className="px-3 py-2 text-xs">
+                                                                                            {item.file ?
+                                                                                                <a
+                                                                                                    href={item.file}
+                                                                                                    className="text-xs text-lightBlue-500 border rounded px-2 inline-block"
+                                                                                                >
+                                                                                                    <i className="fas fa-file mr-2 text-xs"></i>
+                                                                                                    Download
+                                                                                                </a>
+                                                                                                : "In progress"
+                                                                                            }
+                                                                                        </td>
+                                                                                    </tr>
+                                                                                    : null
+                                                                            }
+                                                                            {!item.noNeed ?
+                                                                                <tr className="bg-gray-100 border-b border-gray-200">
+                                                                                    <td className="px-3 py-2 text-xs">{item.name}</td>
+                                                                                    <td className="px-3 py-2 text-xs">
+                                                                                        {item.file ?
+                                                                                            <a
+                                                                                                href={item.file}
+                                                                                                className="text-xs text-lightBlue-500 border rounded px-2 inline-block"
+                                                                                            >
+                                                                                                <i className="fas fa-file mr-2 text-xs"></i>
+                                                                                                Download
+                                                                                            </a>
+                                                                                            : "In progress"
+                                                                                        }
+                                                                                    </td>
+                                                                                </tr>
+                                                                                : null
+                                                                            }
+                                                                        </>
+                                                                    )) : null}
+                                                                </table>
+
+                                                            </AccordionItemPanel>
+                                                        </AccordionItem> : null
+
+
+                                                    }
+                                                    {visibility == 'admin' || visibility == 'employee' || visibility == 'clearance' ?
+                                                        <AccordionItem>
+                                                            <AccordionItemHeading>
+                                                                <AccordionItemButton>
+                                                                    IT Attachment
+                                                                </AccordionItemButton>
+                                                            </AccordionItemHeading>
+                                                            <AccordionItemPanel>
+                                                                <table className="rounded-t-lg w-full m-5 mx-auto bg-gray-200 text-gray-800">
+                                                                    <tr className="border-b-2 border-gray-300">
+                                                                        <th className="px-3 py-2">Code</th>
+                                                                        <th className="px-3 py-2">Item</th>
+                                                                        <th className="px-3 py-2">Qty</th>
+                                                                    </tr>
+                                                                    {parseInt(itAttachment.status) == 1 && itAttachment.file != null && itAttachment.file != 0 ?
+                                                                        <>
+                                                                            {itAttachment.file && itAttachment?.file?.map((item2, j) => (
+                                                                                <tr className="bg-gray-100 border-b border-gray-200">
+                                                                                    <td className="px-3 py-2 text-xs" >{item2.Code}</td>
+                                                                                    <td className="px-3 py-2 text-xs" >{item2.Item}</td>
+                                                                                    <td className="px-3 py-2 text-xs" >{item2.Qty}</td>
+                                                                                </tr>
+                                                                            ))}
+                                                                        </>
+                                                                        :
+                                                                        <>
+                                                                            <tr className="bg-gray-100 border-b border-gray-200">
+                                                                                <td className="px-3 py-2 text-xs" colSpan="3" >{parseInt(itAttachment?.status) == 1 ? "No Outstanding" : "In progress"}</td>
+                                                                            </tr>
+                                                                        </>
+                                                                    }
+                                                                </table>
+                                                            </AccordionItemPanel>
+
+                                                        </AccordionItem> : null
+                                                    }
+                                                    {visibility == 'admin' || visibility == 'payroll' ?
+                                                        <>
+                                                            <AccordionItem>
+                                                                <AccordionItemHeading>
+                                                                    <AccordionItemButton>
+                                                                        Payroll Attachment
+                                                                    </AccordionItemButton>
+                                                                </AccordionItemHeading>
+                                                                <AccordionItemPanel>
+
+                                                                    <table className="rounded-t-lg w-full m-5 mx-auto bg-gray-200 text-gray-800">
+                                                                        <tr className="border-b-2 border-gray-300">
+                                                                            <th className="px-3 py-2" colSpan="2">Company Rights</th>
+                                                                        </tr>
+                                                                        <tr className="bg-gray-100 border-b border-gray-200">
+                                                                            <td className="px-3 py-2 text-xs" >Uang Kompensasi Akhir Kontrak PP 35/2021 </td>
+                                                                            <td className="px-3 py-2 text-xs" >{NumberFormat(data?.employee?.salary, 'Rp. ')}</td>
+                                                                        </tr>
+                                                                        <tr className="bg-gray-100 border-b border-gray-200">
+                                                                            <td className="px-3 py-2 text-xs" >Cuti yang dapat diuangkan</td>
+                                                                            <td className="px-3 py-2 text-xs" >{NumberFormat(parseInt(data?.employee?.salary) / 3, 'Rp. ')}</td>
+                                                                        </tr>
+                                                                    </table>
+                                                                    {payrollAttachment.map((item, i) => (
+                                                                        <>
+                                                                            <table className="rounded-t-lg w-full m-5 mx-auto bg-gray-200 text-gray-800">
+                                                                                <tr className="border-b-2 border-gray-300">
+                                                                                    <th className="px-3 py-2" colSpan="2">{item.name}</th>
+                                                                                </tr>
+                                                                                {parseInt(item.status) == 1 && item.file != null && item.file != 0 ?
+                                                                                    <>
+                                                                                        {item.file && item?.file?.map((item2, j) => (
+                                                                                            item.row ?
+                                                                                                <tr className="bg-gray-100 border-b border-gray-200">
+                                                                                                    <td className="px-3 py-2 text-xs" colSpan="2">
+                                                                                                        {item.children && item?.children.map((item3, k) => (
+                                                                                                            <span className={"px-2 " + (item.children.length == k + 1 ? "" : "border-r")}>
+                                                                                                                <strong>{item3}</strong> : {item2[item3]}
+                                                                                                            </span>
+                                                                                                        ))}
+                                                                                                    </td>
+                                                                                                </tr>
+                                                                                                :
+                                                                                                item.children && item?.children.map((item3, k) => (
+                                                                                                    <tr className="bg-gray-100 border-b border-gray-200">
+                                                                                                        <td className="px-3 py-2 text-xs" >{item3}</td>
+                                                                                                        <td className="px-3 py-2 text-xs">
+                                                                                                            {item2[item3]}
+
+                                                                                                        </td>
+                                                                                                    </tr>
+                                                                                                ))
+                                                                                            //      {item.children && item?.children.map((item3, k) => (
+                                                                                            //     <tr className="bg-gray-100 border-b border-gray-200">
+                                                                                            //         <td className="px-3 py-2 text-xs" >{item3}</td>
+                                                                                            //         <td className="px-3 py-2 text-xs">
+                                                                                            //             {item2[item3]}
+                                                                                            //              {parseInt(item.status) == 1 && item.file ?
+                                                                                            //     JSON.stringify(item.file)
+                                                                                            //     : parseInt(item.status) == 1 ? "No Outstanding" : "In progress"
+                                                                                            // }
+                                                                                            //         </td>
+                                                                                            //     </tr>
+                                                                                            // ))}
+
+                                                                                        ))}
+                                                                                    </>
+                                                                                    : <>
+                                                                                        <tr className="bg-gray-100 border-b border-gray-200">
+                                                                                            <td className="px-3 py-2 text-xs" colSpan="2" >{parseInt(item.status) == 1 ? "No Outstanding" : "In progress"}</td>
+                                                                                        </tr>
+                                                                                    </>
+                                                                                }
+                                                                            </table>
+                                                                        </>
+                                                                    ))
+                                                                    }
+                                                                </AccordionItemPanel>
+
+                                                            </AccordionItem>
+                                                        </>
+                                                        : null
+                                                    }
+
+                                                    {visibility == 'admin' || visibility == 'clearance' ?
+                                                        <>
+                                                            <AccordionItem>
+                                                                <AccordionItemHeading>
+                                                                    <AccordionItemButton>
+                                                                        Catatan Pengembalian Barang
+                                                                    </AccordionItemButton>
+                                                                </AccordionItemHeading>
+                                                                <AccordionItemPanel>
+
+                                                                    <table className="rounded-t-lg w-full m-5 mx-auto bg-gray-200 text-gray-800">
+                                                                        <tr className="border-b-2 border-gray-300">
+                                                                            <th colSpan="2" className="px-3 py-2">Catatan Pengembalian Barang</th>
+                                                                            {/* <th className="px-3 py-2">File</th> */}
+                                                                        </tr>
+                                                                        <tr className="bg-gray-100 border-b border-gray-200">
+                                                                            <td className="px-3 py-2 text-xs">{data?.offboarding_form?.return_document_form?.data[0].question}</td>
+                                                                            <td className="px-3 py-2 text-xs">{data?.offboarding_form?.return_document_form?.data[0].value}</td>
+                                                                        </tr>
+                                                                        {data?.offboarding_form?.return_document_form?.data[1].question &&
+                                                                            data?.offboarding_form?.return_document_form?.data[1].question.map((item, i) => (
+                                                                                <tr className="bg-gray-100 border-b border-gray-200">
+                                                                                    <td className="px-3 py-2 text-xs">{item}</td>
+                                                                                    <td className="px-3 py-2 text-xs">{data?.offboarding_form?.return_document_form?.data[1]?.value[i][0] == "1" ? "Yes" : "No"}</td>
+                                                                                </tr>
+                                                                            ))
+                                                                        }
+                                                                        <tr className="bg-gray-100 border-b border-gray-200">
+                                                                            <td className="px-3 py-2 text-xs">Return Document Type</td>
+                                                                            <td className="px-3 py-2 text-xs">{data?.offboarding_form?.return_document_form?.return_type?.type}</td>
+                                                                        </tr>
+                                                                        {data?.offboarding_form?.return_document_form?.return_type?.data &&
+                                                                            data?.offboarding_form?.return_document_form?.return_type?.data.map((item, i) => (
+                                                                                <tr className="bg-gray-100 border-b border-gray-200">
+                                                                                    <td className="px-3 py-2 text-xs">{item.question}</td>
+                                                                                    <td className="px-3 py-2 text-xs">{i != 2 ? item.value :
+                                                                                        <a className="text-blue-700 border-b" href={item.value} target="_blank">Link</a>
+                                                                                    }
+                                                                                    </td>
+                                                                                </tr>
+                                                                            ))
+                                                                        }
+                                                                        <tr className="bg-gray-100 border-b border-gray-200">
+                                                                            <td className="px-3 py-2 text-xs">Catatan Tambahan</td>
+                                                                            <td className="px-3 py-2 text-xs">{data?.offboarding_form?.return_document_form?.additional_comment}</td>
+                                                                        </tr>
+                                                                    </table>
+
+                                                                </AccordionItemPanel>
+
+                                                            </AccordionItem>
+
+                                                        </>
+                                                        : null
+                                                    }
+
+
+                                                    {visibility == 'admin' ?
+                                                        <AccordionItem>
+                                                            <AccordionItemHeading>
+                                                                <AccordionItemButton>
+                                                                    Exit Interview Form
+                                                                </AccordionItemButton>
+                                                            </AccordionItemHeading>
+                                                            <AccordionItemPanel>
+                                                                {data && <ExitInterviewForm data={data} admin={true} />}
+                                                            </AccordionItemPanel>
+                                                        </AccordionItem>
+                                                        : null
+                                                    }
+                                                </>
+                                                : null
+                                            }
+                                        </>
+                                    }
+
+
                                 </Accordion>
                             </div>
                         </div>

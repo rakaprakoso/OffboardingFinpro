@@ -12,6 +12,17 @@ import { IoTrashBin } from "react-icons/io5";
 
 import * as Yup from 'yup';
 import DocExitForm from './DocExitForm';
+import Comment from './Comment';
+import OffboardingEmployee from './OffboardingEmployee';
+import {
+    Accordion,
+    AccordionItem,
+    AccordionItemHeading,
+    AccordionItemButton,
+    AccordionItemPanel,
+} from 'react-accessible-accordion';
+import CardComment from '../Cards/CardComment';
+import CardProgressRecord from '../Cards/CardProgressRecord';
 
 
 const ConfirmDocument = Yup.object().shape({
@@ -52,15 +63,31 @@ const OffboardingForm = () => {
     const [templateData, setTemplateData] = useState(null);
 
     useEffect(async () => {
-        const dataFetch = await axios
-            .get(`/api/offboarding/${id}`)
-            .then(function (response) {
-                // console.log(response);
-                return response.data;
-            })
-            .catch(function (error) {
-                console.log(error);
-            });
+        var dataFetch = null;
+        if (query.get('exitInterview') == 'true' || query.get('process') == '5' || query.get('approval') == 'hrmgr') {
+            dataFetch = await axios
+                .get(`/api/offboarding/${id}?progress=true`)
+                .then(function (response) {
+                    // console.log(response);
+                    return response.data;
+                })
+                .catch(function (error) {
+                    console.log(error);
+                });
+
+            // setData(dataFetch);
+        } else {
+            dataFetch = await axios
+                .get(`/api/offboarding/${id}`)
+                .then(function (response) {
+                    // console.log(response);
+                    return response.data;
+                })
+                .catch(function (error) {
+                    console.log(error);
+                });
+        }
+
 
         if (dataFetch?.id) {
             setData(dataFetch);
@@ -93,19 +120,19 @@ const OffboardingForm = () => {
                 if (query.get('process') == '5') {
                     setTracking('clearance');
                 }
-                if (query.get('exitInterview') == 'true' || query.get('process') == '5') {
-                    const dataFetch = await axios
-                        .get(`/api/offboarding/${id}?type=full`)
-                        .then(function (response) {
-                            // console.log(response);
-                            return response.data;
-                        })
-                        .catch(function (error) {
-                            console.log(error);
-                        });
+                // if (query.get('exitInterview') == 'true' || query.get('process') == '5' || query.get('approval') == 'hrmgr') {
+                //     const dataFetch = await axios
+                //         .get(`/api/offboarding/${id}?type=full`)
+                //         .then(function (response) {
+                //             // console.log(response);
+                //             return response.data;
+                //         })
+                //         .catch(function (error) {
+                //             console.log(error);
+                //         });
 
-                    setData(dataFetch);
-                }
+                //     setData(dataFetch);
+                // }
                 if (query.get('rejectEmployee') == 'true') {
                     const formData = new FormData();
                     formData.append('offboardingID', id);
@@ -153,156 +180,199 @@ const OffboardingForm = () => {
                 rejectEmployee && rejectEmployee == true ?
                     "Reject Success" :
                     data &&
-                    <div className="row">
-                        <div className="col-lg-12">
-                            {parseInt(data.status_id) >= 0 ?
-                                <div className="w-full mb-3 text-center">
-                                    <span className="text-gray-800 font-semibold text-xl">{Math.round(parseInt(data.status_id) / 6 * 100)} % - {data?.status_details?.name}</span>
-                                    <div className="relative w-full">
-                                        <div className="overflow-hidden h-3 flex rounded bg-blue-200">
-                                            <div
-                                                style={{ width: `${parseInt(data.status_id) / 6 * 100}%` }}
-                                                className="shadow-none flex flex-col text-center whitespace-nowrap text-white justify-center bg-blue-500"
-                                            ></div>
+                        query.get('approval') == 'hrmgr' ?
+                        <>
+                            <h2 className="text-2xl font-bold">HR Manager Approval</h2>
+                            <hr className="mb-3" />
+                            <Accordion allowMultipleExpanded allowZeroExpanded className="mb-5">
+                                <AccordionItem>
+                                    <AccordionItemHeading>
+                                        <AccordionItemButton>
+                                            Offboarding Data
+                                        </AccordionItemButton>
+                                    </AccordionItemHeading>
+                                    <AccordionItemPanel className="border p-5">
+                                    <div className="w-full">
+                                        <CardEmployee data={data} visibility={tracking} />
                                         </div>
-                                    </div>
-                                </div> :
-                                <>
-                                    <div className="shadow-none flex flex-col text-center whitespace-nowrap text-white justify-center bg-red-600 w-full px-1 rounded"
-                                    >
-                                        Failed
-                                    </div>
-                                </>
-                            }
-                        </div>
-                        <div className="col-lg-6 order-2 lg:order-1">
-                            {
-                                parseInt(data?.status_id) < 0 ?
-                                    "Process Terminated" :
-                                    parseInt(data?.status_id) == 1 ? (
-                                        query.get('process') != 3 ? (
-                                            data && data?.checkpoint.acc_svp == 1 ? 'Already Acc' :
-                                                data && data?.checkpoint.acc_employee == 1 && employee ? 'Employee Already Acc' :
-                                                    data && data?.checkpoint.acc_svp == 1 && !employee ? 'SVP Already Acc' :
-                                                        <>
-                                                            <h2 className="text-2xl font-bold">SVP Confirmation</h2>
-                                                            <hr className="mb-3" />
-                                                            <Formik
-                                                                initialValues={{
-                                                                    managerID: '',
-                                                                    effectiveDate: data.effective_date,
-                                                                    status: '',
-                                                                }}
-                                                                validationSchema={ConfirmSchema}
-                                                                onSubmit={async (values) => {
-                                                                    setIsOpen(true);
-                                                                    const formData = new FormData();
-                                                                    formData.append('offboardingID', id);
-                                                                    if (employee == false) {
-                                                                        formData.append('employee', 0);
-                                                                        // formData.append('IN_managerID', values.managerID);
-                                                                        formData.append('effective_date', values.effectiveDate);
-                                                                    } else {
-                                                                        formData.append('employee', 1);
-                                                                    }
-                                                                    // formData.append('IN_managerID', values.managerID);
-                                                                    // formData.append('effective_date', values.effectiveDate);
-                                                                    formData.append('status', values.status);
+                                        <div className="w-full">
+                                            <div className="-mx-4 flex">
+                                                <div className="w-full lg:w-1/2 px-4">
+                                                    {data && <CardComment data={data?.comments} />}
+                                                </div>
+                                                <div className="w-full lg:w-1/2 px-4">
+                                                    {data && <CardProgressRecord data={data?.progress_record} />}
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </AccordionItemPanel>
+                                </AccordionItem>
+                            </Accordion>
 
-                                                                    formData.append('process_type', 2);
-                                                                    const res = await axios.post('/api/managerconfirmation', formData, {
-                                                                        headers: {
-                                                                            'Content-Type': 'multipart/form-data'
+                            <Formik
+                                initialValues={{
+                                    accept: false,
+                                }}
+                                validationSchema={ConfirmationDocument}
+                                onSubmit={async (values) => {
+                                    setIsOpen(true);
+                                    const formData = new FormData();
+                                    formData.append('offboardingID', id);
+                                    formData.append('hrmgr', 1);
+                                    formData.append('status', 1);
+                                    formData.append('process_type', 2);
+                                    const res = await axios.post('/api/managerconfirmation', formData, {
+                                        headers: {
+                                            'Content-Type': 'multipart/form-data'
+                                        }
+                                    });
+                                    console.log(res.data);
+                                    setSubmitted(true)
+                                }}
+                            >
+                                {({ values, errors, touched, setFieldValue }) => (
+                                    <>
+                                        <Form>
+                                            <label className="mb-4 block bg-gray-100 p-3 rounded">
+                                                <Field type="checkbox" name="accept" className="my-0 mr-2" />
+                                                Approve Data
+                                                {errors.accept
+                                                    // && touched.accept
+                                                    ? (
+                                                        <div className="text-red-600 text-sm">{errors.accept}</div>
+                                                    ) : null}
+                                            </label>
+                                            {values.accept &&
+                                                <button type="submit" className="bg-primary text-white p-3 text-lg uppercase">Submit</button>
+                                            }
+                                        </Form>
+                                        {!values.accept &&
+                                            <>
+                                                <div className="border-t border-gray-200 w-full mb-4" />
+                                                <Comment from="HR MGR" id={id} />
+                                            </>
+                                        }
+                                    </>
+                                )}
+                            </Formik>
+                            <ManagerModal
+                                openModal={isOpen}
+                                submitted={submitted}
+                                stateChanger={setIsOpen}
+                            />
+                        </>
+                        : data &&
+                        <div className="row">
+                            <div className="col-lg-12">
+                                {parseInt(data.status_id) >= 0 ?
+                                    <div className="w-full mb-3 text-center">
+                                        <span className="text-gray-800 font-semibold text-xl">{Math.round(parseInt(data.status_id) / 6 * 100)} % - {data?.status_details?.name}</span>
+                                        <div className="relative w-full">
+                                            <div className="overflow-hidden h-3 flex rounded bg-blue-200">
+                                                <div
+                                                    style={{ width: `${parseInt(data.status_id) / 6 * 100}%` }}
+                                                    className="shadow-none flex flex-col text-center whitespace-nowrap text-white justify-center bg-blue-500"
+                                                ></div>
+                                            </div>
+                                        </div>
+                                    </div> :
+                                    <>
+                                        <div className="shadow-none flex flex-col text-center whitespace-nowrap text-white justify-center bg-red-600 w-full px-1 rounded"
+                                        >
+                                            Failed
+                                        </div>
+                                    </>
+                                }
+                            </div>
+                            <div className="col-lg-6 order-2 lg:order-1">
+                                {
+                                    parseInt(data?.status_id) < 0 ?
+                                        "Process Terminated" :
+                                        parseInt(data?.status_id) == 1 ? (
+                                            query.get('process') != 3 ? (
+                                                data && data?.checkpoint.acc_svp == 1 ? 'Already Acc' :
+                                                    data && data?.checkpoint.acc_employee == 1 && employee ? 'Employee Already Acc' :
+                                                        data && data?.checkpoint.acc_svp == 1 && !employee ? 'SVP Already Acc' :
+                                                            <>
+                                                                <h2 className="text-2xl font-bold">SVP Confirmation</h2>
+                                                                <hr className="mb-3" />
+                                                                <Formik
+                                                                    initialValues={{
+                                                                        managerID: '',
+                                                                        effectiveDate: data.effective_date,
+                                                                        status: '',
+                                                                    }}
+                                                                    validationSchema={ConfirmSchema}
+                                                                    onSubmit={async (values) => {
+                                                                        setIsOpen(true);
+                                                                        const formData = new FormData();
+                                                                        formData.append('offboardingID', id);
+                                                                        if (employee == false) {
+                                                                            formData.append('employee', 0);
+                                                                            // formData.append('IN_managerID', values.managerID);
+                                                                            formData.append('effective_date', values.effectiveDate);
+                                                                        } else {
+                                                                            formData.append('employee', 1);
                                                                         }
-                                                                    });
-                                                                    console.log(res.data);
-                                                                    setSubmitted(true)
-                                                                }}
-                                                            >
-                                                                {({ values, errors, touched, setFieldValue }) => (
-                                                                    <Form>
-                                                                        {employee == false ?
-                                                                            <>
-                                                                                {/* <label htmlFor="managerID">Manager ID</label>
+                                                                        // formData.append('IN_managerID', values.managerID);
+                                                                        // formData.append('effective_date', values.effectiveDate);
+                                                                        formData.append('status', values.status);
+
+                                                                        formData.append('process_type', 2);
+                                                                        const res = await axios.post('/api/managerconfirmation', formData, {
+                                                                            headers: {
+                                                                                'Content-Type': 'multipart/form-data'
+                                                                            }
+                                                                        });
+                                                                        console.log(res.data);
+                                                                        setSubmitted(true)
+                                                                    }}
+                                                                >
+                                                                    {({ values, errors, touched, setFieldValue }) => (
+                                                                        <Form>
+                                                                            {employee == false ?
+                                                                                <>
+                                                                                    {/* <label htmlFor="managerID">Manager ID</label>
                                                                                 <Field id="managerID" name="managerID" placeholder="Manager ID" />
                                                                                 {errors.managerID && touched.managerID ? (
                                                                                     <div className="-mt-4 mb-4 text-red-600 text-sm">{errors.managerID}</div>
                                                                                 ) : null} */}
 
-                                                                                <label htmlFor="effectiveDate">Effective Date</label>
-                                                                                <Field type="date" id="effectiveDate" name="effectiveDate" />
-                                                                                {errors.effectiveDate && touched.effectiveDate ? (
-                                                                                    <div className="-mt-4 mb-4 text-red-600 text-sm">{errors.effectiveDate}</div>
-                                                                                ) : null}
-                                                                            </> : null
-                                                                        }
-                                                                        <div id="status-radio-group" className="mb-2">Action</div>
-                                                                        <div role="group" className="mb-4 block" aria-labelledby="status-radio-group">
-                                                                            <label className="p-2 border rounded mr-2">
-                                                                                <Field type="radio" name="status" value="1" className="my-2 mr-2" />
-                                                                                Accept
-                                                                            </label>
-                                                                            <label className="p-2 border rounded mr-2">
-                                                                                <Field type="radio" name="status" value="0" className="my-2 mr-2" />
-                                                                                Reject
-                                                                            </label>
-                                                                        </div>
-                                                                        {errors.status && touched.status ? (
-                                                                            <div className="-mt-4 mb-4 text-red-600 text-sm">{errors.status}</div>
-                                                                        ) : null}
-                                                                        <button type="submit" className="bg-primary text-white">Submit</button>
-                                                                    </Form>
-                                                                )}
-                                                            </Formik>
-                                                        </>
-                                        ) : "Still waiting document verification"
-                                    ) :
-                                        parseInt(data?.status_id) == 2 ? "Already Acc process 2" :
-                                            parseInt(data?.status_id) == -2 ? "Declined" :
-                                                parseInt(data?.status_id) == 0 ? "Still Waiting Document Verification" :
-                                                    parseInt(data?.status_id) >= 3 ? (
-                                                        query.get('tracking') == 'true' ?
-                                                            "Don't Forget always check your offboarding status"
-                                                            :
-                                                            query.get('approval') == 'hrmgr' ?
-                                                                <>
-                                                                    <h2 className="text-2xl font-bold">HR Manager Approval</h2>
-                                                                    <hr className="mb-3" />
-                                                                    <Formik
-                                                                        initialValues={{
-                                                                            accept: false,
-                                                                        }}
-                                                                        validationSchema={ConfirmationDocument}
-                                                                        onSubmit={async (values) => {
-                                                                            setIsOpen(true);
-                                                                            const formData = new FormData();
-                                                                            formData.append('offboardingID', id);
-                                                                            formData.append('hrmgr', 1);
-                                                                            formData.append('status', 1);
-                                                                            formData.append('process_type', 2);
-                                                                            const res = await axios.post('/api/managerconfirmation', formData, {
-                                                                                headers: {
-                                                                                    'Content-Type': 'multipart/form-data'
-                                                                                }
-                                                                            });
-                                                                            console.log(res.data);
-                                                                            setSubmitted(true)
-                                                                        }}
-                                                                    >
-                                                                        {({ values, errors, touched, setFieldValue }) => (
-                                                                            <Form>
-                                                                                <label className="mb-4">
-                                                                                    <Field type="checkbox" name="accept" className="my-0 mr-2" />
-                                                                                    Approve
+                                                                                    <label htmlFor="effectiveDate">Effective Date</label>
+                                                                                    <Field type="date" id="effectiveDate" name="effectiveDate" />
+                                                                                    {errors.effectiveDate && touched.effectiveDate ? (
+                                                                                        <div className="-mt-4 mb-4 text-red-600 text-sm">{errors.effectiveDate}</div>
+                                                                                    ) : null}
+                                                                                </> : null
+                                                                            }
+                                                                            <div id="status-radio-group" className="mb-2">Action</div>
+                                                                            <div role="group" className="mb-4 block" aria-labelledby="status-radio-group">
+                                                                                <label className="p-2 border rounded mr-2">
+                                                                                    <Field type="radio" name="status" value="1" className="my-2 mr-2" />
+                                                                                    Accept
                                                                                 </label>
-                                                                                {errors.accept && touched.accept ? (
-                                                                                    <div className="mb-4 text-red-600 text-sm">{errors.accept}</div>
-                                                                                ) : null}
-                                                                                <button type="submit" className="bg-primary text-white">Submit</button>
-                                                                            </Form>
-                                                                        )}
-                                                                    </Formik>
-                                                                </>
+                                                                                <label className="p-2 border rounded mr-2">
+                                                                                    <Field type="radio" name="status" value="0" className="my-2 mr-2" />
+                                                                                    Reject
+                                                                                </label>
+                                                                            </div>
+                                                                            {errors.status && touched.status ? (
+                                                                                <div className="-mt-4 mb-4 text-red-600 text-sm">{errors.status}</div>
+                                                                            ) : null}
+                                                                            <button type="submit" className="bg-primary text-white p-3 text-lg uppercase">Submit</button>
+                                                                        </Form>
+                                                                    )}
+                                                                </Formik>
+                                                            </>
+                                            ) : "Still waiting document verification"
+                                        ) :
+                                            parseInt(data?.status_id) == 2 ? "Already Acc process 2" :
+                                                parseInt(data?.status_id) == -2 ? "Declined" :
+                                                    parseInt(data?.status_id) == 0 ? "Still Waiting Document Verification" :
+                                                        parseInt(data?.status_id) >= 3 ? (
+                                                            query.get('tracking') == 'true' ?
+                                                                "Don't Forget always check your offboarding status"
+
                                                                 :
                                                                 query.get('bast') == 'true' ?
                                                                     <>
@@ -367,7 +437,7 @@ const OffboardingForm = () => {
                                                                                     {errors.accept && touched.accept ? (
                                                                                         <div className="mb-4 text-red-600 text-sm">{errors.accept}</div>
                                                                                     ) : null}
-                                                                                    <button type="submit" className="bg-primary text-white">Submit</button>
+                                                                                    <button type="submit" className="bg-primary text-white p-3 text-lg uppercase">Submit</button>
                                                                                 </Form>
                                                                             )}
                                                                         />
@@ -419,78 +489,128 @@ const OffboardingForm = () => {
                                                                                         }
                                                                                     }}
                                                                                     render={({ values, errors, touched, setFieldValue }) => (
-                                                                                        <Form>
-                                                                                            {/* <label htmlFor="exit_interview_form">Exit Interview Form</label>
-                                                                                            <input id="exit_interview_form" name="exit_interview_form" type="file" placeholder="Attachment"
-                                                                                                onChange={(event) => {
-                                                                                                    setFieldValue("exit_interview_form", event.target.files[0]);
-                                                                                                }}
-                                                                                            />
-                                                                                            {errors.exit_interview_form && touched.exit_interview_form ? (
-                                                                                                <div className="-mt-4 mb-4 text-red-600 text-sm">{errors.exit_interview_form}</div>
-                                                                                            ) : null} */}
+                                                                                        <>
+                                                                                            <Form>
+                                                                                                {/* <label htmlFor="exit_interview_form">Exit Interview Form</label>
+                                                                                                <input id="exit_interview_form" name="exit_interview_form" type="file" placeholder="Attachment"
+                                                                                                    onChange={(event) => {
+                                                                                                        setFieldValue("exit_interview_form", event.target.files[0]);
+                                                                                                    }}
+                                                                                                />
+                                                                                                {errors.exit_interview_form && touched.exit_interview_form ? (
+                                                                                                    <div className="-mt-4 mb-4 text-red-600 text-sm">{errors.exit_interview_form}</div>
+                                                                                                ) : null} */}
+                                                                                                {data.offboarding_form &&
+                                                                                                    data?.offboarding_form?.exit_interview_form?.data == null
+                                                                                                    ? <h3 className="text-xl font-bold text-center p-3 bg-red-600 text-white rounded mb-2">Data belum diisi</h3>
+                                                                                                    : data?.offboarding_form?.exit_interview_form?.data?.map((item, index) => (
+                                                                                                        <>
+                                                                                                            {item?.pretext != null && index != 0 ?
+                                                                                                                <h3 className="text-xl font-bold border-t border-gray-300 pt-5">{item.pretext}</h3> : null}
+                                                                                                            <p>{item.question}</p>
+                                                                                                            {item.type == 'radio' ?
+                                                                                                                <div className="flex w-full mt-2 mb-4">
+                                                                                                                    <span className="mr-3 text-base leading-none">Hampir Selalu</span>
+                                                                                                                    <input type={item.type} className="mr-auto my-0" disabled checked={item.value == '1'} value={item.value} />
+                                                                                                                    <input type={item.type} className="mr-auto my-0" disabled checked={item.value == '2'} value={item.value} />
+                                                                                                                    <input type={item.type} className="mr-auto my-0" disabled checked={item.value == '3'} value={item.value} />
+                                                                                                                    <input type={item.type} className="mr-auto my-0" disabled checked={item.value == '4'} value={item.value} />
+                                                                                                                    <input type={item.type} className="mr-auto my-0" disabled checked={item.value == '5'} value={item.value} />
+                                                                                                                    <span className="ml-3 text-base leading-none">Tidak Pernah</span>
+                                                                                                                </div>
 
+                                                                                                                : item.type == 'radio-vertical' ?
+                                                                                                                    <input type='text' disabled value={
+                                                                                                                        item.value == '1' ? 'Bekerja di perusahaan lain'
+                                                                                                                            : item.value == '2' ? 'Wirausaha/wiraswasta'
+                                                                                                                                : '(Lain - lain) - ' + data?.offboarding_form?.exit_interview_form?.other_activity
+                                                                                                                    } />
+                                                                                                                    : <input type={item.type} disabled value={item.value} />
+                                                                                                            }
+                                                                                                            {/* <p>{item.value}</p> */}
+                                                                                                        </>
+                                                                                                    ))}
+                                                                                                <label className="mb-4 block bg-gray-100 p-3 rounded">
+                                                                                                    <Field type="checkbox" name="accept" className="my-0 mr-2" />
+                                                                                                    Approve Data
+                                                                                                    {errors.accept
+                                                                                                        // && touched.accept
+                                                                                                        ? (
+                                                                                                            <div className="text-red-600 text-sm">{errors.accept}</div>
+                                                                                                        ) : null}
+                                                                                                </label>
+                                                                                                {values.accept &&
+                                                                                                    <button type="submit" className="bg-primary text-white p-3 text-lg uppercase">Submit</button>
+                                                                                                }
 
-                                                                                            {data.offboarding_form &&
-                                                                                                // JSON.stringify(data?.offboarding_form?.exit_interview_form)
-                                                                                                data?.offboarding_form?.exit_interview_form?.data.map((item, index) => (
-                                                                                                    <>
-                                                                                                        {item?.pretext != null && index != 0 ?
-                                                                                                            <h3 className="text-xl font-bold border-t border-gray-300 pt-5">{item.pretext}</h3> : null}
-                                                                                                        <p>{item.question}</p>
-                                                                                                        {item.type == 'radio' ?
-                                                                                                            <div className="flex w-full mt-2 mb-4">
-                                                                                                                <span className="mr-3 text-base leading-none">Hampir Selalu</span>
-                                                                                                                <input type={item.type} className="mr-auto my-0" disabled checked={item.value == '1'} value={item.value} />
-                                                                                                                <input type={item.type} className="mr-auto my-0" disabled checked={item.value == '2'} value={item.value} />
-                                                                                                                <input type={item.type} className="mr-auto my-0" disabled checked={item.value == '3'} value={item.value} />
-                                                                                                                <input type={item.type} className="mr-auto my-0" disabled checked={item.value == '4'} value={item.value} />
-                                                                                                                <input type={item.type} className="mr-auto my-0" disabled checked={item.value == '5'} value={item.value} />
-                                                                                                                <span className="ml-3 text-base leading-none">Tidak Pernah</span>
-                                                                                                            </div>
+                                                                                                {/* {data.offboarding_form &&
+                                                                                                    // JSON.stringify(data?.offboarding_form?.exit_interview_form)
+                                                                                                    data?.offboarding_form?.exit_interview_form?.data.map((item, index) => (
+                                                                                                        <>
+                                                                                                            {item?.pretext != null && index != 0 ?
+                                                                                                                <h3 className="text-xl font-bold border-t border-gray-300 pt-5">{item.pretext}</h3> : null}
+                                                                                                            <p>{item.question}</p>
+                                                                                                            {item.type == 'radio' ?
+                                                                                                                <div className="flex w-full mt-2 mb-4">
+                                                                                                                    <span className="mr-3 text-base leading-none">Hampir Selalu</span>
+                                                                                                                    <input type={item.type} className="mr-auto my-0" disabled checked={item.value == '1'} value={item.value} />
+                                                                                                                    <input type={item.type} className="mr-auto my-0" disabled checked={item.value == '2'} value={item.value} />
+                                                                                                                    <input type={item.type} className="mr-auto my-0" disabled checked={item.value == '3'} value={item.value} />
+                                                                                                                    <input type={item.type} className="mr-auto my-0" disabled checked={item.value == '4'} value={item.value} />
+                                                                                                                    <input type={item.type} className="mr-auto my-0" disabled checked={item.value == '5'} value={item.value} />
+                                                                                                                    <span className="ml-3 text-base leading-none">Tidak Pernah</span>
+                                                                                                                </div>
 
-                                                                                                            : item.type == 'radio-vertical' ?
-                                                                                                                <input type='text' disabled value={
-                                                                                                                    item.value == '1' ? 'Bekerja di perusahaan lain'
-                                                                                                                        : item.value == '2' ? 'Wirausaha/wiraswasta'
-                                                                                                                            : '(Lain - lain) - ' + data?.offboarding_form?.exit_interview_form?.other_activity
-                                                                                                                } />
-                                                                                                                : <input type={item.type} disabled value={item.value} />
-                                                                                                        }
-                                                                                                        {/* <p>{item.value}</p> */}
-                                                                                                    </>
-                                                                                                ))
+                                                                                                                : item.type == 'radio-vertical' ?
+                                                                                                                    <input type='text' disabled value={
+                                                                                                                        item.value == '1' ? 'Bekerja di perusahaan lain'
+                                                                                                                            : item.value == '2' ? 'Wirausaha/wiraswasta'
+                                                                                                                                : '(Lain - lain) - ' + data?.offboarding_form?.exit_interview_form?.other_activity
+                                                                                                                    } />
+                                                                                                                    : <input type={item.type} disabled value={item.value} />
+                                                                                                            }
+                                                                                                        </>
+                                                                                                    ))
+                                                                                                } */}
+
+                                                                                                {/* <label htmlFor="note_procedure">Note Procedure</label>
+                                                                                                <input id="note_procedure" name="note_procedure" type="file" placeholder="Attachment"
+                                                                                                    onChange={(event) => {
+                                                                                                        setFieldValue("note_procedure", event.target.files[0]);
+                                                                                                    }}
+                                                                                                />
+                                                                                                {errors.note_procedure && touched.note_procedure ? (
+                                                                                                    <div className="-mt-4 mb-4 text-red-600 text-sm">{errors.note_procedure}</div>
+                                                                                                ) : null} */}
+
+                                                                                                {/* <label htmlFor="opers">Change Opers</label>
+                                                                                        <input id="opers" name="opers" type="file" placeholder="Attachment"
+                                                                                            onChange={(event) => {
+                                                                                                setFieldValue("opers", event.target.files[0]);
+                                                                                            }}
+                                                                                        />
+                                                                                        {errors.opers && touched.opers ? (
+                                                                                            <div className="-mt-4 mb-4 text-red-600 text-sm">{errors.opers}</div>
+                                                                                        ) : null} */}
+                                                                                                {/* <label className="mb-4 block bg-gray-100 p-3 rounded">
+                                                                                                    <Field type="checkbox" name="accept" className="my-0 mr-2" />
+                                                                                                    Saya menyetujui data yang dikirimkan adalah benar
+                                                                                                    {errors.accept && touched.accept ? (
+                                                                                                        <div className="text-red-600 text-sm">{errors.accept}</div>
+                                                                                                    ) : null}
+                                                                                                </label>
+                                                                                                {values.accept &&
+                                                                                                    <button type="submit" className="bg-primary text-white">Submit</button>
+                                                                                                } */}
+                                                                                            </Form>
+                                                                                            {!values.accept &&
+
+                                                                                                <>
+                                                                                                    <div className="border-t border-gray-200 w-full mb-4" />
+                                                                                                    <Comment from="SVP - Exit Interview Form" id={id} />
+                                                                                                </>
                                                                                             }
-
-                                                                                            {/* <label htmlFor="note_procedure">Note Procedure</label>
-                                                                                            <input id="note_procedure" name="note_procedure" type="file" placeholder="Attachment"
-                                                                                                onChange={(event) => {
-                                                                                                    setFieldValue("note_procedure", event.target.files[0]);
-                                                                                                }}
-                                                                                            />
-                                                                                            {errors.note_procedure && touched.note_procedure ? (
-                                                                                                <div className="-mt-4 mb-4 text-red-600 text-sm">{errors.note_procedure}</div>
-                                                                                            ) : null} */}
-
-                                                                                            {/* <label htmlFor="opers">Change Opers</label>
-                                                                                    <input id="opers" name="opers" type="file" placeholder="Attachment"
-                                                                                        onChange={(event) => {
-                                                                                            setFieldValue("opers", event.target.files[0]);
-                                                                                        }}
-                                                                                    />
-                                                                                    {errors.opers && touched.opers ? (
-                                                                                        <div className="-mt-4 mb-4 text-red-600 text-sm">{errors.opers}</div>
-                                                                                    ) : null} */}
-
-                                                                                            <label className="mb-4 block bg-gray-100 p-3 rounded">
-                                                                                                <Field type="checkbox" name="accept" className="my-0 mr-2" />
-                                                                                                Saya menyetujui data yang dikirimkan adalah benar
-                                                                                                {errors.accept && touched.accept ? (
-                                                                                                    <div className="text-red-600 text-sm">{errors.accept}</div>
-                                                                                                ) : null}
-                                                                                            </label>
-                                                                                            <button type="submit" className="bg-primary text-white">Submit</button>
-                                                                                        </Form>
+                                                                                        </>
                                                                                     )}
                                                                                 />
                                                                             </> :
@@ -539,7 +659,7 @@ const OffboardingForm = () => {
                                                                                                 {errors.cv && touched.cv ? (
                                                                                                     <div className="-mt-4 mb-4 text-red-600 text-sm">{errors.cv}</div>
                                                                                                 ) : null}
-                                                                                                <button type="submit" className="bg-primary text-white">Submit</button>
+                                                                                                <button type="submit" className="bg-primary text-white p-3 text-lg uppercase">Submit</button>
                                                                                             </Form>
                                                                                         )}
                                                                                     />
@@ -628,7 +748,7 @@ const OffboardingForm = () => {
                                                                                                     {errors.accept && touched.accept ? (
                                                                                                         <div className="mb-4 text-red-600 text-sm">{errors.accept}</div>
                                                                                                     ) : null}
-                                                                                                    <button type="submit" className="bg-primary text-white">Submit</button>
+                                                                                                    <button type="submit" className="bg-primary text-white p-3 text-lg uppercase">Submit</button>
                                                                                                 </Form>
                                                                                             )}
                                                                                         />
@@ -678,28 +798,28 @@ const OffboardingForm = () => {
                                                                                                     }
                                                                                                 }}
                                                                                                 render={({ values, errors, touched, setFieldValue }) => (
-                                                                                                    <Form>
-
-
-                                                                                                        <label className="mb-4 block">
-                                                                                                            <Field type="checkbox" name="approved" className="my-0 mr-2" />
-                                                                                                            Approved ?
-                                                                                                        </label>
-                                                                                                        {!values.approved &&
+                                                                                                    <>
+                                                                                                        <Form>
+                                                                                                            <label className="mb-4 block bg-gray-100 p-3 rounded">
+                                                                                                                <Field type="checkbox" name="accept" className="my-0 mr-2" />
+                                                                                                                Approve Data
+                                                                                                                {errors.accept
+                                                                                                                    // && touched.accept
+                                                                                                                    ? (
+                                                                                                                        <div className="text-red-600 text-sm">{errors.accept}</div>
+                                                                                                                    ) : null}
+                                                                                                            </label>
+                                                                                                            {values.accept &&
+                                                                                                                <button type="submit" className="bg-primary text-white p-3 text-lg uppercase">Submit</button>
+                                                                                                            }
+                                                                                                        </Form>
+                                                                                                        {!values.accept &&
                                                                                                             <>
-                                                                                                                <label htmlFor="comment">Note</label>
-                                                                                                                <Field type="text" id="comment" name="comment" />
+                                                                                                                <div className="border-t border-gray-200 w-full mb-4" />
+                                                                                                                <Comment from="HR MGR" id={id} />
                                                                                                             </>
                                                                                                         }
-                                                                                                        <label className="mb-4 block bg-gray-100 p-3 rounded">
-                                                                                                            <Field type="checkbox" name="accept" className="my-0 mr-2" />
-                                                                                                            Saya menyetujui data yang dikirimkan adalah benar
-                                                                                                            {errors.accept && touched.accept ? (
-                                                                                                                <div className="text-red-600 text-sm">{errors.accept}</div>
-                                                                                                            ) : null}
-                                                                                                        </label>
-                                                                                                        <button type="submit" className="bg-primary text-white">Submit</button>
-                                                                                                    </Form>
+                                                                                                    </>
                                                                                                 )}
                                                                                             />
                                                                                         </>
@@ -790,13 +910,16 @@ const OffboardingForm = () => {
                                                                                                                     ) : null}
                                                                                                                 </>
                                                                                                             }
-                                                                                                            <label className="mb-4">
+                                                                                                            <label className="mb-4 block bg-gray-100 p-3 rounded">
                                                                                                                 <Field type="checkbox" name="accept" className="my-0 mr-2" />
-                                                                                                                Accept, declare it's true
+                                                                                                                Approve Data
+                                                                                                                {errors.accept
+                                                                                                                    // && touched.accept
+                                                                                                                    ? (
+                                                                                                                        <div className="text-red-600 text-sm">{errors.accept}</div>
+                                                                                                                    ) : null}
                                                                                                             </label>
-                                                                                                            {errors.accept && touched.accept ? (
-                                                                                                                <div className="mb-4 text-red-600 text-sm">{errors.accept}</div>
-                                                                                                            ) : null}
+
                                                                                                             {/* <FieldArray
                                                                         name="items"
                                                                         render={arrayHelpers => (
@@ -832,7 +955,9 @@ const OffboardingForm = () => {
                                                                             </div>
                                                                         )}
                                                                     /> */}
-                                                                                                            <button type="submit" className="bg-primary text-white">Submit</button>
+                                                                                                            {values.accept &&
+                                                                                                                <button type="submit" className="bg-primary text-white p-3 text-lg uppercase">Submit</button>
+                                                                                                            }
                                                                                                         </Form>
                                                                                                     )}
                                                                                                 />
@@ -905,75 +1030,82 @@ const OffboardingForm = () => {
                                                                                         }
                                                                                     }}
                                                                                     render={({ values, errors, touched, setFieldValue }) => (
-                                                                                        <Form>
-                                                                                            <label htmlFor="type">Type</label>
-                                                                                            <Field as="select" name="type">
-                                                                                                <option value="" disabled>Select Type</option>
-                                                                                                <option value="online">Online</option>
-                                                                                                <option value="offline">Offline</option>
-                                                                                            </Field>
-                                                                                            {errors.type && touched.type ? (
-                                                                                                <div className="-mt-4 mb-4 text-red-600 text-sm">{errors.type}</div>
-                                                                                            ) : null}
+                                                                                        <>
+                                                                                            <Form>
+                                                                                                <label htmlFor="type">Type</label>
+                                                                                                <Field as="select" name="type">
+                                                                                                    <option value="" disabled>Select Type</option>
+                                                                                                    <option value="online">Online</option>
+                                                                                                    <option value="offline">Offline</option>
+                                                                                                </Field>
+                                                                                                {errors.type && touched.type ? (
+                                                                                                    <div className="-mt-4 mb-4 text-red-600 text-sm">{errors.type}</div>
+                                                                                                ) : null}
 
 
-                                                                                            <label htmlFor="signedDocument">Dokumen Surat Pernyataan Berhenti</label>
-                                                                                            <input id="signedDocument" name="signedDocument" type="file" placeholder="Attachment"
-                                                                                                onChange={(event) => {
-                                                                                                    setFieldValue("signedDocument", event.target.files[0]);
-                                                                                                }}
-                                                                                            />
-                                                                                            {errors.signedDocument && touched.signedDocument ? (
-                                                                                                <div className="-mt-4 mb-4 text-red-600 text-sm">{errors.signedDocument}</div>
-                                                                                            ) : null}
-                                                                                            <label htmlFor="opers">Form Perubahan Nomor Telepon</label>
-                                                                                            <input id="opers" name="opers" type="file" placeholder="Attachment"
-                                                                                                onChange={(event) => {
-                                                                                                    setFieldValue("opers", event.target.files[0]);
-                                                                                                }}
-                                                                                            />
-                                                                                            {errors.opers && touched.opers ? (
-                                                                                                <div className="-mt-4 mb-4 text-red-600 text-sm">{errors.opers}</div>
-                                                                                            ) : null}
+                                                                                                <label htmlFor="signedDocument">Dokumen Surat Pernyataan Berhenti</label>
+                                                                                                <input id="signedDocument" name="signedDocument" type="file" placeholder="Attachment"
+                                                                                                    onChange={(event) => {
+                                                                                                        setFieldValue("signedDocument", event.target.files[0]);
+                                                                                                    }}
+                                                                                                />
+                                                                                                {errors.signedDocument && touched.signedDocument ? (
+                                                                                                    <div className="-mt-4 mb-4 text-red-600 text-sm">{errors.signedDocument}</div>
+                                                                                                ) : null}
+                                                                                                <label htmlFor="opers">Form Perubahan Nomor Telepon</label>
+                                                                                                <input id="opers" name="opers" type="file" placeholder="Attachment"
+                                                                                                    onChange={(event) => {
+                                                                                                        setFieldValue("opers", event.target.files[0]);
+                                                                                                    }}
+                                                                                                />
+                                                                                                {errors.opers && touched.opers ? (
+                                                                                                    <div className="-mt-4 mb-4 text-red-600 text-sm">{errors.opers}</div>
+                                                                                                ) : null}
 
-                                                                                            <label htmlFor="jobTransfer">Surat Pengalihan Pekerjaan</label>
-                                                                                            <input id="jobTransfer" name="jobTransfer" type="file" placeholder="Attachment"
-                                                                                                onChange={(event) => {
-                                                                                                    setFieldValue("jobTransfer", event.target.files[0]);
-                                                                                                }}
-                                                                                            />
-                                                                                            {errors.jobTransfer && touched.jobTransfer ? (
-                                                                                                <div className="-mt-4 mb-4 text-red-600 text-sm">{errors.jobTransfer}</div>
-                                                                                            ) : null}
-                                                                                            <label htmlFor="bpjs">Form BPJS</label>
-                                                                                            <input id="bpjs" name="bpjs" type="file" placeholder="Attachment"
-                                                                                                onChange={(event) => {
-                                                                                                    setFieldValue("bpjs", event.target.files[0]);
-                                                                                                }}
-                                                                                            />
-                                                                                            {errors.bpjs && touched.bpjs ? (
-                                                                                                <div className="-mt-4 mb-4 text-red-600 text-sm">{errors.bpjs}</div>
-                                                                                            ) : null}
+                                                                                                <label htmlFor="jobTransfer">Surat Pengalihan Pekerjaan</label>
+                                                                                                <input id="jobTransfer" name="jobTransfer" type="file" placeholder="Attachment"
+                                                                                                    onChange={(event) => {
+                                                                                                        setFieldValue("jobTransfer", event.target.files[0]);
+                                                                                                    }}
+                                                                                                />
+                                                                                                {errors.jobTransfer && touched.jobTransfer ? (
+                                                                                                    <div className="-mt-4 mb-4 text-red-600 text-sm">{errors.jobTransfer}</div>
+                                                                                                ) : null}
+                                                                                                <label htmlFor="bpjs">Form BPJS</label>
+                                                                                                <input id="bpjs" name="bpjs" type="file" placeholder="Attachment"
+                                                                                                    onChange={(event) => {
+                                                                                                        setFieldValue("bpjs", event.target.files[0]);
+                                                                                                    }}
+                                                                                                />
+                                                                                                {errors.bpjs && touched.bpjs ? (
+                                                                                                    <div className="-mt-4 mb-4 text-red-600 text-sm">{errors.bpjs}</div>
+                                                                                                ) : null}
 
-                                                                                            <label htmlFor="formDocument">Checklist Pengembalian Barang</label>
-                                                                                            <input id="formDocument" name="formDocument" type="file" placeholder="Attachment"
-                                                                                                onChange={(event) => {
-                                                                                                    setFieldValue("formDocument", event.target.files[0]);
-                                                                                                }}
-                                                                                            />
-                                                                                            {errors.formDocument && touched.formDocument ? (
-                                                                                                <div className="-mt-4 mb-4 text-red-600 text-sm">{errors.formDocument}</div>
-                                                                                            ) : null}
+                                                                                                <label htmlFor="formDocument">Checklist Pengembalian Barang</label>
+                                                                                                <input id="formDocument" name="formDocument" type="file" placeholder="Attachment"
+                                                                                                    onChange={(event) => {
+                                                                                                        setFieldValue("formDocument", event.target.files[0]);
+                                                                                                    }}
+                                                                                                />
+                                                                                                {errors.formDocument && touched.formDocument ? (
+                                                                                                    <div className="-mt-4 mb-4 text-red-600 text-sm">{errors.formDocument}</div>
+                                                                                                ) : null}
 
-                                                                                            <label className="mb-4 block">
-                                                                                                <Field type="checkbox" name="accept" className="my-0 mr-2" />
-                                                                                                Saya menyetujui data yang dikirimkan adalah benar
-                                                                                            </label>
-                                                                                            {errors.accept && touched.accept ? (
-                                                                                                <div className="mb-4 text-red-600 text-sm">{errors.accept}</div>
-                                                                                            ) : null}
-                                                                                            <button type="submit" className="bg-primary text-white">Submit</button>
-                                                                                        </Form>
+                                                                                                <label className="mb-4 block bg-gray-100 p-3 rounded">
+                                                                                                    <Field type="checkbox" name="accept" className="my-0 mr-2" />
+                                                                                                    Approve Data
+                                                                                                    {errors.accept
+                                                                                                        // && touched.accept
+                                                                                                        ? (
+                                                                                                            <div className="text-red-600 text-sm">{errors.accept}</div>
+                                                                                                        ) : null}
+                                                                                                </label>
+                                                                                                {values.accept &&
+                                                                                                    <button type="submit" className="bg-primary text-white p-3 text-lg uppercase">Submit</button>
+                                                                                                }
+                                                                                            </Form>
+
+                                                                                        </>
                                                                                     )}
                                                                                 />
                                                                                 <div className="border p-4">
@@ -1020,7 +1152,8 @@ const OffboardingForm = () => {
                                                                                             // formData.append('confirmation', values.confirmation);
                                                                                             formData.append('dept', values.dept);
                                                                                             formData.append("message", values.message);
-                                                                                            formData.append("completed", values.completed);
+                                                                                            // formData.append("completed", values.completed);
+                                                                                            formData.append("completed", 'true');
                                                                                             formData.append('process_type', 4);
                                                                                             const res = await axios.post('/api/returndocument', formData, {
                                                                                                 headers: {
@@ -1042,77 +1175,58 @@ const OffboardingForm = () => {
                                                                                             }
                                                                                         }}
                                                                                         render={({ values, errors, touched, setFieldValue }) => (
-                                                                                            <Form>
-                                                                                                <table className="rounded-t-lg w-full m-5 mx-auto bg-gray-200 text-gray-800">
-                                                                                                    <tr className="border-b-2 border-gray-300">
-                                                                                                        <th colSpan="2" className="px-3 py-2">Catatan Pengembalian Barang</th>
-                                                                                                        {/* <th className="px-3 py-2">File</th> */}
-                                                                                                    </tr>
-                                                                                                    <tr className="bg-gray-100 border-b border-gray-200">
-                                                                                                        <td className="px-3 py-2 text-xs">{data?.offboarding_form?.return_document_form?.data[0].question}</td>
-                                                                                                        <td className="px-3 py-2 text-xs">{data?.offboarding_form?.return_document_form?.data[0].value}</td>
-                                                                                                    </tr>
-                                                                                                    {data?.offboarding_form?.return_document_form?.data[1].question &&
-                                                                                                        data?.offboarding_form?.return_document_form?.data[1].question.map((item, i) => (
-                                                                                                            <tr className="bg-gray-100 border-b border-gray-200">
-                                                                                                                <td className="px-3 py-2 text-xs">{item}</td>
-                                                                                                                <td className="px-3 py-2 text-xs">{data?.offboarding_form?.return_document_form?.data[1]?.value[i][0] == "1" ? "Yes" : "No"}</td>
-                                                                                                            </tr>
-                                                                                                        ))
-                                                                                                    }
-                                                                                                    <tr className="bg-gray-100 border-b border-gray-200">
-                                                                                                        <td className="px-3 py-2 text-xs">Return Document Type</td>
-                                                                                                        <td className="px-3 py-2 text-xs">{data?.offboarding_form?.return_document_form?.return_type?.type}</td>
-                                                                                                    </tr>
-                                                                                                    {data?.offboarding_form?.return_document_form?.return_type?.data &&
-                                                                                                        data?.offboarding_form?.return_document_form?.return_type?.data.map((item, i) => (
-                                                                                                            <tr className="bg-gray-100 border-b border-gray-200">
-                                                                                                                <td className="px-3 py-2 text-xs">{item.question}</td>
-                                                                                                                <td className="px-3 py-2 text-xs">{i != 2 ? item.value :
-                                                                                                                    <a className="text-blue-700 border-b" href={item.value} target="_blank">Link</a>
-                                                                                                                }
-                                                                                                                </td>
-                                                                                                            </tr>
-                                                                                                        ))
-                                                                                                    }
-                                                                                                    <tr className="bg-gray-100 border-b border-gray-200">
-                                                                                                        <td className="px-3 py-2 text-xs">Catatan Tambahan</td>
-                                                                                                        <td className="px-3 py-2 text-xs">{data?.offboarding_form?.return_document_form?.additional_comment}</td>
-                                                                                                    </tr>
-                                                                                                </table>
-                                                                                                <label htmlFor="dept">Dept</label>
-                                                                                                <Field as="select" name="dept">
-                                                                                                    <option value="" disabled>Select Dept</option>
-                                                                                                    <option value="hrss_softfile">HR SS Softfile</option>
-                                                                                                    <option value="hrss_it">HR SS IT</option>
-                                                                                                    <option value="svp">SVP</option>
-                                                                                                </Field>
-                                                                                                {errors.dept && touched.dept ? (
-                                                                                                    <div className="-mt-4 mb-4 text-red-600 text-sm">{errors.dept}</div>
-                                                                                                ) : null}
+                                                                                            <>
+                                                                                                <Form>
+                                                                                                    <label htmlFor="dept">Dept</label>
+                                                                                                    <Field as="select" name="dept">
+                                                                                                        <option value="" disabled>Select Dept</option>
+                                                                                                        <option value="hrss_softfile">HR SS Softfile</option>
+                                                                                                        <option value="hrss_it">HR SS IT</option>
+                                                                                                        <option value="svp">SVP</option>
+                                                                                                    </Field>
+                                                                                                    {errors.dept && touched.dept ? (
+                                                                                                        <div className="-mt-4 mb-4 text-red-600 text-sm">{errors.dept}</div>
+                                                                                                    ) : null}
 
 
-                                                                                                {!values.completed &&
+                                                                                                    {/* {!values.completed &&
+                                                                                                        <>
+                                                                                                            <label htmlFor="message">Note</label>
+                                                                                                            <Field type="text" id="message" name="message" />
+                                                                                                        </>
+                                                                                                    }
+                                                                                                    <label className="mb-4 block">
+                                                                                                        <Field type="checkbox" name="completed" className="my-0 mr-2" />
+                                                                                                        Completed ?
+                                                                                                    </label>
+
+                                                                                                    <label className="mb-4">
+                                                                                                        <Field type="checkbox" name="accept" className="my-0 mr-2" />
+                                                                                                        Declare it's true
+                                                                                                    </label>
+                                                                                                    {errors.accept && touched.accept ? (
+                                                                                                        <div className="mb-4 text-red-600 text-sm">{errors.accept}</div>
+                                                                                                    ) : null}
+
+                                                                                                    <button type="submit" className="bg-primary text-white">Submit</button> */}
+                                                                                                    <label className="mb-4 block bg-gray-100 p-3 rounded">
+                                                                                                        <Field type="checkbox" name="accept" className="my-0 mr-2" />
+                                                                                                        Saya menyetujui data yang dikirimkan adalah benar
+                                                                                                        {errors.accept && touched.accept ? (
+                                                                                                            <div className="text-red-600 text-sm">{errors.accept}</div>
+                                                                                                        ) : null}
+                                                                                                    </label>
+                                                                                                    {values.accept &&
+                                                                                                        <button type="submit" className="bg-primary text-white p-3 text-lg uppercase">Submit</button>
+                                                                                                    }
+                                                                                                </Form>
+                                                                                                {!values.accept &&
                                                                                                     <>
-                                                                                                        <label htmlFor="message">Note</label>
-                                                                                                        <Field type="text" id="message" name="message" />
+                                                                                                        <div className="border-t border-gray-200 w-full mb-4" />
+                                                                                                        <Comment from={`${values.dept} - Pengecekan Dokumen`} id={id} />
                                                                                                     </>
                                                                                                 }
-                                                                                                <label className="mb-4 block">
-                                                                                                    <Field type="checkbox" name="completed" className="my-0 mr-2" />
-                                                                                                    Completed ?
-                                                                                                </label>
-
-                                                                                                <label className="mb-4">
-                                                                                                    <Field type="checkbox" name="accept" className="my-0 mr-2" />
-                                                                                                    Declare it's true
-                                                                                                </label>
-                                                                                                {errors.accept && touched.accept ? (
-                                                                                                    <div className="mb-4 text-red-600 text-sm">{errors.accept}</div>
-                                                                                                ) : null}
-
-                                                                                                <button type="submit" className="bg-primary text-white">Submit</button>
-                                                                                            </Form>
+                                                                                            </>
                                                                                         )}
                                                                                     />
                                                                                 </> :
@@ -1125,16 +1239,16 @@ const OffboardingForm = () => {
                                                                                         <a className="border p-2 rounded text-right text-blue-600 inline-block m-2 font-semibold" href="/exitClearance">Template Clearance Exit</a>
                                                                                     </p>
                                                                                 </>
-                                                    ) : null
-                            }
+                                                        ) : null
+                                }
+                            </div>
+                            <div className="col-lg-6 order-1 lg:order-2"><CardEmployee data={data} visibility={tracking} /></div>
+                            <ManagerModal
+                                openModal={isOpen}
+                                submitted={submitted}
+                                stateChanger={setIsOpen}
+                            />
                         </div>
-                        <div className="col-lg-6 order-1 lg:order-2"><CardEmployee data={data} visibility={tracking} /></div>
-                        <ManagerModal
-                            openModal={isOpen}
-                            submitted={submitted}
-                            stateChanger={setIsOpen}
-                        />
-                    </div>
             }
         </>
     )

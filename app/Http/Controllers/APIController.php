@@ -20,6 +20,7 @@ use Illuminate\Support\Str;
 use File;
 use DB;
 use App\Mail\ResignationRequest;
+use App\Models\Comment;
 use App\Models\OffboardingForm;
 use Illuminate\Support\Facades\Mail;
 
@@ -182,7 +183,7 @@ class APIController extends Controller
         $offboardingTicket->checkpoint()->save($checkpoint);
 
         $exitClearance = new ExitClearance();
-        $employee->exitClearance()->save($exitClearance);
+        $offboardingTicket->exitClearance()->save($exitClearance);
 
         $offboardingForm = new OffboardingForm();
         $offboardingTicket->offboardingForm()->save($offboardingForm);
@@ -201,14 +202,6 @@ class APIController extends Controller
             false,
             "Offboarding Ticket Created",
         );
-
-        ##Generate Resignation Letter PDF
-        $input = array(
-            'employeeID' => $request->employeeIDIn,
-            'offboardingID' => $offboardingTicket->id,
-            'type' => 1,
-        );
-        // $this->generatePDF($input);
 
         ##Send Email to SVP and Employee
         if ($offboardingTicket->type_id == "e202") {
@@ -240,6 +233,7 @@ class APIController extends Controller
             $offboardingTicket->checkpoint->acc_employee = $request->status == '1' ? true : false;
         } elseif ($request->hrmgr == '1') {
             $offboardingTicket->checkpoint->acc_hrbp_mgr = $request->status == '1' ? true : false;
+            $offboardingTicket->status_id = 7;
             $offboardingTicket->push();
             if (
                 $offboardingTicket->save()
@@ -250,7 +244,17 @@ class APIController extends Controller
                     false,
                     "HR Manager Confirmed Offboarding",
                 );
+                $this->addProgressRecord(
+                    $request->offboardingID,
+                    true,
+                    false,
+                    "Offboarding Completed",
+                );
             }
+
+            ##OFFBOARDING SELESAI
+            $this->offboardingDone($offboardingTicket);
+
             return response()->json("Success");
         } else {
             $offboardingTicket->checkpoint->acc_svp = $request->status == '1' ? true : false;
@@ -572,9 +576,9 @@ class APIController extends Controller
                     // $input = json_encode($input);
                     // $this->startProcess($input);
 
-                    ##OFFBOARDING SELESAI
-                    Mail::to($offboardingTicket->employee->email)->send(new EmployeeClearDocument($offboardingTicket, 4,null));
-                    Mail::to('payroll@getnada.com')->send(new EmployeeClearDocument($offboardingTicket, 5,null,'info'));
+                    // ##OFFBOARDING SELESAI
+                    // Mail::to($offboardingTicket->employee->email)->send(new EmployeeClearDocument($offboardingTicket, 4, null));
+                    // Mail::to('payroll@getnada.com')->send(new EmployeeClearDocument($offboardingTicket, 5, null, 'info'));
                 }
             } else {
                 $message = array(
@@ -588,7 +592,7 @@ class APIController extends Controller
                 // $this->startProcess($input);
                 // return response()->json($message);
                 ##MAIL FEEDBACK TO EMPLOYEE
-                Mail::to($offboardingTicket->employee->email)->send(new EmployeeClearDocument($offboardingTicket, 3,$message,'info'));
+                Mail::to($offboardingTicket->employee->email)->send(new EmployeeClearDocument($offboardingTicket, 3, $message, 'info'));
 
                 $this->addProgressRecord(
                     $request->offboardingID,
@@ -1081,8 +1085,7 @@ class APIController extends Controller
             }
             ##Send email to SVP
             Mail::to('svp@getnada.com')->send(new EmployeeClearDocument($offboardingTicket));
-
-        }elseif($rawData['type'] == 'return_document'){
+        } elseif ($rawData['type'] == 'return_document') {
             $data['return_type'] = array(
                 'type' => $rawData['data']->type,
                 'data' => $rawData['data']->itemOnline,
@@ -1101,11 +1104,56 @@ class APIController extends Controller
                 );
             }
             ##Send email to HRSS IT, SVP, HRSS softfile
-            Mail::to(['svp@getnada.com','hrss_softfile@getnada.com','hrss_it@getnada.com'])->send(new EmployeeClearDocument($offboardingTicket, 2));
+            Mail::to(['svp@getnada.com', 'hrss_softfile@getnada.com', 'hrss_it@getnada.com'])->send(new EmployeeClearDocument($offboardingTicket, 2));
         }
 
 
         return $data;
         return $rawData;
+    }
+
+    public function postComment(Request $request)
+    {
+        $offboardingTicket = Offboarding::find($request->offboardingID);
+        // return response()->json($request->all());
+        $comment = $offboardingTicket->comments()->create([
+            'from' => $request->from,
+            'comment' => $request->comment,
+            // 'message' => 'A new comment.',
+        ]);
+        // $offboardingTicket->comments()->save($comment);
+        return response()->json('Success');
+    }
+
+    private function offboardingDone($offboardingData = null)
+    {
+        // Mail::to($offboardingData->employee->email)->send(new EmployeeClearDocument($offboardingData, 4, null));
+        // Mail::to('payroll@getnada.com')->send(new EmployeeClearDocument($offboardingData, 5, null, 'info'));
+
+        ##employeeID,offboardingID,type
+
+        ##Generate Resignation Letter PDF
+        $input = array(
+            'employeeID' => $offboardingData->employee->id,
+            'offboardingID' => $offboardingData->id,
+            'type' => 1,
+        );
+        $this->generatePDF($input);
+
+        ##Generate CV PDF
+        $input = array(
+            'employeeID' => $offboardingData->employee->id,
+            'offboardingID' => $offboardingData->id,
+            'type' => 2,
+        );
+        $this->generatePDF($input);
+
+        ##Generate Payroll PDF
+        $input = array(
+            'employeeID' => $offboardingData->employee->id,
+            'offboardingID' => $offboardingData->id,
+            'type' => 3,
+        );
+        $this->generatePDF($input);
     }
 }

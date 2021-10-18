@@ -34,7 +34,7 @@ class AdminController extends Controller
         $input = array(
             'employeeID' => 1,
             'type' => $type,
-            'offboardingID'=>26,
+            'offboardingID'=>9,
         );
         return $this->generatePDF($input, true);
         // $data['data'] = Employee::find(1);
@@ -50,9 +50,9 @@ class AdminController extends Controller
     {
         $type = $request->type ? $request->type : 1;
         $input = array(
-            'employeeID' => 1,
+            // 'employeeID' => 1,
             'type' => $type,
-            'offboardingID'=>26,
+            'offboardingID'=>9,
         );
         return $this->previewPDF($input);
         // $pdf = \PDF::loadView('PDF.CV');

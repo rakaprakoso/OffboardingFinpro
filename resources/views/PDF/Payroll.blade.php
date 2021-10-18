@@ -1,8 +1,5 @@
 <!doctype html>
 <html lang="en">
-@php
-    $salary = 9000000;
-@endphp
 <head>
     <!-- Required meta tags -->
     <meta charset="utf-8">
@@ -16,7 +13,7 @@
         <link rel="stylesheet" href="{{ asset(mix('/css/app.css')) }}">
     @endif
     <title>Payroll - {{ $data->name }}</title>
-    @if (Route::is('pdfGenerate'))
+    @if (Route::is('pdfGenerate') || $generate == '1')
         <style type="text/css">
             @font-face {
                 font-family: 'PoppinsPDF';
@@ -228,7 +225,7 @@
         }
 
     </style>
-    @if (Route::is('pdfGenerate'))
+    @if (Route::is('pdfGenerate') || $generate == '1')
         <style type="text/css">
             .header {
                 background-color: #eab308;
@@ -270,15 +267,15 @@
                         </tr>
                         <tr>
                             <td>NIK</td>
-                            <th>: {{ $data->rawNIK }}</th>
+                            <th>: {{ $data->nik }}</th>
                         </tr>
                         <tr>
                             <td>Position</td>
-                            <th>: {{ $data->position }}</th>
+                            <th>: {{ $data->job_detail->title }}</th>
                         </tr>
                         <tr>
                             <td>Sisa Hari Cuti</td>
-                            <th>: 24 Hari</th>
+                            <th>: {{$payroll['paid_leave_available']}} Hari</th>
                         </tr>
                     </table>
                 </td>
@@ -286,7 +283,7 @@
                     <table width="100%">
                         <tr>
                             <td>Tgl Mulai Kerja</td>
-                            <th>: {{ $data->work_start_date }}</th>
+                            <th>: {{ $data->hire_date }}</th>
                         </tr>
                         <tr>
                             <td>Tgl Berhenti</td>
@@ -294,11 +291,11 @@
                         </tr>
                         <tr>
                             <td>Jumlah Masa Kerja</td>
-                            <th>: 3 Tahun</th>
+                            <th>: {{$payroll['work_duration_text']}}</th>
                         </tr>
                         <tr>
                             <td>Salary</td>
-                            <th>: Rp. {{number_format($salary,0,",",".")}}</th>
+                            <th>: Rp. {{number_format($payroll['salary'],0,",",".")}}</th>
                         </tr>
                     </table>
                 </td>
@@ -311,36 +308,44 @@
             <tr>
                 <th colspan="3">A. HAK DARI PERUSAHAAN</th>
             </tr>
-            <tr>
+            {{-- <tr>
                 <td colspan="2">Uang Kompensasi Akhir Kontrak PP 35/2021</td>
-                <td>: Rp. {{number_format($salary,0,",",".")}}</td>
+                <td>: Rp. {{number_format($payroll['salary'],0,",",".")}}</td>
+            </tr> --}}
+            <tr>
+                <td colspan="2">Uang Pesangon PP 35/2021</td>
+                <td>: Rp. {{number_format($payroll['severance_pay'],0,",",".")}}</td>
             </tr>
             <tr>
-                <td colspan="2">Maksimal Jumlah Sisa Hari Cuti yang dapat Diuangkan <br>(18 Hari / 22 x Rp 9,403,730)</td>
-                <td>: Rp. {{number_format(1000000,0,",",".")}}</td>
+                <td colspan="2">Uang Penghargaan Masa Kerja (UPMK) PP 35/2021</td>
+                <td>: Rp. {{number_format($payroll['upmk_pay'],0,",",".")}}</td>
+            </tr>
+            <tr>
+                <td colspan="2">Maksimal Jumlah Sisa Hari Cuti yang dapat Diuangkan <br>({{$payroll['paid_leave_available']}} Hari / 25 x Rp. {{number_format($payroll['salary'],0,",",".")}})</td>
+                <td>: Rp. {{number_format($payroll['paid_leave_pay'],0,",",".")}}</td>
             </tr>
             <tr>
                 <th colspan="2" style="text-align:right">Jumlah Hak (I.A)</th>
-                <th>: Rp. {{number_format($salary+1000000,0,",",".")}}</th>
+                <th>: Rp. {{number_format($payroll['rights_total'],0,",",".")}}</th>
             </tr>
             <tr>
                 <th colspan="3">B. KEWAJIBAN KEPADA PERUSAHAAN</th>
             </tr>
             <tr>
                 <td colspan="2">Potongan Excess Medical</td>
-                <td>: Rp. 7.000.000</td>
+                <td>: Rp. {{number_format($payroll['excess_medical'],0,",",".")}}</td>
             </tr>
             <tr>
                 <td colspan="2">Potongan Kelebihan HP Opers</td>
-                <td>: Rp. 7.000.000</td>
+                <td>: Rp. {{number_format($payroll['kelebihan_opers'],0,",",".")}}</td>
             </tr>
             <tr>
                 <th colspan="2" style="text-align:right">Jumlah Kewajiban (I.B)</th>
-                <th>: Rp. 17.000.000</th>
+                <th>: Rp. {{number_format($payroll['obligations_total'],0,",",".")}}</th>
             </tr>
             <tr>
                 <th colspan="2" style="text-align:right">TOTAL HAK KARYAWAN SETELAH DIKURANGI KEWAJIBAN (I.A - I.B)</th>
-                <th>: Rp. 17.000.000</th>
+                <th>: Rp. {{number_format($payroll['net_total'],0,",",".")}}</th>
             </tr>
         </table>
         <div class="page-break"></div>
@@ -348,15 +353,15 @@
         <table class="table text-small" width="100%">
             <tr>
                 <td colspan="2">Simpanan Koperasi</td>
-                <td>: Rp. -</td>
+                <td>: Rp. {{number_format($payroll['rights_kopindosat'],0,",",".")}}</td>
             </tr>
             <tr>
                 <td colspan="2">Kewajiban atas Pinjaman Koperasi</td>
-                <td>: Rp. -</td>
+                <td>: Rp. {{number_format($payroll['obligations_kopindosat'],0,",",".")}}</td>
             </tr>
             <tr>
                 <th colspan="2" style="text-align:right">Jumlah Kewajiban</th>
-                <th>: Rp. -</th>
+                <th>: Rp. {{number_format($payroll['total_kopindosat'],0,",",".")}}</th>
             </tr>
         </table>
     </div>

@@ -52,7 +52,7 @@ class OffboardingController extends Controller
             $offboarding = Offboarding::with('Employee', 'Details', 'offboardingForm')->find($id);
         } else {
             if ($request->progress == "true") {
-                $offboarding = Offboarding::with('progressRecord', 'exitClearance', 'Details')->find($id);
+                $offboarding = Offboarding::with('progressRecord', 'exitClearance', 'Details','comments','offboardingForm')->find($id);
                 // return response()->json($offboarding, 200);
             } else {
                 $offboarding = Offboarding::with('Employee', 'exitClearance','Details')->find($id);

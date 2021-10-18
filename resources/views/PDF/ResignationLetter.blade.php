@@ -203,19 +203,21 @@
 
 <body>
     <div class="overlay overlay-top">
-        <img src="https://tiptronic.deprakoso.site/images/Logo%20Big.png" alt="Logo" class="logo" />
+        <img src="https://offboarding.deprakoso.site/images/Logo%20Big.png" alt="Logo" class="logo" />
     </div>
     <div class="overlay overlay-bottom">
         <hr>
         <div class="text-small">
             No. {{$offboarding->id}}/RSGN/{{ time() }} |
-            Issued by : {{ $data->name }} - {{ date('Y-m-d H:i:s') }} |
-            @if (false)
+            {{-- Issued by : {{ $data->name }} - {{ date('Y-m-d H:i:s') }} | --}}
+            {{-- @if (false)
             Approved by :
             {{ $data->name }} - {{ date('Y-m-d H:i:s') }}
             @else
             Waiting Approval
-            @endif
+            @endif --}}
+            Approved by :
+            {{ $data->name }} - {{ date('Y-m-d H:i:s') }}
         </div>
     </div>
     <div class="p-page">
@@ -239,19 +241,15 @@
             </tr>
             <tr>
                 <td>NIK</td>
-                <td>: {{ $data->rawNIK }}</td>
+                <td>: {{ $data->nik }}</td>
             </tr>
             <tr>
                 <td>Posisi</td>
-                <td>: {{ $data->position }}</td>
+                <td>: {{ $data->job_detail->title }}</td>
             </tr>
             <tr>
                 <td>Work Unit</td>
-                <td>: {Dept. GTM & Marcomm Area - Div.
-                    Regional GTM & Trade Marketing -
-                    Region Kalimantan & Sumapa - Office
-                    of Chief Commercial - Office of Dir. &
-                    Chief Operating}</td>
+                <td>: {{ $data->department->name }} - {{$data->department->location->city}}</td>
             </tr>
         </table>
         <p>Mengajukan permohonan pengunduran diri sebagai karyawan di Indosat Tbk pertanggal

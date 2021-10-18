@@ -14,7 +14,7 @@
         <link rel="stylesheet" href="{{ asset(mix('/css/app.css')) }}">
     @endif
     <title>CV - {{ $data->name }}</title>
-    @if (Route::is('pdfGenerate'))
+    @if (Route::is('pdfGenerate') || $generate == '1')
         <style type="text/css">
             @font-face {
                 font-family: 'PoppinsPDF';
@@ -202,9 +202,12 @@
         .table.table-striped tbody tr:nth-of-type(odd) {
             background-color: rgba(0, 0, 0, .05);
         }
+        .title-case{
+            text-transform: capitalize;
+        }
 
     </style>
-    @if (Route::is('pdfGenerate'))
+    @if (Route::is('pdfGenerate') || $generate == '1')
         <style type="text/css">
             .header {
                 background-color: #eab308;
@@ -237,7 +240,7 @@
         <table class="" width=" 100%">
             <tr>
                 <td align="center" style="width: 30%;">
-                    <img src="https://image.kpopmap.com/2020/11/More__More_Dahyun_Promo_2.jpg" alt="Logo"
+                    <img src="https://offboarding.deprakoso.site/{{$data->profile_pic}}" alt="Logo"
                         {{-- width="100" height="100" --}} class="pic" />
                 </td>
                 <td align="left" class="profile" style="width: 70%;">
@@ -246,23 +249,19 @@
                     <table width="100%">
                         <tr>
                             <td>NIK</td>
-                            <td>: {{ $data->rawNIK }}</td>
+                            <td>: {{ $data->nik }}</td>
                         </tr>
                         <tr>
                             <td>Posisi</td>
-                            <td>: {{ $data->position }}</td>
+                            <td>: {{ $data->job_detail->title }}</td>
                         </tr>
                         <tr>
-                            <td>Work Unit</td>
-                            <td>: {Dept. GTM & Marcomm Area - Div.
-                                Regional GTM & Trade Marketing -
-                                Region Kalimantan & Sumapa - Office
-                                of Chief Commercial - Office of Dir. &
-                                Chief Operating}</td>
+                            <td>Department</td>
+                            <td>: {{ $data->department->name }}</td>
                         </tr>
                         <tr>
                             <td>Location</td>
-                            <td>: {Jakarta}</td>
+                            <td>: {{$data->department->location->city}}</td>
                         </tr>
                     </table>
                 </td>
@@ -272,34 +271,34 @@
     </div>
     <div class="detail">
         <h3>Profile</h3>
-        <table class="table text-small" width="100%">
+        <table class="table text-small title-case" width="100%">
             <tr>
                 <td>Birthplace/Birthdate</td>
-                <td>: {{ $data->birth_date }}</td>
+                <td>: {{ $data->birth_place }}, {{ $data->birth_date }}</td>
             </tr>
             <tr>
                 <td>Gender</td>
-                <td>: {{ $data->position }}</td>
+                <td>: {{ $data->gender }}</td>
             </tr>
             <tr>
                 <td>Religion</td>
-                <td>: {Islam}</td>
+                <td>: {{ $data->religion }}</td>
             </tr>
             <tr>
                 <td>Date of Start Work</td>
-                <td>: {{ $data->work_start_date }}</td>
+                <td>: {{ $data->hire_date }}</td>
             </tr>
             <tr>
                 <td>Employee Status</td>
-                <td>: {Berhenti tnp Pensiun Tanpa Hak Pensiun}</td>
+                <td>: {{$offboarding->typeDetail->name}}</td>
             </tr>
             <tr>
                 <td>Marital Status</td>
-                <td>: {Married }</td>
+                <td>: {{ $data->marital_status }}</td>
             </tr>
             <tr>
                 <td>Home Address</td>
-                <td>: {Jl. A. Djelani RT.034 RW.007 - Kel. Terusan, Kec. Mempawah Hilir - Mempawah 78912}</td>
+                <td>: {{$data->address}}</td>
             </tr>
             <tr>
                 <td>Telephone Number </td>
@@ -314,18 +313,20 @@
         <table class="text-small table table-striped" width="100%">
             <thead>
                 <tr>
-                    <th>Institute</th>
+                    <th style="width: 40%;">Institute</th>
                     <th>Branch of Study</th>
                     <th>Year Graduation</th>
                     <th>Educational Esthablishment</th>
                 </tr>
             </thead>
+            @foreach ($data->formal_education as $education)
             <tr>
-                <td>President University</td>
-                <td>Information Systems</td>
-                <td>2021</td>
-                <td>S1</td>
+                <td>{{$education->institute}}</td>
+                <td>{{$education->major}}</td>
+                <td>{{$education->year_graduation}}</td>
+                <td>{{$education->establishment}}</td>
             </tr>
+            @endforeach
         </table>
     </div>
     <div class="list-data">
@@ -340,14 +341,22 @@
                     <th>Date</th>
                 </tr>
             </thead>
-            @for ($i = 1; $i <= 20; $i++)
+            @foreach ($data->non_formal_education as $non_formal)
+            <tr>
+                <td>{{$loop->iteration}}</td>
+                <td>{{$non_formal->course_name}}</td>
+                <td>{{$non_formal->location}}</td>
+                <td>{{$non_formal->date}}</td>
+            </tr>
+            @endforeach
+            {{-- @for ($i = 1; $i <= 20; $i++)
             <tr>
                 <td>{{$i}}</td>
                 <td>Talk Like a Winner</td>
                 <td>Vara Percinka</td>
                 <td>2020</td>
             </tr>
-            @endfor
+            @endfor --}}
         </table>
     </div>
     <div class="list-data">
@@ -362,15 +371,14 @@
                     <th>Date</th>
                 </tr>
             </thead>
+            @foreach ($data->job_history as $history)
             <tr>
-                <td>Staff-GTM & Marcomm</td>
-                <td>Dept. GTM & Marcomm Area - Div. Regional
-                    GTM & Trade Marketing - Region Kalimantan
-                    & Sumapa - Office of Chief Commercial -
-                    Office of Pres. Dir & Chief Executive</td>
-                <td>Sampit</td>
-                <td>01.07.2020</td>
+                <td>{{$history->job_detail->title}}</td>
+                <td>{{$history->department->name}}</td>
+                <td>{{$history->department->location->city}}</td>
+                <td>{{$history->start_date}}</td>
             </tr>
+            @endforeach
         </table>
     </div>
     <div class="list-data">
@@ -383,10 +391,12 @@
                     <th>Date</th>
                 </tr>
             </thead>
+            @foreach ($data->achievements as $achievement)
             <tr>
-                <td>Staff-GTM & Marcomm</td>
-                <td>01.07.2020</td>
+                <td>{{$achievement->award_name}}</td>
+                <td>{{$achievement->date}}</td>
             </tr>
+            @endforeach
         </table>
     </div>
     @if (Route::is('pdfPreview'))

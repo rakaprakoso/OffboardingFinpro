@@ -1,10 +1,10 @@
-import React,{useState, useEffect} from "react";
+import React, { useState, useEffect } from "react";
 import {
     BrowserRouter as Router,
     Switch,
     Route,
     useParams
-  } from "react-router-dom";
+} from "react-router-dom";
 
 // components
 
@@ -12,6 +12,8 @@ import CardSettings from "../../components/Cards/CardSettings.js";
 import CardProfile from "../../components/Cards/CardProfile.js";
 import CardEmployee from "../../components/Cards/CardEmployee.js";
 import CardProgressRecord from "../../components/Cards/CardProgressRecord.js";
+import CardComment from "../../components/Cards/CardComment.js";
+import ExitInterviewForm from "../../components/Forms/ExitInterviewForm.js";
 
 export function Modify() {
 
@@ -46,9 +48,22 @@ export function Modify() {
                 <div className="w-full px-4">
                     {offboardingData && <CardEmployee data={offboardingData} visibility={"admin"} admin={"true"} />}
                 </div>
+                {/* <div className="w-full px-4">
+                    {offboardingData && <ExitInterviewForm data={offboardingData} admin={true}/>}
+                </div> */}
                 <div className="w-full px-4">
-                    {offboardingData && <CardProgressRecord data={offboardingData?.progress_record}/>}
+                    <div className="-mx-4 flex">
+                        <div className="w-full lg:w-1/2 px-4">
+                            {offboardingData && <CardComment data={offboardingData?.comments} />}
+                        </div>
+                        <div className="w-full lg:w-1/2 px-4">
+                            {offboardingData && <CardProgressRecord data={offboardingData?.progress_record} />}
+                        </div>
+                    </div>
                 </div>
+                {/* <div className="w-full px-4">
+                    {offboardingData && <CardProgressRecord data={offboardingData?.progress_record} />}
+                </div> */}
                 {/* <div className="w-full lg:w-6/12 px-4">
                     {offboardingData && <CardSettings data={offboardingData} />}
                 </div> */}

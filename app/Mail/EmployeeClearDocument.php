@@ -16,7 +16,7 @@ class EmployeeClearDocument extends Mailable
      *
      * @return void
      */
-    public function __construct($offboardingData, $type = 1, $messageEmail,...$options)
+    public function __construct($offboardingData, $type = 1, $messageEmail = null,...$options)
     {
         $this->offboardingData = $offboardingData;
         $this->type = $type;
