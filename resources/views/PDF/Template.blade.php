@@ -1,7 +1,7 @@
 @php
-    if (empty($generate)) {
-        $generate = '0';
-    }
+if (empty($generate)) {
+    $generate = '0';
+}
 @endphp
 <!doctype html>
 <html lang="id_ID">
@@ -15,7 +15,7 @@
     @if (Request::is('admin/cvPreview'))
         <link rel="stylesheet" href="{{ asset(mix('/css/app.css')) }}">
     @endif
-    <title>Resignation - {{ $data->name }}</title>
+    <title>@yield('title')</title>
     @if (Route::is('pdfGenerate') || $generate == '1')
         <style type="text/css">
             @font-face {
@@ -52,6 +52,7 @@
 
             * {
                 font-family: 'PoppinsPDF', 'Poppins', sans-serif;
+                color: #222222;
             }
 
             .page-break {
@@ -59,7 +60,7 @@
             }
 
             a {
-                color: #fff;
+                /* color: #fff; */
                 text-decoration: none;
             }
 
@@ -94,21 +95,56 @@
 
             .overlay {
                 position: fixed;
+                margin: 0 -1cm;
             }
 
             .overlay-top {
-                width: 4cm;
                 left: 0cm;
                 top: -2cm;
             }
+            .overlay-top .logo{
+                width: 4cm;
+                display: inline-block;
+            }
+            .overlay-top .barcode{
+                width: 10cm;
+                display: inline-block;
+                font-size: 8pt;
+                position: absolute;
+                right: 0;
+                text-align: right;
+            }
+            .overlay-top .barcode>div{
+                position: absolute;
+                right: 0;
+                margin-left: auto;
+            }
+
 
             .overlay-bottom {
                 left: 0;
-                bottom: -1cm;
+                /*Debug*/
+                /* bottom: -1cm; */
+                bottom: -2.5cm;
+                height: 2cm;
+                margin: 0.25cm 0;
+            }
+            .overlay-bottom .content{
+                position:absolute;
+                bottom: 0;
             }
 
             .text-small {
                 font-size: 0.7rem;
+            }
+            .text-smaller {
+                font-size: 0.85rem;
+            }
+            .text-normal {
+                font-size: 1rem;
+            }
+            .text-bigger {
+                font-size: 1.3rem;
             }
 
         </style>
@@ -117,6 +153,7 @@
             body {
                 margin: 40px;
             }
+
             * {
                 font-family: 'PoppinsPDF', 'Poppins', sans-serif;
                 word-wrap: break-word;
@@ -124,18 +161,23 @@
 
             .overlay {
                 position: fixed;
+                /*Debug*/
                 display: none;
+                margin: 0 -1cm;
             }
 
             .overlay-top {
-                width: 20%;
                 left: 0;
                 top: -10%;
+            }
+            .overlay-top .logo{
+                width: 20%;
             }
 
             .overlay-bottom {
                 left: 0;
-                bottom: -10%;
+                /*Debug*/
+                /* bottom: -10%; */
             }
 
         </style>
@@ -193,9 +235,54 @@
         .ml-10 {
             margin-left: 0.5cm;
         }
+        .mb-1 {
+            margin-bottom: 6pt;
+        }
+        .mb-10 {
+            margin-bottom: 1cm;
+        }
 
         .text-right {
             text-align: right;
+        }
+
+        .text-justify {
+            text-align: justify;
+        }
+        .text-center{
+            text-align: center;
+        }
+
+        hr{
+            border-color: rgb(216, 216, 216);
+            height: 1px;
+        }
+        .capitalize{
+            text-transform: uppercase;
+        }
+        .lh-1{
+            line-height: 1;
+        }
+        .bl-1{
+            border-left: 3px #222 solid;
+            padding: 4px 10px;
+            background-color: #f7f7f7;
+        }
+        .table thead th {
+            vertical-align: bottom;
+            border-bottom: 2px solid #dee2e6;
+        }
+
+        .table td,
+        .table th {
+            text-align:justify;
+            padding: .75rem;
+            vertical-align: top;
+            border-top: 1px solid #dee2e6;
+        }
+
+        .table.table-striped tbody tr:nth-of-type(odd) {
+            background-color: rgba(0, 0, 0, .05);
         }
 
     </style>
@@ -204,11 +291,21 @@
 <body>
     <div class="overlay overlay-top">
         <img src="https://offboarding.deprakoso.site/images/Logo%20Big.png" alt="Logo" class="logo" />
+        @php
+            $generator = new Picqer\Barcode\BarcodeGeneratorHTML();
+        @endphp
+        <div class="barcode">
+            {!! $generator->getBarcode($documentID, $generator::TYPE_CODE_128) !!}
+            <p>Document ID : {{$documentID}}</p>
+        </div>
     </div>
     <div class="overlay overlay-bottom">
+        <div class="text-small text-center">
+            Jl. Medan Merdeka Barat No. 21, Jakarta 10110 | Indonesia Telp : (62-21) 3000 30001 | <a href="https://indosatooredoo.com">indosatooredoo.com</a href="http://www.">
+        </div>
         <hr>
-        <div class="text-small">
-            No. {{$offboarding->id}}/RSGN/{{ $documentID }} |
+        <div class="text-small text-center">
+            @yield('number_document') |
             {{-- Issued by : {{ $data->name }} - {{ date('Y-m-d H:i:s') }} | --}}
             {{-- @if (false)
             Approved by :
@@ -216,55 +313,16 @@
             @else
             Waiting Approval
             @endif --}}
-            Approved by :
-            {{ $data->name }} - {{ date('Y-m-d H:i:s') }}
+            Approved by : {{ $svp->name }} - {{ date('Y-m-d H:i:s') }}
         </div>
     </div>
-    <div class="p-page">
-        <div class="mt-10">
-            <p class="text-right">Jakarta, {{ date('d F Y') }}</p>
-            <br />
-            {{-- <p> --}}
-            <p>Yth.</p>
-            <p>SVP Head of HR Business Partner</p>
-            <p>HR Dept - Jakarta</p>
-            <p>PT Indosat Tbk</p>
-            {{-- </p> --}}
-        </div>
-        <br />
-        <p>Dengan Hormat</p>
-        <p>Saya yang bertanda tangan di bawah ini:</p>
-        <table class="ml-10 no-spacing align-top" width="100%">
-            <tr>
-                <td>Nama</td>
-                <td>: {{ $data->name }}</td>
-            </tr>
-            <tr>
-                <td>NIK</td>
-                <td>: {{ $data->nik }}</td>
-            </tr>
-            <tr>
-                <td>Posisi</td>
-                <td>: {{ $data->job_detail->title }}</td>
-            </tr>
-            <tr>
-                <td>Work Unit</td>
-                <td>: {{ $data->department->name }} - {{$data->department->location->city}}</td>
-            </tr>
-        </table>
-        <p>Mengajukan permohonan pengunduran diri sebagai karyawan di Indosat Tbk pertanggal
-            <b>{{ date_format(date_create($offboarding->effective_date),"d F Y") }}</b>. Hal ini berkaitan dengan :</p>
-        <br>
-        <p class="ml-10">{{$offboarding->details->reason}}</p>
-        <br>
-        <p>Saya mengucapkan terima kasih atas dukungan dan kerja sama selama ini. Saya juga memohon maaf atas semua
-            kesalahan saya selama bekerja di perusahaan.</p>
-        <br>
-        <p>Sekian surat pengunduran diri ini saya sampaikan. Atas perhatiannya saya mengucapkan banyak terima kasih</p>
-        <br>
-        {{-- <p class="text-small">{{ $data->manager_id }}</p> --}}
-    </div>
+    @yield('container')
     @if (Route::is('pdfPreview'))
+        @php
+            $generator = new Picqer\Barcode\BarcodeGeneratorHTML();
+        @endphp
+        {!! $generator->getBarcode($documentID, $generator::TYPE_CODE_128) !!}
+        <p>Product: {{$documentID}}</p>
         {!! json_encode($data) !!}
         {!! json_encode($offboarding) !!}
     @endif

@@ -5,9 +5,11 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 use App\Models\Employee;
 use App\Models\Offboarding;
+use App\Traits\PDFTrait;
 
 class OffboardingController extends Controller
 {
+    use PDFTrait;
     /**
      * Display a listing of the resource.
      *
@@ -53,6 +55,7 @@ class OffboardingController extends Controller
         } else {
             if ($request->progress == "true") {
                 $offboarding = Offboarding::with('progressRecord', 'exitClearance', 'Details','comments','offboardingForm')->find($id);
+                $offboarding->payroll = $this->exitPayroll($offboarding);
                 // return response()->json($offboarding, 200);
             } else {
                 $offboarding = Offboarding::with('Employee', 'exitClearance','Details')->find($id);

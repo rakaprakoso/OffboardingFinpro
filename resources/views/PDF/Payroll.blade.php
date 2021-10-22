@@ -360,10 +360,29 @@
                 <td>: Rp. {{number_format($payroll['obligations_kopindosat'],0,",",".")}}</td>
             </tr>
             <tr>
-                <th colspan="2" style="text-align:right">Jumlah Kewajiban</th>
+                <th colspan="2" style="text-align:right">Jumlah Simpanan</th>
                 <th>: Rp. {{number_format($payroll['total_kopindosat'],0,",",".")}}</th>
             </tr>
         </table>
+        @if (isset($offboarding->exitClearance->finance[0]['Vendor']))
+        <h3>III. PERHITUNGAN OUTSTANDING FINANCE</h3>
+        <table class="table text-small" width="100%">
+            <thead>
+                <tr>
+                    <th>Vendor Code</th>
+                    <th>Description</th>
+                    <th>Total</th>
+                </tr>
+            </thead>
+            @foreach ($offboarding->exitClearance->finance as $item)
+            <tr>
+                <td>{{$item['Vendor']}}</td>
+                <td>{{$item['Text']}}</td>
+                <th>{{$item['Amount']}}</th>
+            </tr>
+            @endforeach
+        </table>
+        @endif
     </div>
     @if (Route::is('pdfPreview'))
         {!! json_encode($data) !!}

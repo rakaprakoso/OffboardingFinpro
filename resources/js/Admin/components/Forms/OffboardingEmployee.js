@@ -257,7 +257,7 @@ const OffboardingEmployee = ({ HRMGR = false }) => {
                 'Perangkat IT',
                 'Bukti Upload File to Sharepoint',
             ],
-            value: data?.offboarding_form?.return_document_form?.data ? data?.offboarding_form?.return_document_form.data[1]?.value : '',
+            value: data?.offboarding_form?.return_document_form?.data ? data?.offboarding_form?.return_document_form?.data[1]?.value : '',
             attachment: '',
             type: 'checkbox',
             pretext: 'Checklist item yang dikembalikan'
@@ -266,17 +266,17 @@ const OffboardingEmployee = ({ HRMGR = false }) => {
     const clearanceOnlineQuestion = [
         {
             question: 'Nomor Resi Pengiriman Dokumen',
-            value: data?.offboarding_form?.return_document_form.return_type?.data ? data?.offboarding_form?.return_document_form.return_type?.data[0]?.value : '',
+            value: data?.offboarding_form?.return_document_form?.return_type?.data ? data?.offboarding_form?.return_document_form?.return_type?.data[0]?.value : '',
             type: 'text',
         },
         {
             question: 'Nomor Resi Pengiriman Perangkat IT',
-            value: data?.offboarding_form?.return_document_form.return_type?.data ? data?.offboarding_form?.return_document_form.return_type?.data[1]?.value : '',
+            value: data?.offboarding_form?.return_document_form?.return_type?.data ? data?.offboarding_form?.return_document_form?.return_type?.data[1]?.value : '',
             type: 'text',
         },
         {
             question: 'Bukti Upload File to Sharepoint (Link)',
-            value: data?.offboarding_form?.return_document_form.return_type?.data ? data?.offboarding_form?.return_document_form.return_type?.data[2]?.value : '',
+            value: data?.offboarding_form?.return_document_form?.return_type?.data ? data?.offboarding_form?.return_document_form?.return_type?.data[2]?.value : '',
             type: 'text',
         },
     ]
@@ -315,11 +315,11 @@ const OffboardingEmployee = ({ HRMGR = false }) => {
                             {parseInt(data?.status_id) >= 0 ?
                                 <>
                                     <div className="w-full mb-3 text-center">
-                                        <span className="text-gray-800 font-semibold text-xl">{Math.round(parseInt(data?.status_id) / 6 * 100)} % - {data?.status_details?.name}</span>
+                                        <span className="text-gray-800 font-semibold text-xl">{Math.round(parseInt(data?.status_id) / 7 * 100)} % - {data?.status_details?.name}</span>
                                         <div className="relative w-full">
                                             <div className="overflow-hidden h-3 flex rounded bg-blue-200">
                                                 <div
-                                                    style={{ width: `${parseInt(data?.status_id) / 6 * 100}%` }}
+                                                    style={{ width: `${parseInt(data?.status_id) / 7 * 100}%` }}
                                                     className="shadow-none flex flex-col text-center whitespace-nowrap text-white justify-center bg-blue-500"
                                                 ></div>
                                             </div>

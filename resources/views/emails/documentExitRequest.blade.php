@@ -9,7 +9,7 @@
     @section('message')
         Mohon update masing-masing PIC untuk Kewajiban Karyawan Berhenti berikut ini :<br>
         Nama : <strong>{{ $offboardingData->employee->name }}</strong><br>
-        NIK : <strong>{{ $offboardingData->employee->NIK }}</strong><br>
+        NIK : <strong>{{ $offboardingData->employee->nik }}</strong><br>
         Tanggal Berhenti : <strong>{{ $offboardingData->effective_date }}</strong><br>
         Data dapat diinput pada link dibawah ini :
     @endsection
@@ -30,7 +30,7 @@
     @section('message')
         Mohon approval dokumen berhenti Karyawan yang mengundurkan diri :<br>
         Nama : <strong>{{ $offboardingData->employee->name }}</strong><br>
-        NIK : <strong>{{ $offboardingData->employee->NIK }}</strong><br>
+        NIK : <strong>{{ $offboardingData->employee->nik }}</strong><br>
         Tanggal Berhenti : <strong>{{ $offboardingData->effective_date }}</strong><br>
         Data dapat diinput pada link dibawah ini :
     @endsection
@@ -51,7 +51,7 @@
     @section('message')
         Mohon update offboarding karyawan :<br>
         Nama : <strong>{{ $offboardingData->employee->name }}</strong><br>
-        NIK : <strong>{{ $offboardingData->employee->NIK }}</strong><br>
+        NIK : <strong>{{ $offboardingData->employee->nik }}</strong><br>
         Tanggal Berhenti : <strong>{{ $offboardingData->effective_date }}</strong><br>
         Setelah melakukan Exit Interview. Data dapat diinput pada link dibawah ini :
     @endsection

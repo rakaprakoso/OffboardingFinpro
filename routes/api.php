@@ -81,6 +81,7 @@ Route::post('/rightobligation',[APIController::class,'postRightObligation'])->na
 Route::post('/progressRecord',[APIController::class,'postProgressRecord'])->name('postProgressRecord');
 Route::post('/offboardingForm',[APIController::class,'postOffboardingForm'])->name('postOffboardingForm');
 Route::post('/comment',[APIController::class,'postComment'])->name('postComment');
+Route::post('/configuration',[APIController::class,'postConfiguration'])->name('postConfiguration');
 // Route::get('/employeeData',[EmployeeController::class,'postEmployeeData'])->name('postEmployeeData');
 
 Route::get('/employeePendingReturnDocument',[APIController::class,'employeePendingReturnDocument'])->name('employeePendingReturnDocument');

@@ -13,4 +13,8 @@ class Department extends Model
     {
         return $this->hasOne(Location::class, 'id','location_id');
     }
+    public function svp()
+    {
+        return $this->hasOne(Employee::class, 'id','hr_svp_id');
+    }
 }

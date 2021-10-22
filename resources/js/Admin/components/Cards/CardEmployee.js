@@ -42,7 +42,7 @@ export default function CardEmployee({ data, visibility, admin }) {
         //     acceptance: '/api/accResignDocument?',
         // },
         {
-            'name': 'Acc Supervisor',
+            'name': 'Acc SVP',
             'data': acc_svp,
             'link': `&process=2`,
         },
@@ -88,6 +88,11 @@ export default function CardEmployee({ data, visibility, admin }) {
             'link': `&process=3&payroll=true`,
         },
         {
+            'name': 'Employee Return Document',
+            'data': parseInt(data?.status_id) > 4 ? 1 : null,
+            'link': `&process=4`,
+        },
+        {
             'name': 'Exit Clearance Confirmed by SVP',
             'data': return_to_svp,
             'link': `&process=5`,
@@ -109,11 +114,6 @@ export default function CardEmployee({ data, visibility, admin }) {
         //     'noNeed': true,
         // },
         {
-            'name': 'Employee Return Document',
-            'data': parseInt(data?.status_id) > 4 ? 1 : null,
-            'link': `&process=4`,
-        },
-        {
             'name': 'Acc HRBP Manager',
             'data': acc_hrbp_mgr,
             'link': `&approval=hrmgr`,
@@ -128,6 +128,28 @@ export default function CardEmployee({ data, visibility, admin }) {
         //     'data': acc_hrss_mgr,
         // },
     ]
+    const dataPayroll = [
+        {
+            name: 'Salary',
+            amount: data?.payroll?.salary,
+        },
+        {
+            name: 'Uang Pesangon PP 35/2021',
+            amount: data?.payroll?.severance_pay,
+        },
+        {
+            name: 'Uang Penghargaan Masa Kerja (UPMK) PP 35/2021',
+            amount: data?.payroll?.upmk_pay,
+        },
+        {
+            name: 'Maksimal Jumlah Sisa Hari Cuti yang dapat Diuangkan (' + data?.payroll?.paid_leave_available + ' Hari / 25 x ' + NumberFormat(data?.payroll?.salary, 'Rp.') + ' )',
+            amount: data?.payroll?.paid_leave_pay,
+        },
+        {
+            name: 'Total',
+            amount: data?.payroll?.rights_total,
+        },
+    ]
     const employeeAttachment = [
         { name: 'CV', file: data?.attachment?.cv_link },
         { name: 'Personnel Letter', file: data?.attachment?.personnel_letter_link, noNeed: true, },
@@ -136,14 +158,14 @@ export default function CardEmployee({ data, visibility, admin }) {
     ]
     const dataAttachment = [
         { name: 'Resign Letter', file: data?.attachment?.resignation_letter_link, resign: true },
-        { name: 'Note Prosedur', file: data?.attachment?.note_procedure },
-        { name: 'Interview Form', file: data?.attachment?.exit_interview_form, resign: true },
+        // { name: 'Note Prosedur', file: data?.attachment?.note_procedure },
+        { name: 'Interview Form', file: data?.attachment?.exit_interview_form_link, resign: true },
         // { name: 'Termination Letter', file: data?.details?.termination_letter_link },
-        { name: 'Surat Pernyataan / Non Disclosure Agreement (Pernyataan, Pengalihan Pekerjaan)', file: data?.details?.exitDocument },
-        { name: 'Surat Pengalihan Pekerjaan', file: data?.attachment?.job_tranfer_attachment },
-        { name: 'Form perubahan fasilitas telepon', file: data?.attachment?.change_opers },
-        { name: 'BAST', file: data?.attachment?.bast_attachment },
-        { name: 'Berhenti BPJS', file: data?.attachment?.bpjs_attachment },
+        { name: 'Surat Pernyataan', file: data?.attachment?.termination_letter_link },
+        // { name: 'Surat Pengalihan Pekerjaan', file: data?.attachment?.job_tranfer_attachment },
+        // { name: 'Form perubahan fasilitas telepon', file: data?.attachment?.change_opers },
+        { name: 'BAST', file: data?.attachment?.bast_link },
+        { name: 'Berhenti BPJS', file: data?.attachment?.change_bpjs_link },
     ]
     const clearanceAttachment = [
         { name: 'Catatan Pengembalian Barang', file: data?.attachment?.returnDocument },
@@ -160,11 +182,12 @@ export default function CardEmployee({ data, visibility, admin }) {
             name: 'Fastel Calculation',
             file: data?.exit_clearance?.fastel,
             status: confirm_fastel,
-            children: ['MSISDN', 'Outstanding']
+            children: ['MSISDN', 'Outstanding'],
+            moneyType: [false, true],
         },
         {
             name: 'Finance Calculation', file: data?.exit_clearance?.finance, status: confirm_finance,
-            children: ['Vendor', 'Text', 'Amount'], row: true
+            children: ['Vendor', 'Text', 'Amount'], row: true,
         },
         {
             name: 'HR DEV Calculation', file: data?.exit_clearance?.hrdev, status: confirm_hrdev,
@@ -172,11 +195,13 @@ export default function CardEmployee({ data, visibility, admin }) {
         },
         {
             name: 'Kopindosat Calculation', file: data?.exit_clearance?.kopindosat, status: confirm_kopindosat,
-            children: ['Hak', 'Kewajiban']
+            children: ['Hak', 'Kewajiban', 'Selisih'],
+            moneyType: [true, true, true],
         },
         {
             name: 'Medical Calculation', file: data?.exit_clearance?.medical, status: confirm_medical,
-            children: ['Ekses Medical']
+            children: ['Ekses Medical'],
+            moneyType: [true],
         },
     ]
     const itAttachment = {
@@ -251,11 +276,11 @@ export default function CardEmployee({ data, visibility, admin }) {
                                     <>
                                         {parseInt(data.status_id) >= 0 ?
                                             <div className="w-full mb-3">
-                                                <span className="text-gray-800 font-semibold text-xl">{Math.round(parseInt(data.status_id) / 6 * 100)} % - {data?.status_details?.name}</span>
+                                                <span className="text-gray-800 font-semibold text-xl">{Math.round(parseInt(data.status_id) / 7 * 100)} % - {data?.status_details?.name}</span>
                                                 <div className="relative w-full">
                                                     <div className="overflow-hidden h-3 flex rounded bg-blue-200">
                                                         <div
-                                                            style={{ width: `${parseInt(data.status_id) / 6 * 100}%` }}
+                                                            style={{ width: `${parseInt(data.status_id) / 7 * 100}%` }}
                                                             className="shadow-none flex flex-col text-center whitespace-nowrap text-white justify-center bg-blue-500"
                                                         ></div>
                                                     </div>
@@ -596,16 +621,18 @@ export default function CardEmployee({ data, visibility, admin }) {
 
                                                                     <table className="rounded-t-lg w-full m-5 mx-auto bg-gray-200 text-gray-800">
                                                                         <tr className="border-b-2 border-gray-300">
-                                                                            <th className="px-3 py-2" colSpan="2">Company Rights</th>
+                                                                            <th className="px-3 py-2" colSpan="2">Employee Rights</th>
                                                                         </tr>
                                                                         <tr className="bg-gray-100 border-b border-gray-200">
-                                                                            <td className="px-3 py-2 text-xs" >Uang Kompensasi Akhir Kontrak PP 35/2021 </td>
-                                                                            <td className="px-3 py-2 text-xs" >{NumberFormat(data?.employee?.salary, 'Rp. ')}</td>
+                                                                            <td className="px-3 py-2 text-xs" >Durasi Masa Kerja</td>
+                                                                            <td className="px-3 py-2 text-xs" >{data?.payroll?.work_duration_text}</td>
                                                                         </tr>
-                                                                        <tr className="bg-gray-100 border-b border-gray-200">
-                                                                            <td className="px-3 py-2 text-xs" >Cuti yang dapat diuangkan</td>
-                                                                            <td className="px-3 py-2 text-xs" >{NumberFormat(parseInt(data?.employee?.salary) / 3, 'Rp. ')}</td>
-                                                                        </tr>
+                                                                        {dataPayroll.map((item, i) => (
+                                                                            <tr className="bg-gray-100 border-b border-gray-200">
+                                                                                <td className="px-3 py-2 text-xs" >{item.name}</td>
+                                                                                <td className="px-3 py-2 text-xs" >{NumberFormat(item.amount, 'Rp. ')}</td>
+                                                                            </tr>
+                                                                        ))}
                                                                     </table>
                                                                     {payrollAttachment.map((item, i) => (
                                                                         <>
@@ -631,8 +658,10 @@ export default function CardEmployee({ data, visibility, admin }) {
                                                                                                     <tr className="bg-gray-100 border-b border-gray-200">
                                                                                                         <td className="px-3 py-2 text-xs" >{item3}</td>
                                                                                                         <td className="px-3 py-2 text-xs">
-                                                                                                            {item2[item3]}
-
+                                                                                                            {
+                                                                                                                item.moneyType[k] ? NumberFormat(item2[item3], 'Rp.')
+                                                                                                                    : item2[item3]
+                                                                                                            }
                                                                                                         </td>
                                                                                                     </tr>
                                                                                                 ))
@@ -691,7 +720,7 @@ export default function CardEmployee({ data, visibility, admin }) {
                                                                             data?.offboarding_form?.return_document_form?.data[1].question.map((item, i) => (
                                                                                 <tr className="bg-gray-100 border-b border-gray-200">
                                                                                     <td className="px-3 py-2 text-xs">{item}</td>
-                                                                                    <td className="px-3 py-2 text-xs">{data?.offboarding_form?.return_document_form?.data[1]?.value[i][0] == "1" ? "Yes" : "No"}</td>
+                                                                                    <td className="px-3 py-2 text-xs">{data?.offboarding_form?.return_document_form?.data[1]?.value[i] && data?.offboarding_form?.return_document_form?.data[1]?.value[i][0] == "1" ? "Yes" : "No"}</td>
                                                                                 </tr>
                                                                             ))
                                                                         }
@@ -703,9 +732,12 @@ export default function CardEmployee({ data, visibility, admin }) {
                                                                             data?.offboarding_form?.return_document_form?.return_type?.data.map((item, i) => (
                                                                                 <tr className="bg-gray-100 border-b border-gray-200">
                                                                                     <td className="px-3 py-2 text-xs">{item.question}</td>
-                                                                                    <td className="px-3 py-2 text-xs">{i != 2 ? item.value :
-                                                                                        <a className="text-blue-700 border-b" href={item.value} target="_blank">Link</a>
-                                                                                    }
+                                                                                    <td className="px-3 py-2 text-xs">
+                                                                                        {i != 2 ? item.value :
+                                                                                            item.value != '' ?
+                                                                                            <a className="text-blue-700 border-b" href={item.value} target="_blank">Link</a>
+                                                                                            : '-'
+                                                                                        }
                                                                                     </td>
                                                                                 </tr>
                                                                             ))

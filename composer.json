@@ -17,6 +17,8 @@
         "laravel/tinker": "^2.5",
         "laravel/ui": "^3.3",
         "midtrans/midtrans-php": "^2.4",
+        "picqer/php-barcode-generator": "^2.2",
+        "simplesoftwareio/simple-qrcode": "^4.2",
         "spatie/browsershot": "^3.50",
         "unisharp/laravel-filemanager": "^2.2"
     },

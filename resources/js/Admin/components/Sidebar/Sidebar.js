@@ -11,7 +11,7 @@ export default function Sidebar() {
         {
             path: "/admin",
             name: "Dashboard",
-            icon: "fas fa-user-times",
+            icon: "fas fa-chart-bar",
         },
         {
             path: "/admin/newOffboarding",
@@ -21,7 +21,12 @@ export default function Sidebar() {
         {
             path: "/admin/schedulerRecord",
             name: "Scheduler Record",
-            icon: "fas fa-user-edit",
+            icon: "fas fa-clipboard-list",
+        },
+        {
+            path: "/admin/configuration",
+            name: "Configuration",
+            icon: "fas fa-cog",
         },
     ]
     // alert(window.location.href.indexOf('/admin/newOffboarding'))

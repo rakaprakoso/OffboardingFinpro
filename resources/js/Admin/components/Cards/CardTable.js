@@ -244,11 +244,11 @@ export default function CardTable({ color }) {
                                         <div className="flex items-center">
                                             {parseInt(item.status_id) >= 0 ?
                                                 <>
-                                                    <span className="mr-2">{Math.round(parseInt(item.status_id) / 6 * 100)} %</span>
+                                                    <span className="mr-2">{Math.round(parseInt(item.status_id) / 7 * 100)} %</span>
                                                     <div className="relative w-full">
                                                         <div className="overflow-hidden h-2 text-xs flex rounded bg-blue-200">
                                                             <div
-                                                                style={{ width: `${parseInt(item.status_id) / 6 * 100}%` }}
+                                                                style={{ width: `${parseInt(item.status_id) / 7 * 100}%` }}
                                                                 className="shadow-none flex flex-col text-center whitespace-nowrap text-white justify-center bg-blue-500"
                                                             ></div>
                                                         </div>

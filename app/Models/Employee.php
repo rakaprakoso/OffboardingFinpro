@@ -23,18 +23,18 @@ class Employee extends Model
     }
     public function job_history()
     {
-        return $this->hasMany(JobHistory::class, 'employee_id','id');
+        return $this->hasMany(JobHistory::class, 'employee_id','id')->orderBy('start_date','desc');
     }
     public function formal_education()
     {
-        return $this->hasMany(Education::class, 'employee_id','id');
+        return $this->hasMany(Education::class, 'employee_id','id')->orderBy('year_graduation','desc');
     }
     public function non_formal_education()
     {
-        return $this->hasMany(NonFormalEducation::class, 'employee_id','id');
+        return $this->hasMany(NonFormalEducation::class, 'employee_id','id')->orderBy('date','desc');
     }
     public function achievements()
     {
-        return $this->hasMany(Achievement::class, 'employee_id','id');
+        return $this->hasMany(Achievement::class, 'employee_id','id')->orderBy('date','desc');
     }
 }

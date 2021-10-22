@@ -1,10 +1,10 @@
-import React,{useState, useEffect} from "react";
+import React, { useState, useEffect } from "react";
 import {
     BrowserRouter as Router,
     Switch,
     Route,
     useParams
-  } from "react-router-dom";
+} from "react-router-dom";
 
 // components
 
@@ -17,8 +17,10 @@ export function CreateOffboarding() {
     return (
         <>
             <div className="flex flex-wrap">
-                <div className="w-full lg:w-6/12 py-4 px-6 bg-white rounded shadow-md">
-                    <StartOffboarding/>
+                <div className="w-full lg:w-6/12 px-4">
+                    <div className="bg-white p-6 rounded shadow-md w-full">
+                        <StartOffboarding />
+                    </div>
                 </div>
             </div>
         </>

@@ -45,6 +45,12 @@ class GenerateStorageDocument extends Command
             public_path('storage/Documents/Payroll'),
             public_path('storage/Documents/Resign Letter'),
             public_path('storage/Documents/Return Data'),
+            public_path('storage/Documents/BAST'),
+            public_path('storage/Documents/BPJS'),
+            public_path('storage/Documents/Exit Interview Form'),
+            public_path('storage/Documents/Paklaring'),
+            public_path('storage/Documents/PL'),
+            public_path('storage/Documents/Termination Letter'),
         ];
         // $folderPath = public_path('storage/Documents');
         foreach ($listStorage as $key => $value) {

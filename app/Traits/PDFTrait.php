@@ -3,6 +3,7 @@
 namespace App\Traits;
 
 use App\Models\Employee;
+use App\Models\Department;
 use App\Models\Offboarding;
 
 trait PDFTrait
@@ -12,13 +13,22 @@ trait PDFTrait
         ##employeeID,offboardingID,type
         $id = $rawData['employeeID'];
         $type = $rawData['type'];
+        $data['documentID'] = time();
 
         $data['offboarding'] = Offboarding::with('employee', 'exitClearance')->find($rawData['offboardingID']);
         $data['data'] = $data['offboarding']->employee;
+        $data['svp'] = Employee::find($data['offboarding']->employee->department->hr_svp_id);
+
         if ($type == '2') {
             $data['data'] = Employee::with('formal_education', 'non_formal_education', 'job_history', 'achievements')->find($data['offboarding']->employee_id);
         } elseif ($type == '3') {
             $data['payroll'] = $this->exitPayroll($data['offboarding']);
+        }
+
+        ##Offboarding FORM
+        if ($type == '7') {
+            $data['offboarding'] = Offboarding::with('details','offboardingForm')->find($rawData['offboardingID']);
+            $data['manager'] = Employee::find($data['data']->manager_id);
         }
 
         $data['generate'] = '1';
@@ -41,6 +51,24 @@ trait PDFTrait
                 case '3':
                     $data['offboarding']->attachment->payroll_link = config('app.url') . '/' . $path;
                     break;
+                case '4':
+                    $data['offboarding']->attachment->personnel_letter_link = config('app.url') . '/' . $path;
+                    break;
+                case '5':
+                    $data['offboarding']->attachment->clearing_document_link = config('app.url') . '/' . $path;
+                    break;
+                case '6':
+                    $data['offboarding']->attachment->termination_letter_link = config('app.url') . '/' . $path;
+                    break;
+                case '7':
+                    $data['offboarding']->attachment->exit_interview_form_link = config('app.url') . '/' . $path;
+                    break;
+                case '8':
+                    $data['offboarding']->attachment->change_bpjs_link = config('app.url') . '/' . $path;
+                    break;
+                case '9':
+                    $data['offboarding']->attachment->bast_link = config('app.url') . '/' . $path;
+                    break;
                 default:
                     # code...
                     break;
@@ -53,16 +81,29 @@ trait PDFTrait
     }
     public function previewPDF($rawData = null, $temp = null)
     {
-        $id = $rawData['employeeID'];
+        $manager = null;
+        // $id = $rawData['employeeID'];
         $type = $rawData['type'];
         $offboarding = Offboarding::with('details')->find($rawData['offboardingID']);
+        $svp  = Employee::find($offboarding->employee->department->hr_svp_id);
+
+        ##EMPLOYEE DATA
         if ($type == '1' || $type == '3') {
             $data = $offboarding->employee;
         } else {
-            $data = Employee::find($id);
+            $data = Employee::with('formal_education', 'non_formal_education', 'job_history', 'achievements')->find($offboarding->employee_id);
         }
+
+        ##Offboarding FORM
+        if ($type == '7') {
+            $offboarding = Offboarding::with('details','offboardingForm')->find($rawData['offboardingID']);
+            $manager = Employee::find($data->manager_id);
+        }
+
         return view($this->typeDocument($type)['view'])
             ->with('data', $data)
+            ->with('svp', $svp)
+            ->with('manager', $manager)
             ->with('offboarding', $offboarding);
     }
 
@@ -85,6 +126,30 @@ trait PDFTrait
                 $view = 'Payroll';
                 $dir = 'Payroll';
                 break;
+            case '4': #PL
+                $view = 'PL';
+                $dir = 'PL';
+                break;
+            case '5': #Paklaring
+                $view = 'Paklaring';
+                $dir = 'Paklaring';
+                break;
+            case '6': #Termination Letter
+                $view = 'TerminationLetter';
+                $dir = 'Termination Letter';
+                break;
+            case '7': #Exit Interview Form
+                $view = 'ExitInterviewForm';
+                $dir = 'Exit Interview Form';
+                break;
+            case '8': #BPJS
+                $view = 'BPJS';
+                $dir = 'BPJS';
+                break;
+            case '9': #BAST
+                $view = 'BAST';
+                $dir = 'BAST';
+                break;
             default:
                 break;
         }
@@ -93,7 +158,7 @@ trait PDFTrait
         // return $defaultView.$view;
         return $data;
     }
-    private function exitPayroll($rawData)
+    public function exitPayroll($rawData)
     {
         $data['salary'] = $rawData->employee->salary;
         $data['paid_leave_available'] = $rawData->employee->paid_leave_available;
@@ -127,15 +192,15 @@ trait PDFTrait
         $data['rights_total'] =  $data['severance_pay'] + $data['upmk_pay'] + $data['paid_leave_pay'];
 
 
-        $data['excess_medical'] =  $rawData->exitClearance->medical[0]['Ekses Medical'];
-        $data['kelebihan_opers'] =  $rawData->exitClearance->fastel[0]['Outstanding'];
+        $data['excess_medical'] =  isset($rawData->exitClearance->medical[0]['Ekses Medical']) ? $rawData->exitClearance->medical[0]['Ekses Medical'] : 0;
+        $data['kelebihan_opers'] =  isset($rawData->exitClearance->fastel[0]['Outstanding']) ? $rawData->exitClearance->fastel[0]['Outstanding'] : 0;
         $data['obligations_total'] =  $data['excess_medical'] + $data['kelebihan_opers'];
 
         $data['net_total'] =  $data['rights_total'] - $data['obligations_total'];
 
         ##Koperasi
-        $data['rights_kopindosat'] =  $rawData->exitClearance->kopindosat[0]['Hak'];
-        $data['obligations_kopindosat'] =  $rawData->exitClearance->kopindosat[0]['Kewajiban'];
+        $data['rights_kopindosat'] =  isset($rawData->exitClearance->kopindosat[0]['Hak']) ? $rawData->exitClearance->kopindosat[0]['Hak'] : 0;
+        $data['obligations_kopindosat'] =  isset($rawData->exitClearance->kopindosat[0]['Kewajiban']) ? $rawData->exitClearance->kopindosat[0]['Kewajiban'] : 0;
         $data['total_kopindosat'] = $data['rights_kopindosat'] - $data['obligations_kopindosat'];
 
         return $data;

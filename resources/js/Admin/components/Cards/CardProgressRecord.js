@@ -35,10 +35,10 @@ export default function CardProgressRecord({ color, data }) {
                         </div>
                     </div>
                 </div>
-                <div className="block w-full overflow-x-auto">
+                <div className="block w-full overflow-x-auto max-h-96">
                     {/* Projects table */}
                     <table className="items-center w-full bg-transparent border-collapse sort" id="employee-table">
-                        <thead>
+                        <thead className="sticky top-0">
                             <tr>
                                 <th
                                     className={
