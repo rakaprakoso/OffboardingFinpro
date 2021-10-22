@@ -709,7 +709,7 @@ class APIController extends Controller
         $data['progress'] = [];
         switch ($request->type) {
             case 'progress':
-                $data['total'] = Offboarding::whereBetween('status_id', [0, 5])
+                $data['total'] = Offboarding::whereBetween('status_id', [0, 6])
                     ->orderBy('status_id')
                     ->get()
                     ->groupBy('status_id');
@@ -753,8 +753,8 @@ class APIController extends Controller
                 break;
             default:
                 $data['total'] = Offboarding::get()->count();
-                $data['ongoing'] = Offboarding::whereBetween('status_id', [0, 5])->get()->count();
-                $data['completed'] = Offboarding::where("status_id", "6")->get()->count();
+                $data['ongoing'] = Offboarding::whereBetween('status_id', [0, 6])->get()->count();
+                $data['completed'] = Offboarding::where("status_id", "7")->get()->count();
                 $data['failed'] = Offboarding::where('status_id', '<', 0)->get()->count();
                 $data['turnoverratio'] = $data['completed'] / Employee::get()->count() * 100;
                 break;
