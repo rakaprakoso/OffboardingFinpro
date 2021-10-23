@@ -48,25 +48,31 @@
                         </tr>
                     </thead>
                     @foreach ($offboarding->exitClearance->it as $item)
-                    <tr>
-                        <td>{{$loop->iteration}}</td>
-                        <td>{{$item['Code']}}</td>
-                        <td>{{$item['Item']}}</td>
-                        <td>{{$item['Qty']}}</td>
-                    </tr>
+                        <tr>
+                            <td>{{ $loop->iteration }}</td>
+                            <td>{{ $item['Code'] }}</td>
+                            <td>{{ $item['Item'] }}</td>
+                            <td>{{ $item['Qty'] }}</td>
+                        </tr>
                     @endforeach
                 </table>
             </li>
             <li>
                 <b>Tata Tertib Standard Pelayanan IT (Merujuk Pada Policy NODIN No. 024/DHR/HRD/08)</b>
                 <ol type="1" class="text-small text-justify">
-                    <li>User/penanggung jawab perangkat wajib mengganti atas perangkat yang hilang atau tidak diketahui keberadaannya sesuai dengan kebijakan perusahaan.</li>
-                    <li>User/pengguna/penanggung jawab perangkat wajib memeriksa dan memastikan kesesuaian antara lembar BAST ini dengan fisik perangkat.</li>
-                    <li>User/penanggung jawab perangkat berhak dan wajib meminta form serah terima perangkat dan atau form penarikan perangkat bila perangkat diserahterimakan ke IT.</li>
+                    <li>User/penanggung jawab perangkat wajib mengganti atas perangkat yang hilang atau tidak diketahui
+                        keberadaannya sesuai dengan kebijakan perusahaan.</li>
+                    <li>User/pengguna/penanggung jawab perangkat wajib memeriksa dan memastikan kesesuaian antara lembar
+                        BAST ini dengan fisik perangkat.</li>
+                    <li>User/penanggung jawab perangkat berhak dan wajib meminta form serah terima perangkat dan atau form
+                        penarikan perangkat bila perangkat diserahterimakan ke IT.</li>
                     <li>User/penanggung jawab perangkat wajib menjaga keutuhan spesifikasi dan penampilan perangkat.</li>
-                    <li>Untuk karyawan tetap, bila dimutasi wajib membawa perangkat personal dan menyerahkanterimakan perangkat sharing dan melaporkan ke IT.</li>
-                    <li>Setiap aplikasi dan software yang diinstall di luar standard IT menjadi tanggung jawab user/penanggung jawab perangkat.</li>
-                    <li>Akan dilakukan format pada perangkat dalam waktu 3 (tiga) hari setelah tanggal penarikan, semua data dalam perangkat akan musnah dan tidak bisa direstore.</li>
+                    <li>Untuk karyawan tetap, bila dimutasi wajib membawa perangkat personal dan menyerahkanterimakan
+                        perangkat sharing dan melaporkan ke IT.</li>
+                    <li>Setiap aplikasi dan software yang diinstall di luar standard IT menjadi tanggung jawab
+                        user/penanggung jawab perangkat.</li>
+                    <li>Akan dilakukan format pada perangkat dalam waktu 3 (tiga) hari setelah tanggal penarikan, semua data
+                        dalam perangkat akan musnah dan tidak bisa direstore.</li>
                 </ol>
             </li>
             {{-- <li>
@@ -78,9 +84,16 @@
         <div class="text-small">
             Dokumen ini sudah disetujui oleh :
             <ol>
-                <li>{{ $data->name }} - Penanggung Jawab Lama - {{ date('Y-m-d H:i:s') }}</li>
-                <li>IT Staff - {{ date('Y-m-d H:i:s') }}</li>
-                <li>Retno Kusumo Rini - HRBP Manager - {{ date('Y-m-d H:i:s') }}</li>
+                <li>{{ $data->name }} - Penanggung Jawab Lama
+                    {{-- - {{ date('Y-m-d H:i:s') }} --}}
+                </li>
+                <li>
+                    IT Staff
+                    {{-- - {{ date('Y-m-d H:i:s') }} --}}
+                </li>
+                <li>HRBP Manager
+                    {{-- - {{ date('Y-m-d H:i:s') }} --}}
+                </li>
             </ol>
         </div>
         {{-- <img src="{{'data:image/svg+xml;utf8,'.rawurlencode(str_replace(["\r", "\n"], ' ', QrCode::size(250)->generate('ItSolutionStuff.com')))}}" alt="QR Code"> --}}

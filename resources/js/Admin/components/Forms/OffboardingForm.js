@@ -23,6 +23,7 @@ import {
 } from 'react-accessible-accordion';
 import CardComment from '../Cards/CardComment';
 import CardProgressRecord from '../Cards/CardProgressRecord';
+import StatusProgress from '../StatusProgress';
 
 
 const ConfirmDocument = Yup.object().shape({
@@ -184,25 +185,7 @@ const OffboardingForm = () => {
                         <>
                             <h2 className="text-2xl font-bold">HR Manager Approval</h2>
                             <hr className="mb-3" />
-                            {parseInt(data.status_id) >= 0 ?
-                                <div className="w-full mb-3">
-                                    <span className="text-gray-800 font-semibold text-xl">{Math.round(parseInt(data.status_id) / 7 * 100)} % - {data?.status_details?.name}</span>
-                                    <div className="relative w-full">
-                                        <div className="overflow-hidden h-3 flex rounded bg-blue-200">
-                                            <div
-                                                style={{ width: `${parseInt(data.status_id) / 7 * 100}%` }}
-                                                className="shadow-none flex flex-col text-center whitespace-nowrap text-white justify-center bg-blue-500"
-                                            ></div>
-                                        </div>
-                                    </div>
-                                </div> :
-                                <>
-                                    <div className="shadow-none flex flex-col text-center whitespace-nowrap text-white justify-center bg-red-600 w-full px-1 rounded"
-                                    >
-                                        Failed
-                                    </div>
-                                </>
-                            }
+                            <StatusProgress data={data} />
                             <Accordion allowMultipleExpanded allowZeroExpanded className="mb-5">
                                 <AccordionItem>
                                     <AccordionItemHeading>
@@ -289,25 +272,7 @@ const OffboardingForm = () => {
                         : data &&
                         <div className="row">
                             <div className="col-lg-12">
-                                {parseInt(data.status_id) >= 0 ?
-                                    <div className="w-full mb-3 text-center">
-                                        <span className="text-gray-800 font-semibold text-xl">{Math.round(parseInt(data.status_id) / 7 * 100)} % - {data?.status_details?.name}</span>
-                                        <div className="relative w-full">
-                                            <div className="overflow-hidden h-3 flex rounded bg-blue-200">
-                                                <div
-                                                    style={{ width: `${parseInt(data.status_id) / 7 * 100}%` }}
-                                                    className="shadow-none flex flex-col text-center whitespace-nowrap text-white justify-center bg-blue-500"
-                                                ></div>
-                                            </div>
-                                        </div>
-                                    </div> :
-                                    <>
-                                        <div className="shadow-none flex flex-col text-center whitespace-nowrap text-white justify-center bg-red-600 w-full px-1 rounded"
-                                        >
-                                            Failed
-                                        </div>
-                                    </>
-                                }
+                                <StatusProgress data={data} />
                             </div>
                             <div className="col-lg-6 order-2 lg:order-1">
                                 {
@@ -789,74 +754,84 @@ const OffboardingForm = () => {
                                                                                             <h2 className="text-2xl font-bold">Payroll Approval</h2>
                                                                                             <p className="text-justify">Approval perhitungan kompensasi karyawan keluar</p>
                                                                                             <hr className="mb-3" />
-                                                                                            {data?.checkpoint?.confirm_payroll != 1 ?
-                                                                                                <Formik
-                                                                                                    initialValues={{
-                                                                                                        anyComment: false,
-                                                                                                        accept: false,
-                                                                                                        comment: '',
-                                                                                                    }}
-                                                                                                    validationSchema={ConfirmationDocument}
-                                                                                                    onSubmit={async (values) => {
-                                                                                                        // setTimeout(() => {
-                                                                                                        //     alert(JSON.stringify(values, null, 2));
-                                                                                                        // }, 500)
-                                                                                                        setIsOpen(true);
-                                                                                                        const formData = new FormData();
-                                                                                                        formData.append('offboardingID', id);
-                                                                                                        formData.append('dept', 'payroll');
-                                                                                                        // formData.append("file", values.file);
-                                                                                                        formData.append('process_type', 3);
-                                                                                                        formData.append('accept', values.accept);
+                                                                                            {
+                                                                                                data?.checkpoint?.confirm_fastel != 1 ||
+                                                                                                    data?.checkpoint?.confirm_kopindosat != 1 ||
+                                                                                                    data?.checkpoint?.confirm_hrdev != 1 ||
+                                                                                                    data?.checkpoint?.confirm_finance != 1 ||
+                                                                                                    data?.checkpoint?.confirm_medical != 1
+                                                                                                    ?
+                                                                                                    <h3 className="text-xl font-bold text-center p-3 bg-red-600 text-white rounded mb-2">Data belum lengkap</h3>
+                                                                                                    :
+                                                                                                    data?.checkpoint?.confirm_payroll != 1 ?
+                                                                                                        <Formik
+                                                                                                            initialValues={{
+                                                                                                                anyComment: false,
+                                                                                                                accept: false,
+                                                                                                                comment: '',
+                                                                                                            }}
+                                                                                                            validationSchema={ConfirmationDocument}
+                                                                                                            onSubmit={async (values) => {
+                                                                                                                // setTimeout(() => {
+                                                                                                                //     alert(JSON.stringify(values, null, 2));
+                                                                                                                // }, 500)
+                                                                                                                setIsOpen(true);
+                                                                                                                const formData = new FormData();
+                                                                                                                formData.append('offboardingID', id);
+                                                                                                                formData.append('dept', 'payroll');
+                                                                                                                // formData.append("file", values.file);
+                                                                                                                formData.append('process_type', 3);
+                                                                                                                formData.append('accept', values.accept);
 
-                                                                                                        const res = await axios.post('/api/requestdocument', formData, {
-                                                                                                            headers: {
-                                                                                                                'Content-Type': 'multipart/form-data'
-                                                                                                            }
-                                                                                                        }).then(response => {
-                                                                                                            console.log(response)
-                                                                                                            return response
-                                                                                                        }).catch(error => {
-                                                                                                            // console.log(error.response)
-                                                                                                            // setSubmitted(true)
-                                                                                                            return error.response
-                                                                                                        });
-                                                                                                        console.log(res.data);
-                                                                                                        if (res.status == '200') {
-                                                                                                            setSubmitted(true)
-                                                                                                        } else {
-                                                                                                            setSubmitted(false)
-                                                                                                        }
-                                                                                                    }}
-                                                                                                    render={({ values, errors, touched, setFieldValue }) => (
-                                                                                                        <>
-                                                                                                            <Form>
-                                                                                                                <label className="mb-4 block bg-gray-100 p-3 rounded">
-                                                                                                                    <Field type="checkbox" name="accept" className="my-0 mr-2" />
-                                                                                                                    Approve Data
-                                                                                                                    {errors.accept
-                                                                                                                        // && touched.accept
-                                                                                                                        ? (
-                                                                                                                            <div className="text-red-600 text-sm">{errors.accept}</div>
-                                                                                                                        ) : null}
-                                                                                                                </label>
-                                                                                                                {values.accept &&
-                                                                                                                    <button type="submit" className="bg-primary text-white p-3 text-lg uppercase">Submit</button>
+                                                                                                                const res = await axios.post('/api/requestdocument', formData, {
+                                                                                                                    headers: {
+                                                                                                                        'Content-Type': 'multipart/form-data'
+                                                                                                                    }
+                                                                                                                }).then(response => {
+                                                                                                                    console.log(response)
+                                                                                                                    return response
+                                                                                                                }).catch(error => {
+                                                                                                                    // console.log(error.response)
+                                                                                                                    // setSubmitted(true)
+                                                                                                                    return error.response
+                                                                                                                });
+                                                                                                                console.log(res.data);
+                                                                                                                if (res.status == '200') {
+                                                                                                                    setSubmitted(true)
+                                                                                                                } else {
+                                                                                                                    setSubmitted(false)
                                                                                                                 }
-                                                                                                            </Form>
-                                                                                                            {!values.accept &&
+                                                                                                            }}
+                                                                                                            render={({ values, errors, touched, setFieldValue }) => (
                                                                                                                 <>
-                                                                                                                    <div className="border-t border-gray-200 w-full mb-4" />
-                                                                                                                    <Comment from="Payroll" id={id} />
+                                                                                                                    <Form>
+                                                                                                                        <label className="mb-4 block bg-gray-100 p-3 rounded">
+                                                                                                                            <Field type="checkbox" name="accept" className="my-0 mr-2" />
+                                                                                                                            Approve Data
+                                                                                                                            {errors.accept
+                                                                                                                                // && touched.accept
+                                                                                                                                ? (
+                                                                                                                                    <div className="text-red-600 text-sm">{errors.accept}</div>
+                                                                                                                                ) : null}
+                                                                                                                        </label>
+                                                                                                                        {values.accept &&
+                                                                                                                            <button type="submit" className="bg-primary text-white p-3 text-lg uppercase">Submit</button>
+                                                                                                                        }
+                                                                                                                    </Form>
+                                                                                                                    {!values.accept &&
+                                                                                                                        <>
+                                                                                                                            <div className="border-t border-gray-200 w-full mb-4" />
+                                                                                                                            <Comment from="Payroll" id={id} />
+                                                                                                                        </>
+                                                                                                                    }
                                                                                                                 </>
-                                                                                                            }
-                                                                                                        </>
-                                                                                                    )}
-                                                                                                />
-                                                                                                :
-                                                                                                <div className="mb-4 block bg-green-300 p-3 rounded font-bold text-center text-green-700">
-                                                                                                    <i class="fas fa-check"></i> CONFIRMED
-                                                                                                </div>
+                                                                                                            )}
+                                                                                                        />
+                                                                                                        :
+                                                                                                        <div className="mb-4 block bg-green-300 p-3 rounded font-bold text-center text-green-700">
+                                                                                                            <i class="fas fa-check"></i> CONFIRMED
+                                                                                                        </div>
+
                                                                                             }
                                                                                         </>
                                                                                         :

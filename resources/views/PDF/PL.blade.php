@@ -36,6 +36,12 @@ No. {{ $offboarding->id }}/PL/HRD/{{ $documentID }}
             untuk PT Indosat Tbk. dan semoga Saudara mendapatkan yang terbaik.
         </p>
         <br>
+        <div class="text-small">
+            Dokumen ini sudah disetujui oleh :
+            <ol>
+                <li>{{ $svp->name }} - {{$svp->job_detail->title }}</li>
+            </ol>
+        </div>
         {{-- <p class="text-small">{{ $svp->name }}</p> --}}
     </div>
 @endsection

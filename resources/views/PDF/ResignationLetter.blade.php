@@ -269,6 +269,12 @@
         {!! json_encode($offboarding) !!}
     @endif
     <br />
+    <div class="text-small">
+        Dokumen ini sudah disetujui oleh :
+        <ol>
+            <li>{{ $data->name }} - {{$data->job_detail->title }}</li>
+        </ol>
+    </div>
 </body>
 
 </html>

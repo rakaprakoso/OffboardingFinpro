@@ -16,6 +16,7 @@ import DocExitForm from './DocExitForm';
 
 import { Tab, Tabs, TabList, TabPanel } from 'react-tabs';
 import CardComment from '../Cards/CardComment';
+import StatusProgress from '../StatusProgress';
 
 
 
@@ -312,27 +313,7 @@ const OffboardingEmployee = ({ HRMGR = false }) => {
                     data &&
                     <div className="row employee">
                         <div className="col-lg-12">
-                            {parseInt(data?.status_id) >= 0 ?
-                                <>
-                                    <div className="w-full mb-3 text-center">
-                                        <span className="text-gray-800 font-semibold text-xl">{Math.round(parseInt(data?.status_id) / 7 * 100)} % - {data?.status_details?.name}</span>
-                                        <div className="relative w-full">
-                                            <div className="overflow-hidden h-3 flex rounded bg-blue-200">
-                                                <div
-                                                    style={{ width: `${parseInt(data?.status_id) / 7 * 100}%` }}
-                                                    className="shadow-none flex flex-col text-center whitespace-nowrap text-white justify-center bg-blue-500"
-                                                ></div>
-                                            </div>
-                                        </div>
-                                    </div>
-                                </> :
-                                <>
-                                    <div className="shadow-none flex flex-col text-center whitespace-nowrap text-white justify-center bg-red-600 w-full px-1 rounded"
-                                    >
-                                        Failed
-                                    </div>
-                                </>
-                            }
+                        <StatusProgress data={data}/>
                         </div>
                         <div className="col-lg-12">
                             <Tabs>

@@ -313,7 +313,8 @@ if (empty($generate)) {
             @else
             Waiting Approval
             @endif --}}
-            Approved by : {{ $svp->name }} - {{ date('Y-m-d H:i:s') }}
+            {{-- Approved by : {{ $svp->name }} - {{ date('Y-m-d H:i:s') }} --}}
+            Verified by : HRMGR - {{ date('Y-m-d H:i:s') }}
         </div>
     </div>
     @yield('container')

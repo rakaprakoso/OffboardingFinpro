@@ -143,5 +143,11 @@
             <br>
         @endisset
         <br>
+        <div class="text-small">
+            Dokumen ini sudah disetujui oleh :
+            <ol>
+                <li>{{ $svp->name }} - {{$svp->job_detail->title }}</li>
+            </ol>
+        </div>
     </div>
 @endsection

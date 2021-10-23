@@ -8,6 +8,7 @@ import {
 } from 'react-accessible-accordion';
 import { NumberFormat } from "../../functions/NumberFormat";
 import ExitInterviewForm from "../Forms/ExitInterviewForm";
+import StatusProgress from "../StatusProgress";
 
 export default function CardEmployee({ data, visibility, admin }) {
     const [toggle, setToggle] = useState(false);
@@ -29,6 +30,7 @@ export default function CardEmployee({ data, visibility, admin }) {
         return_to_hrss_doc,
         return_to_hrss_it,
         confirm_payroll,
+        employee_return_document,
         acc_hrss,
         exit_interview,
     } = data.checkpoint;
@@ -89,9 +91,15 @@ export default function CardEmployee({ data, visibility, admin }) {
         },
         {
             'name': 'Employee Return Document',
-            'data': parseInt(data?.status_id) > 4 ? 1 : null,
+            'data': employee_return_document,
             'link': `&process=4`,
+            'employee': true,
         },
+        // {
+        //     'name': 'Employee Return Document',
+        //     'data': parseInt(data?.status_id) > 4 ? 1 : null,
+        //     'link': `&process=4`,
+        // },
         {
             'name': 'Exit Clearance Confirmed by SVP',
             'data': return_to_svp,
@@ -272,31 +280,12 @@ export default function CardEmployee({ data, visibility, admin }) {
                                         </p>
                                     </>
                                 }
-                                {admin && admin == 'true' ?
-                                    <>
-                                        {parseInt(data.status_id) >= 0 ?
-                                            <div className="w-full mb-3">
-                                                <span className="text-gray-800 font-semibold text-xl">{Math.round(parseInt(data.status_id) / 7 * 100)} % - {data?.status_details?.name}</span>
-                                                <div className="relative w-full">
-                                                    <div className="overflow-hidden h-3 flex rounded bg-blue-200">
-                                                        <div
-                                                            style={{ width: `${parseInt(data.status_id) / 7 * 100}%` }}
-                                                            className="shadow-none flex flex-col text-center whitespace-nowrap text-white justify-center bg-blue-500"
-                                                        ></div>
-                                                    </div>
-                                                </div>
-                                            </div> :
-                                            <>
-                                                <div className="shadow-none flex flex-col text-center whitespace-nowrap text-white justify-center bg-red-600 w-full px-1 rounded"
-                                                >
-                                                    Failed
-                                                </div>
-                                            </>
-                                        }
-                                    </> : null
+                                {admin && admin == 'true' &&
+                                    <StatusProgress data={data}/>
                                 }
 
                                 <Accordion allowMultipleExpanded allowZeroExpanded >
+                                    {visibility && visibility == 'admin' &&
                                     <AccordionItem>
                                         <AccordionItemHeading>
                                             <AccordionItemButton>
@@ -330,7 +319,7 @@ export default function CardEmployee({ data, visibility, admin }) {
                                                                 {visibility == "admin" && item.link ?
                                                                     <td className="px-4 py-3 text-xs">
                                                                         <a
-                                                                            href={`/offboarding/${data.id}?token=${data.token}${item?.link}`}
+                                                                            href={item?.employee ? `/offboarding/employee/${data.id}?token=${data.employee_token}`:`/offboarding/${data.id}?token=${data.token}${item?.link}`}
                                                                             className="text-blue-600"
                                                                             target="_blank"
                                                                         >
@@ -450,6 +439,7 @@ export default function CardEmployee({ data, visibility, admin }) {
 
                                         </AccordionItemPanel>
                                     </AccordionItem>
+                                    }
                                     {visibility &&
                                         <>
                                             {visibility && visibility == 'payroll' || visibility == 'admin' || visibility == 'employee' || visibility == 'clearance' ?

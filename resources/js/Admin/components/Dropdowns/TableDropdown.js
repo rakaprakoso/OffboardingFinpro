@@ -1,69 +1,128 @@
 import React from "react";
 import { createPopper } from "@popperjs/core";
 
-const NotificationDropdown = ({ data }) => {
+const NotificationDropdown = ({ data, text }) => {
+
+    const {
+        // acc_document,
+        acc_svp,
+        acc_hrbp_mgr,
+        acc_hrss_mgr,
+        confirm_fastel,
+        confirm_kopindosat,
+        confirm_it,
+        confirm_hrdev,
+        confirm_medical,
+        confirm_finance,
+        return_to_svp,
+        return_to_hrss_doc,
+        return_to_hrss_it,
+        confirm_payroll,
+        employee_return_document,
+        acc_hrss,
+        exit_interview,
+    } = data;
 
     const dataCheckpoint = [
         // {
         //     'name': 'Resignation Letter',
-        //     'data': data?.acc_document,
+        //     'data': acc_document,
+        //     'resign': true,
+        //     // 'link': `/api/accResignDocument?`,
+        //     acceptance: '/api/accResignDocument?',
         // },
         {
-            'name': 'Acc Supervisor',
-            'data': data?.acc_svp,
+            'name': 'Acc SVP',
+            'data': acc_svp,
+            'link': `&process=2`,
         },
         {
             'name': 'Exit Interview',
-            'data': data?.exit_interview,
+            'data': exit_interview,
+            'link': `&process=3&exitInterview=true`,
+            'resign': true,
         },
         {
             'name': 'Outstanding Fastel',
-            'data': data?.acc_fastel,
+            'data': confirm_fastel,
+            'link': `&process=3&newVersion=true`,
         },
         {
             'name': 'Outstanding Kopindosat',
-            'data': data?.acc_kopindosat,
+            'data': confirm_kopindosat,
+            'link': `&process=3&newVersion=true`,
         },
         {
             'name': 'Outstanding IT',
-            'data': data?.acc_it,
+            'data': confirm_it,
+            'link': `&process=3&newVersion=true`,
         },
         {
             'name': 'Outstanding HR Dev',
-            'data': data?.acc_hrdev,
+            'data': confirm_hrdev,
+            'link': `&process=3&newVersion=true`,
         },
         {
             'name': 'Outstanding Medical',
-            'data': data?.acc_medical,
+            'data': confirm_medical,
+            'link': `&process=3&newVersion=true`,
         },
         {
             'name': 'Outstanding Finance',
-            'data': data?.acc_finance,
+            'data': confirm_finance,
+            'link': `&process=3&newVersion=true`,
         },
         {
-            'name': 'Payroll Calculated',
-            'data': data?.acc_payroll,
+            'name': 'Confirmation PIC Payroll',
+            'data': confirm_payroll,
+            'link': `&process=3&payroll=true`,
         },
         {
-            'name': 'Exit Clearance by Supervisor',
-            'data': data?.return_svp,
+            'name': 'Employee Return Document',
+            'data': employee_return_document,
+            'link': `&process=4`,
+            'employee': true,
+        },
+        // {
+        //     'name': 'Employee Return Document',
+        //     'data': parseInt(data?.status_id) > 4 ? 1 : null,
+        //     'link': `&process=4`,
+        // },
+        {
+            'name': 'Exit Clearance Confirmed by SVP',
+            'data': return_to_svp,
+            'link': `&process=5`,
         },
         {
-            'name': 'Exit Clearance by HR Shared Service (Soft File)',
-            'data': data?.return_hrss_softfile,
+            'name': 'Exit Clearance Confirmed by HR Shared Service (Soft File)',
+            'data': return_to_hrss_doc,
+            'link': `&process=5`,
         },
         {
-            'name': 'Exit Clearance by HR Shared Service (IT)',
-            'data': data?.return_hrss_it,
+            'name': 'Exit Clearance Confirmed by HR Shared Service (IT)',
+            'data': return_to_hrss_it,
+            'link': `&process=5`,
         },
-        {
-            'name': 'Acc HR Shared Service (PL,Paklaring)',
-            'data': data?.acc_hrss,
-        },
+        // {
+        //     'name': 'PL,Paklaring',
+        //     'data': acc_hrss,
+        //     'link': `&process=3&document=true`,
+        //     'noNeed': true,
+        // },
         {
             'name': 'Acc HRBP Manager',
-            'data': data?.acc_hrbp_mgr,
+            'data': acc_hrbp_mgr,
+            'link': `&approval=hrmgr`,
         },
+        // {
+        //     'name': 'BAST Return',
+        //     'data': data?.details?.bast_attachment ? 1 : null,
+        //     'link': `&bast=true`,
+        // },
+        // {
+        //     'name': 'Acc HR Shared Service Manager',
+        //     'data': acc_hrss_mgr,
+        // },
     ]
 
     // dropdown props
@@ -88,9 +147,10 @@ const NotificationDropdown = ({ data }) => {
                 onClick={(e) => {
                     e.preventDefault();
                     dropdownPopoverShow ? closeDropdownPopover() : openDropdownPopover();
+                    // alert(text)
                 }}
             >
-                <i className="fas fa-ellipsis-v"></i>
+                {text != null? text : <i className="fas fa-ellipsis-v"></i>}
             </a>
             <div
                 ref={popoverDropdownRef}

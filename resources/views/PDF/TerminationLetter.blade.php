@@ -139,6 +139,12 @@
             </li>
         </ol>
         <br>
+        <div class="text-small">
+            Dokumen ini sudah disetujui oleh :
+            <ol>
+                <li>{{ $data->name }} - {{$data->job_detail->title }}</li>
+            </ol>
+        </div>
         {{-- <p class="text-center">{{ date('d F Y') }}</p> --}}
         {{-- <p class="text-small">{{ $svp->name }}</p> --}}
     </div>

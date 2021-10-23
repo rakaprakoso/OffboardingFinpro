@@ -74,7 +74,7 @@ return array(
         "chroot" => realpath(base_path()),
 
         /**
-         * Whether to enable font subsetting or not.
+h         * Whether to enable font subsetting or not.
          */
         "enable_font_subsetting" => false,
 

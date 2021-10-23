@@ -71,6 +71,12 @@
         <p class="text-justify">
             Surat Keterangan ini dibuat untuk dipergunakan sebagaimana mestinya.</p>
         <br>
+        <div class="text-small">
+            Dokumen ini sudah disetujui oleh :
+            <ol>
+                <li>{{ $svp->name }} - {{$svp->job_detail->title }}</li>
+            </ol>
+        </div>
         {{-- <img src="{{'data:image/svg+xml;utf8,'.rawurlencode(str_replace(["\r", "\n"], ' ', QrCode::size(250)->generate('ItSolutionStuff.com')))}}" alt="QR Code"> --}}
 
         {{-- {!! QrCode::size(250)->generate('ItSolutionStuff.com'); !!} --}}
