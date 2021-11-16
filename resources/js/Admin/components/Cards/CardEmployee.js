@@ -6,7 +6,12 @@ import {
     AccordionItemButton,
     AccordionItemPanel,
 } from 'react-accessible-accordion';
+import {
+    useParams,
+    useLocation
+} from "react-router-dom";
 import { NumberFormat } from "../../functions/NumberFormat";
+import CommentDropdown from "../Dropdowns/CommentDropdown";
 import ExitInterviewForm from "../Forms/ExitInterviewForm";
 import StatusProgress from "../StatusProgress";
 
@@ -15,8 +20,15 @@ export default function CardEmployee({ data, visibility, admin }) {
     const [toggleAttachment, setToggleAttachment] = useState(false);
     const [togglePayroll, setTogglePayroll] = useState(false);
     const [toggleIT, setToggleIT] = useState(false);
+
+    var { id } = useParams();
+    let { search } = useLocation();
+
+    const query = new URLSearchParams(search);
+
     const {
         // acc_document,
+        acc_employee,
         acc_svp,
         acc_hrbp_mgr,
         acc_hrss_mgr,
@@ -44,51 +56,71 @@ export default function CardEmployee({ data, visibility, admin }) {
         //     acceptance: '/api/accResignDocument?',
         // },
         {
-            'name': 'Acc SVP',
+            'name': 'Confirmation by Employee',
+            'data': acc_employee,
+            'link': `&process=2`,
+            'employee': true,
+        },
+        {
+            'name': 'Confirmation by SVP',
             'data': acc_svp,
             'link': `&process=2`,
         },
         {
-            'name': 'Exit Interview',
+            'name': 'Exit Interview Confirmation by HRBP',
             'data': exit_interview,
             'link': `&process=3&exitInterview=true`,
             'resign': true,
+            read: true,
+            note: 'SVP - Exit Interview Form',
         },
         {
-            'name': 'Outstanding Fastel',
+            'name': 'Outstanding by Fastel',
             'data': confirm_fastel,
             'link': `&process=3&newVersion=true`,
+            read: true,
+            token: data?.input_token?.fastel,
         },
         {
-            'name': 'Outstanding Kopindosat',
+            'name': 'Outstanding by Kopindosat',
             'data': confirm_kopindosat,
             'link': `&process=3&newVersion=true`,
+            read: true,
+            token: data?.input_token?.kopindosat,
         },
         {
-            'name': 'Outstanding IT',
+            'name': 'Outstanding by IT',
             'data': confirm_it,
             'link': `&process=3&newVersion=true`,
+            read: true,
+            token: data?.input_token?.it,
         },
         {
-            'name': 'Outstanding HR Dev',
+            'name': 'Outstanding by HR Dev',
             'data': confirm_hrdev,
             'link': `&process=3&newVersion=true`,
+            read: true,
+            token: data?.input_token?.hrdev,
         },
         {
-            'name': 'Outstanding Medical',
+            'name': 'Outstanding by Medical',
             'data': confirm_medical,
             'link': `&process=3&newVersion=true`,
+            read: true,
+            token: data?.input_token?.medical,
         },
         {
-            'name': 'Outstanding Finance',
+            'name': 'Outstanding by Finance',
             'data': confirm_finance,
             'link': `&process=3&newVersion=true`,
+            read: true,
+            token: data?.input_token?.finance,
         },
-        {
-            'name': 'Confirmation PIC Payroll',
-            'data': confirm_payroll,
-            'link': `&process=3&payroll=true`,
-        },
+        // {
+        //     'name': 'Confirmation PIC Payroll',
+        //     'data': confirm_payroll,
+        //     'link': `&process=3&payroll=true`,
+        // },
         {
             'name': 'Employee Return Document',
             'data': employee_return_document,
@@ -101,19 +133,28 @@ export default function CardEmployee({ data, visibility, admin }) {
         //     'link': `&process=4`,
         // },
         {
-            'name': 'Exit Clearance Confirmed by SVP',
+            'name': 'Exit Clearance Confirmed by Line Manager',
             'data': return_to_svp,
             'link': `&process=5`,
+            note: 'svp - Pengecekan Dokumen',
+            read: true,
+            token: data?.input_token?.svp,
         },
         {
             'name': 'Exit Clearance Confirmed by HR Shared Service (Soft File)',
             'data': return_to_hrss_doc,
             'link': `&process=5`,
+            note: 'hrss_softfile - Pengecekan Dokumen',
+            read: true,
+            token: data?.input_token?.hrss_doc,
         },
         {
             'name': 'Exit Clearance Confirmed by HR Shared Service (IT)',
             'data': return_to_hrss_it,
             'link': `&process=5`,
+            note: 'hrss_it - Pengecekan Dokumen',
+            read: true,
+            token: data?.input_token?.it,
         },
         // {
         //     'name': 'PL,Paklaring',
@@ -122,9 +163,10 @@ export default function CardEmployee({ data, visibility, admin }) {
         //     'noNeed': true,
         // },
         {
-            'name': 'Acc HRBP Manager',
+            'name': 'Known by HRBP Manager',
             'data': acc_hrbp_mgr,
             'link': `&approval=hrmgr`,
+            read: true,
         },
         // {
         //     'name': 'BAST Return',
@@ -199,7 +241,8 @@ export default function CardEmployee({ data, visibility, admin }) {
         },
         {
             name: 'HR DEV Calculation', file: data?.exit_clearance?.hrdev, status: confirm_hrdev,
-            children: ['Perihal', 'Tujuan', 'Tanggal Kegiatan', 'Penyelenggara', 'Periode Ikadin']
+            children: ['Perihal', 'Tujuan', 'Tanggal Kegiatan', 'Penyelenggara', 'Periode Ikadin'],
+            moneyType: [false, false, false,false,false],
         },
         {
             name: 'Kopindosat Calculation', file: data?.exit_clearance?.kopindosat, status: confirm_kopindosat,
@@ -217,6 +260,69 @@ export default function CardEmployee({ data, visibility, admin }) {
         file: data?.exit_clearance?.it,
         status: confirm_it,
         children: ['Code', 'Item', 'Qty'],
+    }
+
+    const ListCheckpoint = ({ item, data, read }) => {
+        return (
+            <tr className="bg-gray-100 border-b border-gray-200">
+                <td className="px-4 py-3 text-xs">{item.name} {visibility == "admin" && item.token && `- ${item.token}`}</td>
+                <td className="px-4 py-3 text-xs">
+                    {
+                        parseInt(item.data) == 4 &&
+                        <><i class="fas fa-edit text-yellow-600"></i> Revision</>
+                    }
+                    {
+                        parseInt(item.data) == 3 &&
+                        <><i class="fas fa-envelope-open text-yellow-600"></i> Read</>
+                    }
+                    {
+                        parseInt(item.data) == 2 &&
+                        // <span className="bg-green-600 px-2 rounded">
+                        //     <i className="fas fa-check text-white"></i>
+                        //     <i className="fas fa-check text-white"></i>
+                        //     <span className="text-white ml-2">Confirmed</span>
+                        // </span>
+                        <><i class="fas fa-envelope text-blue-600"></i> Sent</>
+                    }
+                    {
+                        parseInt(item.data) == 1 &&
+                            <><i className="fas fa-check text-green-600"></i> Done</>
+                    }
+                    {
+                        parseInt(item.data) == 0 && (read || item?.read) ?
+                        <><i class="fas fa-edit text-yellow-600"></i> Revision</>
+                        : parseInt(item.data) == 0 &&
+                        <i className="fas fa-times text-red-600"></i>
+                    }
+                    {
+                        item.data == null &&
+                        "Waiting.."
+                    }
+                </td>
+                {visibility == "admin" && item.link &&
+                    <>
+                        <td className="px-4 py-3 text-xs">
+                            <a
+                                href={item?.employee ? `/offboarding/employee/${data.id}?token=${data.employee_token}` : `/offboarding/${data.id}?token=${data.token}${item?.link}`}
+                                className="text-blue-600"
+                                target="_blank"
+                            >
+                                Input Link
+                            </a>
+
+                        </td>
+                        <td className="px-4 py-3 text-xs">
+                            {data.comments.filter(comment => comment.from == item.note)
+                                .map(filteredComment => (
+                                    <p>
+                                        - {filteredComment.comment}
+                                    </p>
+                                ))}
+                        </td>
+                    </>
+                }
+            </tr>
+        )
     }
     return (
         <>
@@ -248,18 +354,20 @@ export default function CardEmployee({ data, visibility, admin }) {
                             </div>
                         </div>
                         <table className="rounded-t-lg w-full m-5 mx-auto bg-gray-200 text-gray-800 text-center ">
-                            <tr className="bg-gray-100 border-b border-gray-200">
-                                <td className="px-3 py-2 text-xs">ID</td>
-                                <td className="px-3 py-2 text-xs">{data.employee.id}</td>
-                            </tr>
-                            <tr className="bg-gray-100 border-b border-gray-200">
-                                <td className="px-3 py-2 text-xs">Email</td>
-                                <td className="px-3 py-2 text-xs">{data.employee.email}</td>
-                            </tr>
-                            <tr className="bg-gray-100 border-b border-gray-200">
-                                <td className="px-3 py-2 text-xs">NIK</td>
-                                <td className="px-3 py-2 text-xs">{data.employee.nik}</td>
-                            </tr>
+                            <tbody>
+                                <tr className="bg-gray-100 border-b border-gray-200">
+                                    <td className="px-3 py-2 text-xs">ID</td>
+                                    <td className="px-3 py-2 text-xs">{data.employee.id}</td>
+                                </tr>
+                                <tr className="bg-gray-100 border-b border-gray-200">
+                                    <td className="px-3 py-2 text-xs">Email</td>
+                                    <td className="px-3 py-2 text-xs">{data.employee.email}</td>
+                                </tr>
+                                <tr className="bg-gray-100 border-b border-gray-200">
+                                    <td className="px-3 py-2 text-xs">NIK</td>
+                                    <td className="px-3 py-2 text-xs">{data.employee.nik}</td>
+                                </tr>
+                            </tbody>
                         </table>
                     </div>
                     <div className="py-4 border-t border-blueGray-200 text-center">
@@ -281,170 +389,63 @@ export default function CardEmployee({ data, visibility, admin }) {
                                     </>
                                 }
                                 {admin && admin == 'true' &&
-                                    <StatusProgress data={data}/>
+                                    <StatusProgress data={data} />
                                 }
 
-                                <Accordion allowMultipleExpanded allowZeroExpanded >
+                                <Accordion allowMultipleExpanded allowZeroExpanded className="text-justify">
                                     {visibility && visibility == 'admin' &&
-                                    <AccordionItem>
-                                        <AccordionItemHeading>
-                                            <AccordionItemButton>
-                                                Checkpoint Detail
-                                            </AccordionItemButton>
-                                        </AccordionItemHeading>
-                                        <AccordionItemPanel>
+                                        <AccordionItem>
+                                            <AccordionItemHeading>
+                                                <AccordionItemButton>
+                                                    Checkpoint Detail
+                                                </AccordionItemButton>
+                                            </AccordionItemHeading>
+                                            <AccordionItemPanel>
 
-                                            <table className="rounded-t-lg w-full m-5 mx-auto bg-gray-200 text-gray-800">
-                                                <tr className="border-b-2 border-gray-300">
-                                                    <th className="px-4 py-3">Checkpoint</th>
-                                                    <th className="px-4 py-3">Status</th>
-                                                    {visibility == "admin" ?
-                                                        <th className="px-4 py-3">Status</th>
-                                                        : null
-                                                    }
-                                                </tr>
-                                                {dataCheckpoint.map((item, i) => (
-                                                    <>
-                                                        {!item.resign && !item.noNeed ?
-                                                            <tr className="bg-gray-100 border-b border-gray-200">
-                                                                <td className="px-4 py-3 text-xs">{item.name}</td>
-                                                                <td className="px-4 py-3 text-xs">
-                                                                    {parseInt(item.data) == 1 ?
-                                                                        <i className="fas fa-check text-green-600"></i> :
-                                                                        parseInt(item.data) == 0 ?
-                                                                            <i className="fas fa-times text-red-600"></i> :
-                                                                            "Waiting"
-                                                                    }
-                                                                </td>
-                                                                {visibility == "admin" && item.link ?
-                                                                    <td className="px-4 py-3 text-xs">
-                                                                        <a
-                                                                            href={item?.employee ? `/offboarding/employee/${data.id}?token=${data.employee_token}`:`/offboarding/${data.id}?token=${data.token}${item?.link}`}
-                                                                            className="text-blue-600"
-                                                                            target="_blank"
-                                                                        >
-                                                                            Link
-                                                                        </a>
-
-                                                                    </td>
-                                                                    : null
+                                                <table className="rounded-t-lg w-full m-5 mx-auto bg-gray-200 text-gray-800">
+                                                    <thead>
+                                                        <tr className="border-b-2 border-gray-300">
+                                                            <th className="px-4 py-3">Checkpoint</th>
+                                                            <th className="px-4 py-3">Status</th>
+                                                            {visibility == "admin" &&
+                                                                <>
+                                                                    <th className="px-4 py-3">Link</th>
+                                                                    <th className="px-4 py-3">Note / Feedback</th>
+                                                                </>
+                                                            }
+                                                        </tr>
+                                                    </thead>
+                                                    <tbody>
+                                                        {dataCheckpoint.map((item, i) => (
+                                                            <>
+                                                                {!item.resign && !item.noNeed && !item.read &&
+                                                                    <ListCheckpoint item={item} data={data} read={false} />
                                                                 }
-                                                            </tr>
-                                                            : null
-                                                        }
-                                                        {item.resign && data?.type_id?.includes("e2") ?
-                                                            <tr className="bg-gray-100 border-b border-gray-200">
-                                                                <td className="px-4 py-3 text-xs">{item.name}</td>
-                                                                <td className="px-4 py-3 text-xs">
-                                                                    {parseInt(item.data) == 1 ?
-                                                                        <i className="fas fa-check text-green-600"></i> :
-                                                                        parseInt(item.data) == 0 ?
-                                                                            <i className="fas fa-times text-red-600"></i> :
-                                                                            "Waiting"
-                                                                    }
-                                                                </td>
-                                                                {visibility == "admin" && item.link ?
-                                                                    <td className="px-4 py-3 text-xs">
-                                                                        <a
-                                                                            href={`/offboarding/${data.id}?token=${data.token}${item?.link}`}
-                                                                            className="text-blue-600"
-                                                                            target="_blank"
-                                                                        >
-                                                                            Link
-                                                                        </a>
-
-                                                                    </td>
-                                                                    : null
+                                                                {item.read && !item.resign &&
+                                                                    <ListCheckpoint item={item} data={data} read={true} />
                                                                 }
-                                                                {visibility == "admin" && item.acceptance ?
-                                                                    <>
-                                                                        {item.data == null ? <td className="px-4 py-3 text-xs">
-                                                                            <a
-                                                                                href={`${item.acceptance}token=${data.token}&id=${data.id}&action=accept`}
-                                                                                className="text-blue-600 mx-3"
-                                                                            // target="_blank"
-                                                                            >
-                                                                                Accept
-                                                                            </a>
-                                                                            <a
-                                                                                href={`${item.acceptance}token=${data.token}&id=${data.id}&action=reject`}
-                                                                                className="text-red-600 mx-3"
-                                                                            // target="_blank"
-                                                                            >
-                                                                                Reject
-                                                                            </a>
+                                                                {item.resign && data?.type_id?.includes("e2") &&
+                                                                    <ListCheckpoint item={item} data={data} read={false} />
+                                                                }
+                                                                {item.noNeed && data?.type_id?.includes("e3") ?
+                                                                    null
+                                                                    : item.noNeed &&
+                                                                    <ListCheckpoint item={item} data={data} read={false} />
+                                                                }
+                                                            </>
+                                                        ))}
 
-                                                                        </td> : null
-                                                                        }
-                                                                    </> : null}
-                                                            </tr>
-                                                            : null
-                                                        }
-                                                        {item.noNeed && data?.type_id?.includes("e3") ?
-                                                            null
-                                                            : item.noNeed ?
-                                                                <tr className="bg-gray-100 border-b border-gray-200">
-                                                                    <td className="px-4 py-3 text-xs">{item.name}</td>
-                                                                    <td className="px-4 py-3 text-xs">
-                                                                        {parseInt(item.data) == 1 ?
-                                                                            <i className="fas fa-check text-green-600"></i> :
-                                                                            parseInt(item.data) == 0 ?
-                                                                                <i className="fas fa-times text-red-600"></i> :
-                                                                                "Waiting"
-                                                                        }
-                                                                    </td>
-                                                                    {visibility == "admin" && item.link ?
-                                                                        <>
-                                                                            <td className="px-4 py-3 text-xs">
-                                                                                <a
-                                                                                    href={`/offboarding/${data.id}?token=${data.token}${item?.link}`}
-                                                                                    className="text-blue-600"
-                                                                                    target="_blank"
-                                                                                >
-                                                                                    Link
-                                                                                </a>
+                                                    </tbody>
+                                                </table>
 
-                                                                            </td>
-
-                                                                        </>
-                                                                        : null
-                                                                    }
-                                                                    {visibility == "admin" && item.acceptance ?
-                                                                        <>
-                                                                            <td className="px-4 py-3 text-xs">
-                                                                                <a
-                                                                                    href={`${item.acceptance}token=${data.token}&id=${data.id}&action=accept`}
-                                                                                    className="text-blue-600"
-                                                                                // target="_blank"
-                                                                                >
-                                                                                    Accept
-                                                                                </a>
-                                                                                <a
-                                                                                    href={`${item.acceptance}token=${data.token}&id=${data.id}&action=reject`}
-                                                                                    className="text-blue-600"
-                                                                                // target="_blank"
-                                                                                >
-                                                                                    Reject
-                                                                                </a>
-
-                                                                            </td>
-                                                                        </> : null}
-                                                                </tr>
-                                                                : null
-                                                        }
-                                                    </>
-                                                ))}
-
-                                            </table>
-
-                                        </AccordionItemPanel>
-                                    </AccordionItem>
+                                            </AccordionItemPanel>
+                                        </AccordionItem>
                                     }
                                     {visibility &&
                                         <>
                                             {visibility && visibility == 'payroll' || visibility == 'admin' || visibility == 'employee' || visibility == 'clearance' ?
                                                 <>
-                                                    {visibility && visibility == 'employee' || visibility == 'admin' ?
+                                                    {visibility && visibility == 'employee' || visibility == 'admin' &&
                                                         <AccordionItem>
                                                             {/* <div className="mb-2"> */}
                                                             <AccordionItemHeading>
@@ -457,41 +458,58 @@ export default function CardEmployee({ data, visibility, admin }) {
                                                                     <tr className="border-b-2 border-gray-300">
                                                                         <th className="px-3 py-2">Data</th>
                                                                         <th className="px-3 py-2">File</th>
+                                                                        {/* {query.get('approval') == 'hrmgr' &&
+                                                                            <th className="px-3 py-2">Feedback</th>
+                                                                        } */}
                                                                     </tr>
 
                                                                     {visibility == 'admin' ? dataAttachment.map((item, i) => (
                                                                         <>
-                                                                            {item.resign && data?.type_id?.includes("e2") ? <tr className="bg-gray-100 border-b border-gray-200">
-                                                                                <td className="px-3 py-2 text-xs">{item.name}</td>
-                                                                                <td className="px-3 py-2 text-xs">
-                                                                                    {item.file ?
-                                                                                        <a
-                                                                                            href={item.file}
-                                                                                            className="text-xs text-lightBlue-500 border rounded px-2 inline-block"
-                                                                                        >
-                                                                                            <i className="fas fa-file mr-2 text-xs"></i>
-                                                                                            Download
-                                                                                        </a>
-                                                                                        : "In progress"
-                                                                                    }
-                                                                                </td>
-                                                                            </tr>
+                                                                            {item.resign && data?.type_id?.includes("e2") ?
+                                                                                <tr className="bg-gray-100 border-b border-gray-200">
+                                                                                    <td className="px-3 py-2 text-xs">{item.name}</td>
+                                                                                    <td className="px-3 py-2 text-xs">
+                                                                                        {item.file && item.file != '0' ?
+                                                                                            <a
+                                                                                                href={item.file}
+                                                                                                className="text-xs text-lightBlue-500 border rounded px-2 inline-block"
+                                                                                            >
+                                                                                                <i className="fas fa-file mr-2 text-xs"></i>
+                                                                                                Download
+                                                                                            </a>
+                                                                                            : item.file == '0' ?
+                                                                                                "No Data"
+                                                                                                :
+                                                                                                "In progress"
+                                                                                        }
+                                                                                    </td>
+                                                                                    {/* {query.get('approval') == 'hrmgr' &&
+                                                                                        <td className="px-3 py-2 text-xs"><CommentDropdown to={item.name} id={id} /></td>
+                                                                                    } */}
+                                                                                </tr>
                                                                                 : null
                                                                             }
                                                                             {!item.resign ? <tr className="bg-gray-100 border-b border-gray-200">
                                                                                 <td className="px-3 py-2 text-xs">{item.name}</td>
                                                                                 <td className="px-3 py-2 text-xs">
-                                                                                    {item.file ?
-                                                                                        <a
-                                                                                            href={item.file}
-                                                                                            className="text-xs text-lightBlue-500 border rounded px-2 inline-block"
-                                                                                        >
-                                                                                            <i className="fas fa-file mr-2 text-xs"></i>
-                                                                                            Download
-                                                                                        </a>
-                                                                                        : "In progress"
+                                                                                    {
+                                                                                        item.file && item.file != '0' ?
+                                                                                            <a
+                                                                                                href={item.file}
+                                                                                                className="text-xs text-lightBlue-500 border rounded px-2 inline-block"
+                                                                                            >
+                                                                                                <i className="fas fa-file mr-2 text-xs"></i>
+                                                                                                Download
+                                                                                            </a>
+                                                                                            : item.file == '0' ?
+                                                                                                "No Outstanding"
+                                                                                                :
+                                                                                                "In progress"
                                                                                     }
                                                                                 </td>
+                                                                                {/* {query.get('approval') == 'hrmgr' &&
+                                                                                    <td className="px-3 py-2 text-xs"><CommentDropdown to={item.name} id={id} /></td>
+                                                                                } */}
                                                                             </tr>
                                                                                 : null
                                                                             }
@@ -514,7 +532,7 @@ export default function CardEmployee({ data, visibility, admin }) {
                                                                             </td>
                                                                         </tr>
                                                                     )) : null} */}
-                                                                    {visibility != 'clearance' ? employeeAttachment.map((item, i) => (
+                                                                    {visibility != 'clearance' && employeeAttachment.map((item, i) => (
                                                                         <>
                                                                             {item.noNeed && data?.type_id?.includes("e3") ?
                                                                                 null :
@@ -530,9 +548,14 @@ export default function CardEmployee({ data, visibility, admin }) {
                                                                                                     <i className="fas fa-file mr-2 text-xs"></i>
                                                                                                     Download
                                                                                                 </a>
-                                                                                                : "In progress"
+                                                                                                : item.file == '0' ?
+                                                                                                    "No Data"
+                                                                                                    : "In progress"
                                                                                             }
                                                                                         </td>
+                                                                                        {/* {query.get('approval') == 'hrmgr' &&
+                                                                                            <td className="px-3 py-2 text-xs"><CommentDropdown to={item.name} id={id} /></td>
+                                                                                        } */}
                                                                                     </tr>
                                                                                     : null
                                                                             }
@@ -548,18 +571,23 @@ export default function CardEmployee({ data, visibility, admin }) {
                                                                                                 <i className="fas fa-file mr-2 text-xs"></i>
                                                                                                 Download
                                                                                             </a>
-                                                                                            : "In progress"
+                                                                                            : item.file == '0' ?
+                                                                                                "No Data"
+                                                                                                : "In progress"
                                                                                         }
                                                                                     </td>
+                                                                                    {/* {query.get('approval') == 'hrmgr' &&
+                                                                                    <td className="px-3 py-2 text-xs"><CommentDropdown to={item.name} id={id}/></td>
+                                                                                } */}
                                                                                 </tr>
                                                                                 : null
                                                                             }
                                                                         </>
-                                                                    )) : null}
+                                                                    ))}
                                                                 </table>
 
                                                             </AccordionItemPanel>
-                                                        </AccordionItem> : null
+                                                        </AccordionItem>
 
 
                                                     }
@@ -655,19 +683,6 @@ export default function CardEmployee({ data, visibility, admin }) {
                                                                                                         </td>
                                                                                                     </tr>
                                                                                                 ))
-                                                                                            //      {item.children && item?.children.map((item3, k) => (
-                                                                                            //     <tr className="bg-gray-100 border-b border-gray-200">
-                                                                                            //         <td className="px-3 py-2 text-xs" >{item3}</td>
-                                                                                            //         <td className="px-3 py-2 text-xs">
-                                                                                            //             {item2[item3]}
-                                                                                            //              {parseInt(item.status) == 1 && item.file ?
-                                                                                            //     JSON.stringify(item.file)
-                                                                                            //     : parseInt(item.status) == 1 ? "No Outstanding" : "In progress"
-                                                                                            // }
-                                                                                            //         </td>
-                                                                                            //     </tr>
-                                                                                            // ))}
-
                                                                                         ))}
                                                                                     </>
                                                                                     : <>
@@ -725,8 +740,8 @@ export default function CardEmployee({ data, visibility, admin }) {
                                                                                     <td className="px-3 py-2 text-xs">
                                                                                         {i != 2 ? item.value :
                                                                                             item.value != '' ?
-                                                                                            <a className="text-blue-700 border-b" href={item.value} target="_blank">Link</a>
-                                                                                            : '-'
+                                                                                                <a className="text-blue-700 border-b" href={item.value} target="_blank">Link</a>
+                                                                                                : '-'
                                                                                         }
                                                                                     </td>
                                                                                 </tr>

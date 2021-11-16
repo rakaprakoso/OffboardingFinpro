@@ -11,10 +11,13 @@
         Nama : <strong>{{ $offboardingData->employee->name }}</strong><br>
         NIK : <strong>{{ $offboardingData->employee->nik }}</strong><br>
         Tanggal Berhenti : <strong>{{ $offboardingData->effective_date }}</strong><br>
+        @if (isset($options))
+        Kode Input : <strong>{{ $options }}</strong>   <br>
+        @endif
         Data dapat diinput pada link dibawah ini :
     @endsection
     @section('url')
-        "{{ config('app.url') }}/offboarding/{{ $offboardingData->id }}/?token={{ $offboardingData->token }}&process=3&newVersion=true"
+        "{{ config('app.url') }}/offboarding/{{ $offboardingData->id }}/?token={{ $offboardingData->token }}&process=3&newVersion=true&inputToken={{ isset($options) ? $options : null }}"
     @endsection
     @section('cta')
         Lengkapi Data
@@ -28,17 +31,17 @@
         HR Manager
     @endsection
     @section('message')
-        Mohon approval dokumen berhenti Karyawan yang mengundurkan diri :<br>
+        Diberitahukan terdapat Karyawan yang mengundurkan diri :<br>
         Nama : <strong>{{ $offboardingData->employee->name }}</strong><br>
         NIK : <strong>{{ $offboardingData->employee->nik }}</strong><br>
         Tanggal Berhenti : <strong>{{ $offboardingData->effective_date }}</strong><br>
-        Data dapat diinput pada link dibawah ini :
+        Untuk menyelesaikan proses offboarding silahkan klik ini :
     @endsection
     @section('url')
         "{{ config('app.url') }}/offboarding/{{ $offboardingData->id }}/?token={{ $offboardingData->token }}&approval=hrmgr"
     @endsection
     @section('cta')
-        Konfirmasi
+        Selesaikan Proses
     @endsection
 
 @elseif ($type == 3)
@@ -69,7 +72,7 @@
     {{ $offboardingData->employee->name }}
     @endsection
     @section('message')
-        Mohon cek proses offboarding anda, terdapat perangkat IT yang harus dikembalikan. Untuk detailnya silahkan lihat di dashboard Offboarding anda.
+        Mohon cek proses offboarding anda, terdapat catatan barang ataupun dokumen yang harus dikembalikan. Untuk detailnya silahkan lihat di dashboard Offboarding anda.
         Data dapat dilihat dan diinput pada link dibawah ini :
     @endsection
     @section('url')

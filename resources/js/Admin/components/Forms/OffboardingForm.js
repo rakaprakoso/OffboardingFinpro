@@ -24,14 +24,29 @@ import {
 import CardComment from '../Cards/CardComment';
 import CardProgressRecord from '../Cards/CardProgressRecord';
 import StatusProgress from '../StatusProgress';
+import moment from 'moment'
+import ReadForm from '../../functions/ReadForm';
 
-
+const ReturnClearance = Yup.object().shape({
+    dept: Yup.string()
+        .required('Required').nullable(),
+    completed: Yup.string()
+        .required('Required').nullable(),
+});
+const HRMGR = Yup.object().shape({
+    completed: Yup.string()
+        .required('Required').nullable(),
+});
 const ConfirmDocument = Yup.object().shape({
     dept: Yup.string()
         .required('Required').nullable(),
     accept: Yup.bool().oneOf([true], 'Accept Terms & Conditions is required'),
 });
 
+const CompletedVerification = Yup.object().shape({
+    completed: Yup.string()
+        .required('Required').nullable(),
+});
 const ConfirmationDocument = Yup.object().shape({
     accept: Yup.bool().oneOf([true], 'Accept Terms & Conditions is required'),
 });
@@ -46,6 +61,26 @@ const ExitClearance = Yup.object().shape({
     // ),
     accept: Yup.bool().oneOf([true], 'Accept Terms & Conditions is required'),
 });
+
+const dateMin = (date = null, type = 'normal') => {
+    if (type == 'verification') {
+        var dtToday = moment(date).add(1, 'M').subtract(1, "days");
+        date = dtToday.format('YYYY-MM-DD')
+        return date
+    }
+    var dtToday = moment(date).add(1, 'M');
+    date = dtToday.format('YYYY-MM-DD')
+    // var month = dtToday.getMonth() + 2;
+    // var day = dtToday.getDate() + 1;
+    // var year = dtToday.getFullYear();
+    // if (month < 10)
+    //     month = '0' + month.toString();
+    // if (day < 10)
+    //     day = '0' + day.toString();
+
+    // var minDate = year + '-' + month + '-' + day;
+    return date;
+}
 
 const OffboardingForm = () => {
 
@@ -62,6 +97,7 @@ const OffboardingForm = () => {
     const [submitted, setSubmitted] = useState('loading');
     const [tracking, setTracking] = useState(false);
     const [templateData, setTemplateData] = useState(null);
+    const [loading, setLoading] = useState(true);
 
     useEffect(async () => {
         var dataFetch = null;
@@ -107,19 +143,35 @@ const OffboardingForm = () => {
                     setTracking('payroll');
                 }
                 if (query.get('process') == '3') {
-                    const dataFetch = await axios
-                        .get(`/api/exitDocument?clearance=true`)
-                        .then(function (response) {
-                            console.log(response);
-                            return response.data;
-                        })
-                        .catch(function (error) {
-                            console.log(error);
-                        });
-                    setTemplateData(dataFetch)
+                    // const dataFetch = await axios
+                    //     .get(`/api/exitDocument?clearance=true`)
+                    //     .then(function (response) {
+                    //         console.log(response);
+                    //         return response.data;
+                    //     })
+                    //     .catch(function (error) {
+                    //         console.log(error);
+                    //     });
+                    // setTemplateData(dataFetch)
                 }
+                if (query.get('exitInterview') == 'true') {
+                    ReadForm(dataFetch.id, 'exitInterview')
+                }
+
                 if (query.get('process') == '5') {
                     setTracking('clearance');
+                }
+
+                if (query.get('approval') == 'hrmgr') {
+                    if (dataFetch.status_id == 6) {
+                        var dataLoading = await ReadForm(dataFetch.id, 'hrbp_manager')
+                        if (dataLoading.status == 200) {
+                            location.reload()
+                            // setLoading(false)
+                        }
+                    } else {
+                        setLoading(false)
+                    }
                 }
                 // if (query.get('exitInterview') == 'true' || query.get('process') == '5' || query.get('approval') == 'hrmgr') {
                 //     const dataFetch = await axios
@@ -160,18 +212,72 @@ const OffboardingForm = () => {
 
     }, []);
 
-    const ConfirmSchema = employee == false ?
+    const [inputToken, setInputToken] = useState(false);
+    const [errorToken, setErrorToken] = useState(false);
+    const [defaultToken, setDefaultToken] = useState(query.get('inputToken'));
+    // const [isOpen, setIsOpen] = useState(false);
+    // const [submitted, setSubmitted] = useState(false);
+    useEffect(async () => {
+        if (query.get('process') == '5') {
+            if (deptList.find(isSelectedToken)) {
+                setInputToken(deptList.find(isSelectedToken))
+                readForm(deptList.find(isSelectedToken).value)
+            }
+        }
+    }, [data])
+
+    const readForm = async (dept) => {
+        const formData = new FormData();
+        formData.append('offboardingID', id);
+        formData.append('dept', dept);
+        const res = await axios.post('/api/readinput', formData, {
+            headers: {
+                'Content-Type': 'multipart/form-data'
+            }
+        }).then(response => {
+            return response
+        }).catch(error => {
+            return error.response
+        });
+    }
+
+    const deptList = [
+        {
+            name: 'HR SS Softfile',
+            value: 'hrss_softfile',
+            cp: data?.checkpoint?.return_to_hrss_doc,
+            inputToken: data?.input_token?.hrss_doc,
+        },
+        {
+            name: 'HR SS IT',
+            value: 'hrss_it',
+            cp: data?.checkpoint?.return_to_hrss_it,
+            inputToken: data?.input_token?.it,
+        },
+        {
+            name: 'SVP',
+            value: 'svp',
+            cp: data?.checkpoint?.return_to_svp,
+            inputToken: data?.input_token?.svp,
+        },
+    ]
+    function isSelectedToken(deptList) {
+        return deptList.inputToken === defaultToken;
+    }
+
+    const ConfirmSchema = data && (employee == false ?
         Yup.object().shape({
             // managerID: Yup.string()
             //     .required('Required'),
             status: Yup.string()
                 .required('Required'),
-            effectiveDate: Yup.date('Invalid Date').required('Required'),
+            effectiveDate: Yup.date('Invalid Date').required('Required')
+                .min(new Date(dateMin(data?.created_at, 'verification')), "At least 1 month"),
         })
         : Yup.object().shape({
             status: Yup.string()
                 .required('Required')
-        })
+        }))
 
     return (
         <>
@@ -183,91 +289,109 @@ const OffboardingForm = () => {
                     data &&
                         query.get('approval') == 'hrmgr' ?
                         <>
-                            <h2 className="text-2xl font-bold">HR Manager Approval</h2>
-                            <hr className="mb-3" />
-                            <StatusProgress data={data} />
-                            <Accordion allowMultipleExpanded allowZeroExpanded className="mb-5">
-                                <AccordionItem>
-                                    <AccordionItemHeading>
-                                        <AccordionItemButton>
-                                            Offboarding Data
-                                        </AccordionItemButton>
-                                    </AccordionItemHeading>
-                                    <AccordionItemPanel className="border p-5">
-                                        <div className="w-full">
-                                            <CardEmployee data={data} visibility={tracking} />
-                                        </div>
-                                        <div className="w-full">
-                                            <div className="-mx-4 flex">
-                                                <div className="w-full lg:w-1/2 px-4">
-                                                    {data && <CardComment data={data?.comments} />}
-                                                </div>
-                                                <div className="w-full lg:w-1/2 px-4">
-                                                    {data && <CardProgressRecord data={data?.progress_record} />}
-                                                </div>
-                                            </div>
-                                        </div>
-                                    </AccordionItemPanel>
-                                </AccordionItem>
-                            </Accordion>
 
-                            {data?.checkpoint?.acc_hrbp_mgr != 1 ?
-                                <Formik
-                                    initialValues={{
-                                        accept: false,
-                                    }}
-                                    validationSchema={ConfirmationDocument}
-                                    onSubmit={async (values) => {
-                                        setIsOpen(true);
-                                        const formData = new FormData();
-                                        formData.append('offboardingID', id);
-                                        formData.append('hrmgr', 1);
-                                        formData.append('status', 1);
-                                        formData.append('process_type', 2);
-                                        const res = await axios.post('/api/managerconfirmation', formData, {
-                                            headers: {
-                                                'Content-Type': 'multipart/form-data'
-                                            }
-                                        });
-                                        // console.log(res.data);
-                                        setSubmitted(true)
-                                    }}
-                                >
-                                    {({ values, errors, touched, setFieldValue }) => (
-                                        <>
-                                            <Form>
-                                                <label className="mb-4 block bg-gray-100 p-3 rounded">
-                                                    <Field type="checkbox" name="accept" className="my-0 mr-2" />
-                                                    Approve Data
-                                                    {errors.accept
-                                                        // && touched.accept
-                                                        ? (
-                                                            <div className="text-red-600 text-sm">{errors.accept}</div>
-                                                        ) : null}
-                                                </label>
-                                                {values.accept &&
-                                                    <button type="submit" className="bg-primary text-white p-3 text-lg uppercase">Submit</button>
-                                                }
-                                            </Form>
-                                            {!values.accept &&
-                                                <>
-                                                    <div className="border-t border-gray-200 w-full mb-4" />
-                                                    <Comment from="HR MGR" id={id} />
-                                                </>
-                                            }
-                                        </>
-                                    )}
-                                </Formik>
+                            {loading ?
+                                <>
+                                    Finalizing Data
+                                </>
                                 :
-                                <div className="mb-4 block bg-green-300 p-3 rounded font-bold text-center text-green-700">
-                                    <i class="fas fa-check"></i> CONFIRMED
-                                </div>
+                                <>
+                                    <h2 className="text-2xl font-bold">HR Manager Approval</h2>
+                                    <hr className="mb-3" />
+                                    <StatusProgress data={data} />
+                                    <Accordion allowMultipleExpanded allowZeroExpanded className="mb-5">
+                                        <AccordionItem>
+                                            <AccordionItemHeading>
+                                                <AccordionItemButton>
+                                                    Offboarding Data
+                                                </AccordionItemButton>
+                                            </AccordionItemHeading>
+                                            <AccordionItemPanel className="border p-5">
+                                                <div className="w-full">
+                                                    <CardEmployee data={data} visibility={tracking} />
+                                                </div>
+                                                <div className="w-full">
+                                                    <div className="-mx-4 flex">
+                                                        <div className="w-full lg:w-1/2 px-4">
+                                                            {data && <CardComment data={data?.comments} />}
+                                                        </div>
+                                                        <div className="w-full lg:w-1/2 px-4">
+                                                            {data && <CardProgressRecord data={data?.progress_record} />}
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </AccordionItemPanel>
+                                        </AccordionItem>
+                                    </Accordion>
+
+                                    {data?.checkpoint?.acc_hrbp_mgr != 1 ?
+                                        // <Formik
+                                        //     initialValues={{
+                                        //         accept: false,
+                                        //         completed: '',
+                                        //     }}
+                                        //     validationSchema={HRMGR}
+                                        //     onSubmit={async (values) => {
+                                        //         setIsOpen(true);
+                                        //         const formData = new FormData();
+                                        //         formData.append('offboardingID', id);
+                                        //         formData.append('hrmgr', 1);
+                                        //         formData.append('status', 1);
+                                        //         formData.append('process_type', 2);
+                                        //         const res = await axios.post('/api/managerconfirmation', formData, {
+                                        //             headers: {
+                                        //                 'Content-Type': 'multipart/form-data'
+                                        //             }
+                                        //         });
+                                        //         // console.log(res.data);
+                                        //         setSubmitted(true)
+                                        //     }}
+                                        // >
+                                        //     {({ values, errors, touched, setFieldValue }) => (
+                                        //         <>
+
+                                        //             <Form>
+                                        //                 <label className="mb-4 block bg-gray-100 p-3 rounded">
+                                        //                     <Field type="radio" name="completed" value="1" className="my-0 mr-2" />
+                                        //                     Lengkap
+                                        //                 </label>
+
+                                        //                 <label className="mb-4 block bg-gray-100 p-3 rounded">
+                                        //                     <Field type="radio" name="completed" value="0" className="my-0 mr-2" />
+                                        //                     Tidak Lengkap
+                                        //                 </label>
+
+                                        //                 {errors.completed && touched.completed && (
+                                        //                     <div className="text-red-600 text-sm">{errors.completed}</div>
+                                        //                 )}
+                                        //                 {values.completed == '1' &&
+                                        //                     <button type="submit" className="bg-primary text-white p-3 text-lg uppercase">Submit</button>
+                                        //                 }
+
+                                        //             </Form>
+                                        //             {values.completed == '0' &&
+                                        //                 <>
+                                        //                     <div className="border-t border-gray-200 w-full mb-4" />
+                                        //                     <Comment from="HR MGR" id={id} />
+                                        //                 </>
+                                        //             }
+                                        //         </>
+                                        //     )}
+                                        // </Formik>
+                                        <></>
+                                        :
+                                        <div className="mb-4 block bg-green-300 p-3 rounded font-bold text-center text-green-700">
+                                            <i class="fas fa-check"></i> CONFIRMED
+                                        </div>
+
+                                    }
+                                    <ManagerModal
+                                        openModal={isOpen}
+                                        submitted={submitted}
+                                        stateChanger={setIsOpen}
+                                    />
+                                </>
                             }
-                            <ManagerModal
-                                openModal={isOpen}
-                                submitted={submitted}
-                                stateChanger={setIsOpen}
-                            />
                         </>
                         : data &&
                         <div className="row">
@@ -329,7 +453,7 @@ const OffboardingForm = () => {
                                                                                 ) : null} */}
 
                                                                                     <label htmlFor="effectiveDate">Effective Date</label>
-                                                                                    <Field type="date" id="effectiveDate" name="effectiveDate" />
+                                                                                    <Field type="date" id="effectiveDate" min={dateMin(data?.created_at)} name="effectiveDate" />
                                                                                     {errors.effectiveDate && touched.effectiveDate ? (
                                                                                         <div className="-mt-4 mb-4 text-red-600 text-sm">{errors.effectiveDate}</div>
                                                                                     ) : null}
@@ -337,13 +461,13 @@ const OffboardingForm = () => {
                                                                             }
                                                                             <div id="status-radio-group" className="mb-2">Action</div>
                                                                             <div role="group" className="mb-4 flex -mx-4" aria-labelledby="status-radio-group">
-                                                                                <label className="p-2 border rounded mx-4 flex-grow text-center">
-                                                                                    <Field type="radio" name="status" value="1" className="my-2 mr-2" />
-                                                                                    Accept
+                                                                                <label className="border rounded mx-4 flex-grow text-center cursor-pointer border-green-600">
+                                                                                    <Field type="radio" name="status" value="1" className="my-2 mr-2 hidden" />
+                                                                                    <div className="p-2 label-checked:bg-green-600 label-checked:text-white">Accept</div>
                                                                                 </label>
-                                                                                <label className="p-2 border rounded mx-4 flex-grow text-center">
-                                                                                    <Field type="radio" name="status" value="0" className="my-2 mr-2" />
-                                                                                    Reject
+                                                                                <label className="border rounded mx-4 flex-grow text-center cursor-pointer border-red-600">
+                                                                                    <Field type="radio" name="status" value="0" className="my-2 mr-2 hidden" />
+                                                                                    <div className="p-2 label-checked:bg-red-600 label-checked:text-white">Reject</div>
                                                                                 </label>
                                                                             </div>
                                                                             {errors.status && touched.status ? (
@@ -445,8 +569,9 @@ const OffboardingForm = () => {
                                                                                             // note_procedure: '',
                                                                                             // opers: '',
                                                                                             accept: false,
+                                                                                            completed: '',
                                                                                         }}
-                                                                                        validationSchema={ConfirmationDocument}
+                                                                                        validationSchema={CompletedVerification}
                                                                                         onSubmit={async (values) => {
                                                                                             // setTimeout(() => {
                                                                                             //     alert(JSON.stringify(values, null, 2));
@@ -521,6 +646,30 @@ const OffboardingForm = () => {
                                                                                                             </>
                                                                                                         ))}
                                                                                                     <label className="mb-4 block bg-gray-100 p-3 rounded">
+                                                                                                        <Field type="radio" name="completed" value="1" className="my-0 mr-2" />
+                                                                                                        Lengkap
+                                                                                                    </label>
+
+                                                                                                    <label className="mb-4 block bg-gray-100 p-3 rounded">
+                                                                                                        <Field type="radio" name="completed" value="0" className="my-0 mr-2" />
+                                                                                                        Tidak Lengkap
+                                                                                                    </label>
+
+                                                                                                    {errors.completed && touched.completed && (
+                                                                                                        <div className="text-red-600 text-sm">{errors.completed}</div>
+                                                                                                    )}
+                                                                                                    {values.completed == '1' &&
+                                                                                                        <button type="submit" className="bg-primary text-white p-3 text-lg uppercase">Submit</button>
+                                                                                                    }
+
+                                                                                                </Form>
+                                                                                                {values.completed == '0' &&
+                                                                                                    <>
+                                                                                                        <div className="border-t border-gray-200 w-full mb-4" />
+                                                                                                        <Comment from="SVP - Exit Interview Form" id={id} />
+                                                                                                    </>
+                                                                                                }
+                                                                                                {/* <label className="mb-4 block bg-gray-100 p-3 rounded">
                                                                                                         <Field type="checkbox" name="accept" className="my-0 mr-2" />
                                                                                                         Approve Data
                                                                                                         {errors.accept
@@ -531,9 +680,9 @@ const OffboardingForm = () => {
                                                                                                     </label>
                                                                                                     {values.accept &&
                                                                                                         <button type="submit" className="bg-primary text-white p-3 text-lg uppercase">Submit</button>
-                                                                                                    }
+                                                                                                    } */}
 
-                                                                                                    {/* {data.offboarding_form &&
+                                                                                                {/* {data.offboarding_form &&
                                                                                                     // JSON.stringify(data?.offboarding_form?.exit_interview_form)
                                                                                                     data?.offboarding_form?.exit_interview_form?.data.map((item, index) => (
                                                                                                         <>
@@ -563,7 +712,7 @@ const OffboardingForm = () => {
                                                                                                     ))
                                                                                                 } */}
 
-                                                                                                    {/* <label htmlFor="note_procedure">Note Procedure</label>
+                                                                                                {/* <label htmlFor="note_procedure">Note Procedure</label>
                                                                                                 <input id="note_procedure" name="note_procedure" type="file" placeholder="Attachment"
                                                                                                     onChange={(event) => {
                                                                                                         setFieldValue("note_procedure", event.target.files[0]);
@@ -573,7 +722,7 @@ const OffboardingForm = () => {
                                                                                                     <div className="-mt-4 mb-4 text-red-600 text-sm">{errors.note_procedure}</div>
                                                                                                 ) : null} */}
 
-                                                                                                    {/* <label htmlFor="opers">Change Opers</label>
+                                                                                                {/* <label htmlFor="opers">Change Opers</label>
                                                                                         <input id="opers" name="opers" type="file" placeholder="Attachment"
                                                                                             onChange={(event) => {
                                                                                                 setFieldValue("opers", event.target.files[0]);
@@ -582,7 +731,7 @@ const OffboardingForm = () => {
                                                                                         {errors.opers && touched.opers ? (
                                                                                             <div className="-mt-4 mb-4 text-red-600 text-sm">{errors.opers}</div>
                                                                                         ) : null} */}
-                                                                                                    {/* <label className="mb-4 block bg-gray-100 p-3 rounded">
+                                                                                                {/* <label className="mb-4 block bg-gray-100 p-3 rounded">
                                                                                                     <Field type="checkbox" name="accept" className="my-0 mr-2" />
                                                                                                     Saya menyetujui data yang dikirimkan adalah benar
                                                                                                     {errors.accept && touched.accept ? (
@@ -592,14 +741,14 @@ const OffboardingForm = () => {
                                                                                                 {values.accept &&
                                                                                                     <button type="submit" className="bg-primary text-white">Submit</button>
                                                                                                 } */}
-                                                                                                </Form>
+                                                                                                {/* </Form>
                                                                                                 {!values.accept &&
 
                                                                                                     <>
                                                                                                         <div className="border-t border-gray-200 w-full mb-4" />
                                                                                                         <Comment from="SVP - Exit Interview Form" id={id} />
                                                                                                     </>
-                                                                                                }
+                                                                                                } */}
                                                                                             </>
                                                                                         )}
                                                                                     />
@@ -841,6 +990,8 @@ const OffboardingForm = () => {
                                                                                                 setSubmitted={setSubmitted}
                                                                                                 setOpenModal={setIsOpen}
                                                                                                 checkpoint={data.checkpoint}
+                                                                                                data={data}
+                                                                                                inputToken={query.get('inputToken')}
                                                                                             />
                                                                                             : <>
                                                                                                 <h2 className="text-2xl font-bold">Document Exit Form</h2>
@@ -1152,101 +1303,162 @@ const OffboardingForm = () => {
                                                                                 <>
                                                                                     <h2 className="text-2xl font-bold">Check Return Document</h2>
                                                                                     <hr className="mb-3" />
-                                                                                    <Formik
-                                                                                        initialValues={{
-                                                                                            // type: 'confirmation',
-                                                                                            // confirmation: false,
-                                                                                            dept: '',
-                                                                                            message: '',
-                                                                                            accept: false,
-                                                                                            completed: false,
-                                                                                        }}
-                                                                                        validationSchema={ConfirmDocument}
-                                                                                        onSubmit={async (values) => {
-                                                                                            setIsOpen(true);
-                                                                                            const formData = new FormData();
-                                                                                            formData.append('offboardingID', id);
-                                                                                            formData.append('type', 'confirmation');
-                                                                                            // formData.append('confirmation', values.confirmation);
-                                                                                            formData.append('dept', values.dept);
-                                                                                            formData.append("message", values.message);
-                                                                                            // formData.append("completed", values.completed);
-                                                                                            formData.append("completed", 'true');
-                                                                                            formData.append('process_type', 4);
-                                                                                            const res = await axios.post('/api/returndocument', formData, {
-                                                                                                headers: {
-                                                                                                    'Content-Type': 'multipart/form-data'
-                                                                                                }
-                                                                                            }).then(response => {
-                                                                                                console.log(response)
-                                                                                                return response
-                                                                                            }).catch(error => {
-                                                                                                // console.log(error.response)
-                                                                                                // setSubmitted(true)
-                                                                                                return error.response
-                                                                                            });
-                                                                                            console.log(res.data);
-                                                                                            if (res.status == '200') {
-                                                                                                setSubmitted(true)
-                                                                                            } else {
-                                                                                                setSubmitted(false)
-                                                                                            }
-                                                                                        }}
-                                                                                        render={({ values, errors, touched, setFieldValue }) => (
-                                                                                            <>
+                                                                                    {!inputToken &&
+                                                                                        <>
+                                                                                            <Formik
+                                                                                                initialValues={{
+                                                                                                    token: '',
+                                                                                                }}
+                                                                                                onSubmit={async (values) => {
+                                                                                                    function isTokenSame(deptList) {
+                                                                                                        return deptList.inputToken === values.token;
+                                                                                                    }
+                                                                                                    if (deptList.find(isTokenSame)) {
+                                                                                                        setInputToken(deptList.find(isTokenSame))
+                                                                                                        ReadForm(id, deptList.find(isTokenSame).value)
+                                                                                                    } else {
+                                                                                                        setErrorToken({ message: 'Token Not Correct' })
+                                                                                                    }
+                                                                                                }}
+                                                                                            >
                                                                                                 <Form>
-                                                                                                    <label htmlFor="dept">Dept</label>
-                                                                                                    <Field as="select" name="dept">
-                                                                                                        <option value="" disabled>Select Dept</option>
-                                                                                                        <option value="hrss_softfile" disabled={data?.checkpoint?.return_to_hrss_doc == '1' ? true : false}>HR SS Softfile</option>
-                                                                                                        <option value="hrss_it" disabled={data?.checkpoint?.return_to_hrss_it == '1' ? true : false}>HR SS IT</option>
-                                                                                                        <option value="svp" disabled={data?.checkpoint?.return_to_svp == '1' ? true : false}>SVP</option>
-                                                                                                    </Field>
-                                                                                                    {errors.dept && touched.dept ? (
-                                                                                                        <div className="-mt-4 mb-4 text-red-600 text-sm">{errors.dept}</div>
-                                                                                                    ) : null}
-
-
-                                                                                                    {/* {!values.completed &&
-                                                                                                        <>
-                                                                                                            <label htmlFor="message">Note</label>
-                                                                                                            <Field type="text" id="message" name="message" />
-                                                                                                        </>
-                                                                                                    }
-                                                                                                    <label className="mb-4 block">
-                                                                                                        <Field type="checkbox" name="completed" className="my-0 mr-2" />
-                                                                                                        Completed ?
-                                                                                                    </label>
-
-                                                                                                    <label className="mb-4">
-                                                                                                        <Field type="checkbox" name="accept" className="my-0 mr-2" />
-                                                                                                        Declare it's true
-                                                                                                    </label>
-                                                                                                    {errors.accept && touched.accept ? (
-                                                                                                        <div className="mb-4 text-red-600 text-sm">{errors.accept}</div>
-                                                                                                    ) : null}
-
-                                                                                                    <button type="submit" className="bg-primary text-white">Submit</button> */}
-                                                                                                    <label className="mb-4 block bg-gray-100 p-3 rounded">
-                                                                                                        <Field type="checkbox" name="accept" className="my-0 mr-2" />
-                                                                                                        Saya menyetujui data yang dikirimkan adalah benar
-                                                                                                        {errors.accept && touched.accept ? (
-                                                                                                            <div className="text-red-600 text-sm">{errors.accept}</div>
-                                                                                                        ) : null}
-                                                                                                    </label>
-                                                                                                    {values.accept &&
-                                                                                                        <button type="submit" className="bg-primary text-white p-3 text-lg uppercase">Submit</button>
-                                                                                                    }
+                                                                                                    <label htmlFor="token">Input Token</label>
+                                                                                                    <Field id="token" type="password" name="token" placeholder="Token" />
+                                                                                                    {errorToken && (
+                                                                                                        <div className="text-red-600 text-sm -mt-4">{errorToken.message}</div>
+                                                                                                    )}
+                                                                                                    <button type="submit" className="bg-primary text-white p-3 text-lg uppercase">Unlock</button>
                                                                                                 </Form>
-                                                                                                {!values.accept &&
-                                                                                                    <>
-                                                                                                        <div className="border-t border-gray-200 w-full mb-4" />
-                                                                                                        <Comment from={`${values.dept} - Pengecekan Dokumen`} id={id} />
-                                                                                                    </>
-                                                                                                }
-                                                                                            </>
-                                                                                        )}
-                                                                                    />
+                                                                                            </Formik>
+                                                                                        </>
+                                                                                    }
+                                                                                    {inputToken &&
+                                                                                        <>
+                                                                                            {
+                                                                                                inputToken.cp != 1 &&
+                                                                                                <Formik
+                                                                                                    initialValues={{
+                                                                                                        // type: 'confirmation',
+                                                                                                        // confirmation: false,
+                                                                                                        dept: inputToken?.value,
+                                                                                                        message: '',
+                                                                                                        accept: false,
+                                                                                                        completed: '',
+                                                                                                    }}
+                                                                                                    validationSchema={ReturnClearance}
+                                                                                                    onSubmit={async (values) => {
+                                                                                                        setIsOpen(true);
+                                                                                                        const formData = new FormData();
+                                                                                                        formData.append('offboardingID', id);
+                                                                                                        formData.append('type', 'confirmation');
+                                                                                                        // formData.append('confirmation', values.confirmation);
+                                                                                                        formData.append('dept', values.dept);
+                                                                                                        formData.append("message", values.message);
+                                                                                                        // formData.append("completed", values.completed);
+                                                                                                        formData.append("completed", 'true');
+                                                                                                        formData.append('process_type', 4);
+                                                                                                        const res = await axios.post('/api/returndocument', formData, {
+                                                                                                            headers: {
+                                                                                                                'Content-Type': 'multipart/form-data'
+                                                                                                            }
+                                                                                                        }).then(response => {
+                                                                                                            console.log(response)
+                                                                                                            return response
+                                                                                                        }).catch(error => {
+                                                                                                            // console.log(error.response)
+                                                                                                            // setSubmitted(true)
+                                                                                                            return error.response
+                                                                                                        });
+                                                                                                        console.log(res.data);
+                                                                                                        if (res.status == '200') {
+                                                                                                            setSubmitted(true)
+                                                                                                        } else {
+                                                                                                            setSubmitted(false)
+                                                                                                        }
+                                                                                                    }}
+                                                                                                    render={({ values, errors, touched, setFieldValue }) => (
+                                                                                                        <>
+                                                                                                            <Form>
+                                                                                                                <h3 className="text-lg font-bold mb-2">Dept : {inputToken.name}</h3>
+                                                                                                                {/* <label htmlFor="dept">Dept</label>
+                                                                                                        <Field as="select" name="dept">
+                                                                                                            <option value="" disabled>Select Dept</option>
+                                                                                                            <option value="hrss_softfile" disabled={data?.checkpoint?.return_to_hrss_doc == '1' ? true : false}>HR SS Softfile</option>
+                                                                                                            <option value="hrss_it" disabled={data?.checkpoint?.return_to_hrss_it == '1' ? true : false}>HR SS IT</option>
+                                                                                                            <option value="svp" disabled={data?.checkpoint?.return_to_svp == '1' ? true : false}>SVP</option>
+                                                                                                        </Field>
+                                                                                                        {errors.dept && touched.dept ? (
+                                                                                                            <div className="-mt-4 mb-4 text-red-600 text-sm">{errors.dept}</div>
+                                                                                                        ) : null} */}
+
+
+                                                                                                                {/* {!values.completed &&
+                                                                                                            <>
+                                                                                                                <label htmlFor="message">Note</label>
+                                                                                                                <Field type="text" id="message" name="message" />
+                                                                                                            </>
+                                                                                                        }
+                                                                                                        <label className="mb-4 block">
+                                                                                                            <Field type="checkbox" name="completed" className="my-0 mr-2" />
+                                                                                                            Completed ?
+                                                                                                        </label>
+
+                                                                                                        <label className="mb-4">
+                                                                                                            <Field type="checkbox" name="accept" className="my-0 mr-2" />
+                                                                                                            Declare it's true
+                                                                                                        </label>
+                                                                                                        {errors.accept && touched.accept ? (
+                                                                                                            <div className="mb-4 text-red-600 text-sm">{errors.accept}</div>
+                                                                                                        ) : null}
+
+                                                                                                        <button type="submit" className="bg-primary text-white">Submit</button> */}
+                                                                                                                {/* <label className="mb-4 block bg-gray-100 p-3 rounded">
+                                                                                                            <Field type="checkbox" name="accept" className="my-0 mr-2" />
+                                                                                                            Saya menyetujui data yang dikirimkan adalah benar
+                                                                                                            {errors.accept && touched.accept ? (
+                                                                                                                <div className="text-red-600 text-sm">{errors.accept}</div>
+                                                                                                            ) : null}
+                                                                                                        </label>
+                                                                                                        {values.accept &&
+                                                                                                            <button type="submit" className="bg-primary text-white p-3 text-lg uppercase">Submit</button>
+                                                                                                        } */}
+
+                                                                                                                <label className="mb-4 block bg-gray-100 p-3 rounded">
+                                                                                                                    <Field type="radio" name="completed" value="1" className="my-0 mr-2" />
+                                                                                                                    Lengkap
+                                                                                                                </label>
+
+                                                                                                                <label className="mb-4 block bg-gray-100 p-3 rounded">
+                                                                                                                    <Field type="radio" name="completed" value="0" className="my-0 mr-2" />
+                                                                                                                    Tidak Lengkap
+                                                                                                                </label>
+
+                                                                                                                {errors.completed && touched.completed && (
+                                                                                                                    <div className="text-red-600 text-sm">{errors.completed}</div>
+                                                                                                                )}
+                                                                                                                {values.completed == '1' &&
+                                                                                                                    <button type="submit" className="bg-primary text-white p-3 text-lg uppercase">Submit</button>
+                                                                                                                }
+
+                                                                                                            </Form>
+                                                                                                            {values.completed == '0' &&
+                                                                                                                <>
+                                                                                                                    <div className="border-t border-gray-200 w-full mb-4" />
+                                                                                                                    <Comment from={`${values.dept} - Pengecekan Dokumen`} id={id} />
+                                                                                                                </>
+                                                                                                            }
+                                                                                                        </>
+                                                                                                    )}
+                                                                                                />
+                                                                                            }
+                                                                                            {
+                                                                                                inputToken.cp == 1 &&
+                                                                                                <div className="mb-4 block bg-green-300 p-3 rounded font-bold text-center text-green-700">
+                                                                                                    <i class="fas fa-check"></i> CONFIRMED
+                                                                                                </div>
+                                                                                            }
+                                                                                        </>
+                                                                                    }
                                                                                 </> :
                                                                                 <>
                                                                                     <div className="mb-4 block bg-green-300 p-3 rounded font-bold text-center text-green-700">

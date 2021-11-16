@@ -16,7 +16,7 @@ class EmployeeClearDocument extends Mailable
      *
      * @return void
      */
-    public function __construct($offboardingData, $type = 1, $messageEmail = null,...$options)
+    public function __construct($offboardingData, $type = 1, $messageEmail = null, $options = null)
     {
         $this->offboardingData = $offboardingData;
         $this->type = $type;
@@ -49,6 +49,9 @@ class EmployeeClearDocument extends Mailable
                 break;
             case '5':
                 $subject = "Payment";
+                break;
+            case '6':
+                $subject = "New Comment";
                 break;
             default:
                 break;

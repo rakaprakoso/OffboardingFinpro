@@ -179,7 +179,7 @@ const ExitInterviewForm = ({ admin = false, data = null }) => {
                                 // type: 'confirmation',
                                 // confirmation: false,
                                 dept: '',
-                                otherActivity: '',
+                                otherActivity: data?.offboarding_form?.exit_interview_form?.other_activity,
                                 comment: data?.offboarding_form?.exit_interview_form?.additional_comment,
                                 message: '',
                                 accept: false,

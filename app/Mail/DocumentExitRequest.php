@@ -16,7 +16,7 @@ class DocumentExitRequest extends Mailable
      *
      * @return void
      */
-    public function __construct($offboardingData, $type = 1, ...$options)
+    public function __construct($offboardingData, $type = 1, $options = null)
     {
         $this->offboardingData = $offboardingData;
         $this->type = $type;
@@ -36,13 +36,13 @@ class DocumentExitRequest extends Mailable
                 $subject = "Document Exit Request";
                 break;
             case '2':
-                $subject = "Approval Exit Employee";
+                $subject = "Information Exit Employee";
                 break;
             case '3':
                 $subject = "Approval Exit Interview Form";
                 break;
             case '4':
-                $subject = "Info Pengembalian Perangkat IT";
+                $subject = "Info Pengembalian Barang dan Dokumen";
                 break;
             case '5':
                 $subject = "Approval Payroll Employee";

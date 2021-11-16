@@ -5,6 +5,7 @@ const NotificationDropdown = ({ data, text }) => {
 
     const {
         // acc_document,
+        acc_employee,
         acc_svp,
         acc_hrbp_mgr,
         acc_hrss_mgr,
@@ -32,51 +33,56 @@ const NotificationDropdown = ({ data, text }) => {
         //     acceptance: '/api/accResignDocument?',
         // },
         {
-            'name': 'Acc SVP',
+            'name': 'Confirmation by Employee',
+            'data': acc_employee,
+            'link': `&process=2`,
+        },
+        {
+            'name': 'Confirmation by Line Manager',
             'data': acc_svp,
             'link': `&process=2`,
         },
         {
-            'name': 'Exit Interview',
+            'name': 'Exit Interview Confirmation by HRBP',
             'data': exit_interview,
             'link': `&process=3&exitInterview=true`,
             'resign': true,
         },
         {
-            'name': 'Outstanding Fastel',
+            'name': 'Outstanding by Fastel',
             'data': confirm_fastel,
             'link': `&process=3&newVersion=true`,
         },
         {
-            'name': 'Outstanding Kopindosat',
+            'name': 'Outstanding by Kopindosat',
             'data': confirm_kopindosat,
             'link': `&process=3&newVersion=true`,
         },
         {
-            'name': 'Outstanding IT',
+            'name': 'Outstanding by IT',
             'data': confirm_it,
             'link': `&process=3&newVersion=true`,
         },
         {
-            'name': 'Outstanding HR Dev',
+            'name': 'Outstanding by HR Dev',
             'data': confirm_hrdev,
             'link': `&process=3&newVersion=true`,
         },
         {
-            'name': 'Outstanding Medical',
+            'name': 'Outstanding by Medical',
             'data': confirm_medical,
             'link': `&process=3&newVersion=true`,
         },
         {
-            'name': 'Outstanding Finance',
+            'name': 'Outstanding by Finance',
             'data': confirm_finance,
             'link': `&process=3&newVersion=true`,
         },
-        {
-            'name': 'Confirmation PIC Payroll',
-            'data': confirm_payroll,
-            'link': `&process=3&payroll=true`,
-        },
+        // {
+        //     'name': 'Confirmation PIC Payroll',
+        //     'data': confirm_payroll,
+        //     'link': `&process=3&payroll=true`,
+        // },
         {
             'name': 'Employee Return Document',
             'data': employee_return_document,
@@ -89,19 +95,22 @@ const NotificationDropdown = ({ data, text }) => {
         //     'link': `&process=4`,
         // },
         {
-            'name': 'Exit Clearance Confirmed by SVP',
+            'name': 'Exit Clearance Confirmed by Line Manager',
             'data': return_to_svp,
             'link': `&process=5`,
+            read:true,
         },
         {
             'name': 'Exit Clearance Confirmed by HR Shared Service (Soft File)',
             'data': return_to_hrss_doc,
             'link': `&process=5`,
+            read:true,
         },
         {
             'name': 'Exit Clearance Confirmed by HR Shared Service (IT)',
             'data': return_to_hrss_it,
             'link': `&process=5`,
+            read:true,
         },
         // {
         //     'name': 'PL,Paklaring',
@@ -110,7 +119,7 @@ const NotificationDropdown = ({ data, text }) => {
         //     'noNeed': true,
         // },
         {
-            'name': 'Acc HRBP Manager',
+            'name': 'Known by HRBP Manager',
             'data': acc_hrbp_mgr,
             'link': `&approval=hrmgr`,
         },
@@ -150,7 +159,7 @@ const NotificationDropdown = ({ data, text }) => {
                     // alert(text)
                 }}
             >
-                {text != null? text : <i className="fas fa-ellipsis-v"></i>}
+                {text != null ? text : <i className="fas fa-ellipsis-v"></i>}
             </a>
             <div
                 ref={popoverDropdownRef}
@@ -161,12 +170,33 @@ const NotificationDropdown = ({ data, text }) => {
             >
                 <ul className="text-xs">
                     {dataCheckpoint.map((item, i) => (
-                        <li> {parseInt(item.data) == 1 ?
-                            <i className="fas fa-check text-green-600"></i> :
-                            parseInt(item.data) == 0 ?
-                                <i className="fas fa-times text-red-600"></i> :
-                                <i className="animate-spin fas fa-spinner text-gray-800"></i>
-                        } | {item.name}</li>
+                        <li key={i}>
+                            {
+                                parseInt(item.data) == 4 &&
+                                <i className="fas fa-edit text-yellow-600"></i>
+                            }
+                            {
+                                parseInt(item.data) == 3 &&
+                                <i className="fas fa-envelope-open text-yellow-600"></i>
+                            }
+                            {
+                                parseInt(item.data) == 2 &&
+                                <i className="fas fa-envelope text-blue-600"></i>
+                            }
+                            {
+                                parseInt(item.data) == 1 ?
+                                    <i className="fas fa-check text-green-600"></i> :
+
+                                    parseInt(item.data) == 0 && item?.read ?
+                                        <i class="fas fa-edit text-yellow-600"></i>
+                                        :
+                                        parseInt(item.data) == 0 ?
+                                            <i className="fas fa-times text-red-600"></i> :
+                                            item.data == null &&
+                                            <i className="animate-spin fas fa-spinner text-gray-800"></i>
+                            }
+                            <span className="ml-2">| {item.name}</span>
+                        </li>
                     ))}
                 </ul>
                 {/* <a

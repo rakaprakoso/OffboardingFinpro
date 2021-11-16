@@ -32,10 +32,13 @@
         Nama : <strong>{{ $offboardingData->employee->name }}</strong><br>
         NIK : <strong>{{ $offboardingData->employee->nik }}</strong><br>
         Tanggal Berhenti : <strong>{{ $offboardingData->effective_date }}</strong><br>
+        @if (isset($options))
+        Kode Input : <strong>{{ $options }}</strong>   <br>
+        @endif
         Silahkan konfirmasi melalui lini dibawah ini :
     @endsection
     @section('url')
-        "{{ config('app.url') }}/offboarding/{{ $offboardingData->id }}/?token={{ $offboardingData->token }}&process=5"
+        "{{ config('app.url') }}/offboarding/{{ $offboardingData->id }}/?token={{ $offboardingData->token }}&process=5&inputToken={{ isset($options) ? $options : null }}"
     @endsection
     @section('cta')
         Konfirmasi
@@ -86,5 +89,21 @@
         Nama : <strong>{{ $offboardingData->employee->name }}</strong><br>
         NIK : <strong>{{ $offboardingData->employee->nik }}</strong><br>
         Karena proses offboarding sudah selesai
+    @endsection
+@elseif ($type == 6)
+    @section('title')
+        {{ $subject }}
+    @endsection
+    @section('recipient')
+    {{ $offboardingData->employee->name }}
+    @endsection
+    @section('message')
+       Silahkan cek pada dashboard offboarding anda. Terdapat komentar dan catatan terkait proses keluar anda.
+    @endsection
+    @section('url')
+        "{{ config('app.url') }}/offboarding/employee/{{ $offboardingData->id }}/?token={{ $offboardingData->employee_token }}"
+    @endsection
+    @section('cta')
+        Lihat Data
     @endsection
 @endif

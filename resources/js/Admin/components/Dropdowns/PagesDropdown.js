@@ -37,7 +37,7 @@ const PagesDropdown = ({ data }) => {
                 }
             >
                 {data && data.map((item, i) => (
-                    <>
+                    <div key={i} >
                         <span
                             className={
                                 "text-sm pt-2 pb-0 px-4 font-bold block w-full whitespace-nowrap bg-transparent text-blueGray-400"
@@ -45,8 +45,9 @@ const PagesDropdown = ({ data }) => {
                         >
                             {item.name}
                         </span>
-                        {item.children && item.children.map((item2, i) => (
+                        {item.children && item.children.map((item2, j) => (
                             <Link
+                                key={j}
                                 to={item2.path}
                                 className={
                                     "text-sm py-2 px-4 font-normal block w-full whitespace-nowrap bg-transparent text-blueGray-700"
@@ -56,7 +57,7 @@ const PagesDropdown = ({ data }) => {
                             </Link>
                         ))}
                         {i != data.length - 1 ? <div className="h-0 mx-4 my-2 border border-solid border-blueGray-100" /> : null}
-                    </>
+                    </div>
                 ))}
             </div>
         </>

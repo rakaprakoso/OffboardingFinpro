@@ -121,18 +121,10 @@ const OffboardingEmployee = ({ HRMGR = false }) => {
 
     }, []);
 
-    const ConfirmSchema = employee == false ?
-        Yup.object().shape({
-            managerID: Yup.string()
-                .required('Required'),
-            status: Yup.string()
-                .required('Required'),
-            effectiveDate: Yup.date('Invalid Date').required('Required'),
-        })
-        : Yup.object().shape({
-            status: Yup.string()
-                .required('Required')
-        })
+    const ConfirmSchema = Yup.object().shape({
+        status: Yup.string()
+            .required('Required')
+    })
 
     const question = [
         {
@@ -313,198 +305,135 @@ const OffboardingEmployee = ({ HRMGR = false }) => {
                     data &&
                     <div className="row employee">
                         <div className="col-lg-12">
-                        <StatusProgress data={data}/>
+                            <StatusProgress data={data} />
                         </div>
                         <div className="col-lg-12">
-                            <Tabs>
-                                <TabList>
-                                    <Tab>Overview</Tab>
-                                    <Tab>
-                                        Exit Interview Form
-                                        {data?.checkpoint?.exit_interview == 1 ? <i className="ml-2 fas fa-check text-green-600"></i> : <i className="animate-spin ml-2 fas fa-spinner text-gray-800"></i>}
-                                    </Tab>
-                                    {/* <Tab>Surat Pengalihan Pekerjaan</Tab> */}
-                                    {/* <Tab>Form Perubahan No Telfon</Tab> */}
-                                    {HRMGR != true ?
-                                        <Tab disabled={data?.checkpoint?.confirm_it != 1 ? true : false}>
-                                            Form Pengembalian Barang
-                                            {data?.checkpoint?.return_to_svp == 1 ? <i className="ml-2 fas fa-check text-green-600"></i> : <i className="animate-spin ml-2 fas fa-spinner text-gray-800"></i>}
-                                            {data?.checkpoint?.return_to_hrss_doc == 1 ? <i className="ml-2 fas fa-check text-green-600"></i> : <i className="animate-spin ml-2 fas fa-spinner text-gray-800"></i>}
-                                            {data?.checkpoint?.return_to_hrss_it == 1 ? <i className="ml-2 fas fa-check text-green-600"></i> : <i className="animate-spin ml-2 fas fa-spinner text-gray-800"></i>}
-                                        </Tab>
-                                        : null
-                                    }
-                                    {/* <Tab>Form Lampiran Departemen Lain</Tab> */}
-                                </TabList>
-
-                                <TabPanel>
-                                    <div className="row">
-                                        <div className="col-lg-12">
-                                            <CardEmployee data={data} visibility={tracking} />
-                                        </div>
-                                        <div className="col-lg-6">
-                                            {data && <CardComment data={data?.comments} />}
-                                        </div>
-                                        <div className="col-lg-6">
-                                            {data && <CardProgressRecord data={data?.progress_record} />}
-                                        </div>
+                            {data && (parseInt(data.status_id) < 2 && data.checkpoint.acc_employee == null) &&
+                                <div className="row">
+                                    <div className="col-lg-6">
+                                        <CardEmployee data={data} visibility={false} />
                                     </div>
-                                </TabPanel>
-                                <TabPanel>
-                                    <Formik
-                                        initialValues={{
-                                            // type: 'confirmation',
-                                            // confirmation: false,
-                                            dept: '',
-                                            otherActivity: '',
-                                            comment: data?.offboarding_form?.exit_interview_form?.additional_comment,
-                                            message: '',
-                                            accept: false,
-                                            completed: false,
-                                            items: question,
-                                        }}
-                                        validationSchema={ConfirmDocument}
-                                        onSubmit={async (values) => {
-                                            // alert(JSON.stringify(values))
-                                            setIsOpen(true);
-                                            const formData = new FormData();
-                                            formData.append('offboardingID', id);
-                                            formData.append('type', 'exit_interview_form');
-                                            formData.append('data', JSON.stringify(values));
-                                            // formData.append("message", values.message);
-                                            // formData.append('confirmation', values.confirmation);
-                                            // formData.append("completed", values.completed);
-                                            // formData.append('type', 4);
-                                            const res = await axios.post('/api/offboardingForm', formData, {
-                                                headers: {
-                                                    'Content-Type': 'multipart/form-data'
-                                                }
-                                            }).then(response => {
-                                                console.log(response)
-                                                return response
-                                            }).catch(error => {
-                                                // console.log(error.response)
-                                                // setSubmitted(true)
-                                                return error.response
-                                            });
-                                            console.log(res.data);
-                                            if (res.status == '200') {
+                                    <div className="col-lg-6">
+                                        <h2 className="text-xl font-bold">Employee Approval to Continue Resignation</h2>
+                                        <hr className="mb-5 mt-3" />
+                                        <Formik
+                                            initialValues={{
+                                                managerID: '',
+                                                effectiveDate: data.effective_date,
+                                                status: '',
+                                            }}
+                                            validationSchema={ConfirmSchema}
+                                            onSubmit={async (values) => {
+                                                setIsOpen(true);
+                                                const formData = new FormData();
+                                                formData.append('offboardingID', id);
+                                                formData.append('employee', 1);
+                                                formData.append('status', values.status);
+
+                                                formData.append('process_type', 2);
+                                                const res = await axios.post('/api/managerconfirmation', formData, {
+                                                    headers: {
+                                                        'Content-Type': 'multipart/form-data'
+                                                    }
+                                                });
+                                                console.log(res.data);
                                                 setSubmitted(true)
-                                            } else {
-                                                setSubmitted(false)
-                                            }
-                                        }}
-                                        render={({ values, errors, touched, setFieldValue }) => (
-                                            <Form autocomplete="off">
-                                                <fieldset disabled={disabled}>
-                                                    <h2 className="text-3xl font-bold mt-5">FORMULIR WAWANCARA PENGUNDURAN DIRI</h2>
-                                                    <p className="text-justify">Pendapat Anda selama bekerja di PT Indosat, Tbk. sangat penting dalam upaya untuk memelihara lingkungan kerja yang positif. Kami pastikan masukan Anda yang berharga ini akan dijaga kerahasiaannya. Untuk itu, mohon dapat memberikan jawaban yang lengkap, jelas dan jujur.</p>
-                                                    <FieldArray
-                                                        name="items"
-                                                        render={arrayHelpers => (
-                                                            <div>
-                                                                {values.items && values.items.length > 0 ? (
-                                                                    values.items.map((item, index) => (
-                                                                        <>
-                                                                            {item?.pretext != null && index != 0 ?
-                                                                                <h3 className="text-xl font-bold border-t border-gray-300 pt-5">{item.pretext}</h3> : null}
-                                                                            {item.type == 'text' ?
-                                                                                <div>
-                                                                                    <label htmlFor={`items.${index}.value`}>{item.question}</label>
-                                                                                    <Field id={`items.${index}`} name={`items.${index}.value`} placeholder={item.value} />
-                                                                                </div>
-                                                                                : item.type == 'radio' ?
-                                                                                    <div key={index}>
-                                                                                        <label htmlFor={`items.${index}`}>{item.question}</label>
-                                                                                        <div className="flex w-full mt-2 mb-4">
-                                                                                            <span className="mr-3 text-base leading-none">Hampir Selalu</span>
-                                                                                            <label className="flex-grow mx-4 my-0 py-2 text-center cursor-pointer"><Field type="radio" className="mr-auto my-0" name={`items.${index}.value`} value="1" checked={item?.value == '1' ? true : false} /></label>
-                                                                                            <label className="flex-grow mx-4 my-0 py-2 text-center cursor-pointer"><Field type="radio" className="mx-auto my-0" name={`items.${index}.value`} value="2" checked={item?.value == '2' ? true : false} /></label>
-                                                                                            <label className="flex-grow mx-4 my-0 py-2 text-center cursor-pointer"><Field type="radio" className="mx-auto my-0" name={`items.${index}.value`} value="3" checked={item?.value == '3' ? true : false} /></label>
-                                                                                            <label className="flex-grow mx-4 my-0 py-2 text-center cursor-pointer"><Field type="radio" className="mx-auto my-0" name={`items.${index}.value`} value="4" checked={item?.value == '4' ? true : false} /></label>
-                                                                                            <label className="flex-grow mx-4 my-0 py-2 text-center cursor-pointer"><Field type="radio" className="ml-auto my-0" name={`items.${index}.value`} value="5" checked={item?.value == '5' ? true : false} /></label>
-                                                                                            <span className="ml-3 text-base leading-none">Tidak Pernah</span>
-                                                                                        </div>
-                                                                                    </div>
-                                                                                    :
-                                                                                    <div key={index}>
-                                                                                        <label htmlFor={`items.${index}`}>{item.question}</label>
-                                                                                        <div className="w-full mt-2 mb-4">
-                                                                                            <div>
-                                                                                                <Field type="radio" className="mr-2 my-0" name={`items.${index}.value`} value="1" />
-                                                                                                Bekerja di perusahaan lain
-                                                                                            </div>
-                                                                                            <div>
-                                                                                                <Field type="radio" className="mr-2 my-0" name={`items.${index}.value`} value="2" />
-                                                                                                Wirausaha/wiraswasta
-                                                                                            </div>
-                                                                                            <div>
-                                                                                                <Field type="radio" className="mr-2 my-0" name={`items.${index}.value`} value="3" />
-                                                                                                Lain-Lain
-                                                                                                {values.items[values.items.length - 1].value == "3" ?
-                                                                                                    <div>
-                                                                                                        <label htmlFor="otherActivity">Kegiatan Lainnya</label>
-                                                                                                        <Field id="otherActivity" name="otherActivity" placeholder="Kegiatan Lainnya" />
-                                                                                                    </div> : null
-                                                                                                }
-                                                                                            </div>
-                                                                                        </div>
-                                                                                    </div>
-                                                                            }
-                                                                        </>
-                                                                    ))
-                                                                ) : (
-                                                                    null
-                                                                )}
-                                                            </div>
-                                                        )}
-                                                    />
-
-                                                    <div className="border-t border-gray-300 pt-2">
-                                                        <label className="text-xl font-bold" htmlFor="comment">Komentar tambahan</label>
-                                                        <Field id="comment" name="comment" placeholder="Komentar tambahan" />
-                                                    </div>
-
-                                                    {data?.checkpoint?.exit_interview != 1 && <>
-                                                        <label className="mb-4 block bg-gray-100 p-3 rounded">
-                                                            <Field type="checkbox" name="accept" className="my-0 mr-2" />
-                                                            Approve Data
-                                                            {errors.accept
-                                                                // && touched.accept
-                                                                ? (
-                                                                    <div className="text-red-600 text-sm">{errors.accept}</div>
-                                                                ) : null}
+                                            }}
+                                        >
+                                            {({ values, errors, touched, setFieldValue }) => (
+                                                <Form>
+                                                    <div role="group" className="mb-4 flex -mx-4" aria-labelledby="status-radio-group">
+                                                        <label className="border rounded mx-4 flex-grow text-center cursor-pointer border-green-600">
+                                                            <Field type="radio" name="status" value="1" className="my-2 mr-2 hidden" />
+                                                            <div className="p-2 label-checked:bg-green-600 label-checked:text-white">Accept</div>
                                                         </label>
-                                                        {values.accept &&
-                                                            <button type="submit" className="bg-primary text-white p-3 text-lg uppercase">Submit</button>
-                                                        }
-                                                    </>}
-                                                </fieldset>
-                                            </Form>
-                                        )}
-                                    />
-                                </TabPanel>
-                                {/* <TabPanel>
-                                    <h2>Pengalihan Pekerjaan</h2>
-                                </TabPanel> */}
-                                {/* <TabPanel>
-                                    <h2>Form Perubahan No Telfon</h2>
-                                </TabPanel> */}
-                                {HRMGR != true ?
+                                                        <label className="border rounded mx-4 flex-grow text-center cursor-pointer border-red-600">
+                                                            <Field type="radio" name="status" value="0" className="my-2 mr-2 hidden" />
+                                                            <div className="p-2 label-checked:bg-red-600 label-checked:text-white">Reject</div>
+                                                        </label>
+                                                    </div>
+                                                    {errors.status && touched.status ? (
+                                                        <div className="-mt-4 mb-4 text-red-600 text-center">{errors.status}</div>
+                                                    ) : null}
+                                                    <button type="submit" className="bg-primary text-white p-3 text-lg uppercase">Submit</button>
+                                                </Form>
+                                            )}
+                                        </Formik>
+
+                                    </div>
+                                </div>
+                            }
+                            {data && parseInt(data.status_id) == 1 && data.checkpoint.acc_employee == 1 && data.checkpoint.acc_svp == null &&
+                                "Please wait until SVP approve your resigning process. We'll inform you shortly through email!"
+                            }
+                            {data && parseInt(data.status_id) > 2 && data.checkpoint.acc_employee == 1 && data.checkpoint.acc_svp == 1 &&
+                                <Tabs>
+                                    <TabList>
+                                        <Tab>Overview</Tab>
+                                        <Tab>
+                                            Exit Interview Form
+                                            {data?.checkpoint?.exit_interview == 1 ? <i className="ml-2 fas fa-check text-green-600"></i> : <i className="animate-spin ml-2 fas fa-spinner text-gray-800"></i>}
+                                        </Tab>
+                                        {/* <Tab>Surat Pengalihan Pekerjaan</Tab> */}
+                                        {/* <Tab>Form Perubahan No Telfon</Tab> */}
+                                        {HRMGR != true ?
+                                            <Tab disabled={data?.checkpoint?.confirm_it != 1 ? true : false}>
+                                                Form Pengembalian Barang
+                                                {
+                                                    data?.checkpoint?.return_to_svp == 1 ?
+                                                        <i className="ml-2 fas fa-check text-green-600"></i>
+                                                        : data?.checkpoint?.return_to_svp == 0 ?
+                                                            <i class="fas fa-edit text-yellow-600"></i>
+                                                            :
+                                                            <i className="animate-spin ml-2 fas fa-spinner text-gray-800"></i>
+                                                }
+                                                {
+                                                    data?.checkpoint?.return_to_hrss_doc == 1 ?
+                                                        <i className="ml-2 fas fa-check text-green-600"></i>
+                                                        : data?.checkpoint?.return_to_hrss_doc == 0 ?
+                                                            <i class="fas fa-edit text-yellow-600"></i>
+                                                            :
+                                                            <i className="animate-spin ml-2 fas fa-spinner text-gray-800"></i>
+                                                }
+                                                {
+                                                    data?.checkpoint?.return_to_hrss_it == 1 ?
+                                                        <i className="ml-2 fas fa-check text-green-600"></i>
+                                                        : data?.checkpoint?.return_to_hrss_it == 0 ?
+                                                            <i class="fas fa-edit text-yellow-600 ml-2"></i>
+                                                            :
+                                                            <i className="animate-spin ml-2 fas fa-spinner text-gray-800"></i>
+                                                }
+                                            </Tab>
+                                            : null
+                                        }
+                                        {/* <Tab>Form Lampiran Departemen Lain</Tab> */}
+                                    </TabList>
+
+                                    <TabPanel>
+                                        <div className="row">
+                                            <div className="col-lg-12">
+                                                <CardEmployee data={data} visibility={tracking} />
+                                            </div>
+                                            <div className="col-lg-6">
+                                                {data && <CardComment data={data?.comments} />}
+                                            </div>
+                                            <div className="col-lg-6">
+                                                {data && <CardProgressRecord data={data?.progress_record} />}
+                                            </div>
+                                        </div>
+                                    </TabPanel>
                                     <TabPanel>
                                         <Formik
                                             initialValues={{
                                                 // type: 'confirmation',
                                                 // confirmation: false,
-                                                type: data?.offboarding_form?.return_document_form?.return_type?.type,
-                                                resi: '',
-                                                comment: data?.offboarding_form?.return_document_form?.additional_comment,
+                                                dept: '',
+                                                otherActivity: data?.offboarding_form?.exit_interview_form?.other_activity,
+                                                comment: data?.offboarding_form?.exit_interview_form?.additional_comment,
                                                 message: '',
                                                 accept: false,
                                                 completed: false,
-                                                // dept: '',
-                                                items: clearanceQuestion,
-                                                itemOnline: clearanceOnlineQuestion,
+                                                items: question,
                                             }}
                                             validationSchema={ConfirmDocument}
                                             onSubmit={async (values) => {
@@ -512,9 +441,12 @@ const OffboardingEmployee = ({ HRMGR = false }) => {
                                                 setIsOpen(true);
                                                 const formData = new FormData();
                                                 formData.append('offboardingID', id);
-                                                formData.append('type', 'return_document');
-                                                formData.append('returnType', values.type);
+                                                formData.append('type', 'exit_interview_form');
                                                 formData.append('data', JSON.stringify(values));
+                                                // formData.append("message", values.message);
+                                                // formData.append('confirmation', values.confirmation);
+                                                // formData.append("completed", values.completed);
+                                                // formData.append('type', 4);
                                                 const res = await axios.post('/api/offboardingForm', formData, {
                                                     headers: {
                                                         'Content-Type': 'multipart/form-data'
@@ -536,18 +468,9 @@ const OffboardingEmployee = ({ HRMGR = false }) => {
                                             }}
                                             render={({ values, errors, touched, setFieldValue }) => (
                                                 <Form autocomplete="off">
-                                                    <fieldset disabled={clearanceStatus}>
-                                                        <h2 className="text-3xl font-bold mt-5">FORMULIR PENGEMBALIAN BARANG</h2>
-                                                        <p className="text-justify">Pada aplikasi ini saudara diminta untuk mengupload scan / soft copy dari dokumen yang terlah dikirimkan lengkap beserta nomor resi pengiriman dokumen dan perangkat IT</p>
-                                                        <label htmlFor="type">Type</label>
-                                                        <Field as="select" name="type">
-                                                            <option value="" disabled>Select Type</option>
-                                                            <option value="online" selected={data?.offboarding_form?.return_document_form?.return_type?.type == 'online' ? true : false}>Online</option>
-                                                            <option value="offline" selected={data?.offboarding_form?.return_document_form?.return_type?.type == 'offline' ? true : false}>Offline</option>
-                                                        </Field>
-                                                        {errors.type && touched.type ? (
-                                                            <div className="-mt-4 mb-4 text-red-600 text-sm">{errors.type}</div>
-                                                        ) : null}
+                                                    <fieldset disabled={disabled}>
+                                                        <h2 className="text-3xl font-bold mt-5">FORMULIR WAWANCARA PENGUNDURAN DIRI</h2>
+                                                        <p className="text-justify">Pendapat Anda selama bekerja di PT Indosat, Tbk. sangat penting dalam upaya untuk memelihara lingkungan kerja yang positif. Kami pastikan masukan Anda yang berharga ini akan dijaga kerahasiaannya. Untuk itu, mohon dapat memberikan jawaban yang lengkap, jelas dan jujur.</p>
                                                         <FieldArray
                                                             name="items"
                                                             render={arrayHelpers => (
@@ -567,51 +490,38 @@ const OffboardingEmployee = ({ HRMGR = false }) => {
                                                                                             <label htmlFor={`items.${index}`}>{item.question}</label>
                                                                                             <div className="flex w-full mt-2 mb-4">
                                                                                                 <span className="mr-3 text-base leading-none">Hampir Selalu</span>
-                                                                                                <Field type="radio" className="mr-auto my-0" name={`items.${index}.value`} value="1" />
-                                                                                                <Field type="radio" className="mx-auto my-0" name={`items.${index}.value`} value="2" />
-                                                                                                <Field type="radio" className="mx-auto my-0" name={`items.${index}.value`} value="3" />
-                                                                                                <Field type="radio" className="mx-auto my-0" name={`items.${index}.value`} value="4" />
-                                                                                                <Field type="radio" className="ml-auto my-0" name={`items.${index}.value`} value="5" />
+                                                                                                <label className="flex-grow mx-4 my-0 py-2 text-center cursor-pointer"><Field type="radio" className="mr-auto my-0" name={`items.${index}.value`} value="1" checked={item?.value == '1' ? true : false} /></label>
+                                                                                                <label className="flex-grow mx-4 my-0 py-2 text-center cursor-pointer"><Field type="radio" className="mx-auto my-0" name={`items.${index}.value`} value="2" checked={item?.value == '2' ? true : false} /></label>
+                                                                                                <label className="flex-grow mx-4 my-0 py-2 text-center cursor-pointer"><Field type="radio" className="mx-auto my-0" name={`items.${index}.value`} value="3" checked={item?.value == '3' ? true : false} /></label>
+                                                                                                <label className="flex-grow mx-4 my-0 py-2 text-center cursor-pointer"><Field type="radio" className="mx-auto my-0" name={`items.${index}.value`} value="4" checked={item?.value == '4' ? true : false} /></label>
+                                                                                                <label className="flex-grow mx-4 my-0 py-2 text-center cursor-pointer"><Field type="radio" className="ml-auto my-0" name={`items.${index}.value`} value="5" checked={item?.value == '5' ? true : false} /></label>
                                                                                                 <span className="ml-3 text-base leading-none">Tidak Pernah</span>
                                                                                             </div>
                                                                                         </div>
-                                                                                        : item.type == 'checkbox' ?
-                                                                                            <div key={index}>
-                                                                                                {item.question.map((item2, index2) => (
-                                                                                                    <>
-                                                                                                        <div className="flex w-full mt-2 mb-4">
-                                                                                                            <div>
-                                                                                                                <Field type="checkbox" className="mr-2 my-0" name={`items.${index}.value.${index2}`} value="1" />
-                                                                                                                {item2}
-                                                                                                            </div>
-                                                                                                        </div>
-                                                                                                    </>
-                                                                                                ))}
-                                                                                            </div>
-                                                                                            :
-                                                                                            <div key={index}>
-                                                                                                <label htmlFor={`items.${index}`}>{item.question}</label>
-                                                                                                <div className="w-full mt-2 mb-4">
-                                                                                                    <div>
-                                                                                                        <Field type="radio" className="mr-2 my-0" name={`items.${index}.value`} value="1" />
-                                                                                                        Bekerja di perusahaan lain
-                                                                                                    </div>
-                                                                                                    <div>
-                                                                                                        <Field type="radio" className="mr-2 my-0" name={`items.${index}.value`} value="2" />
-                                                                                                        Wirausaha/wiraswasta
-                                                                                                    </div>
-                                                                                                    <div>
-                                                                                                        <Field type="radio" className="mr-2 my-0" name={`items.${index}.value`} value="3" />
-                                                                                                        Lain-Lain
-                                                                                                        {values.items[values.items.length - 1].value == "3" ?
-                                                                                                            <div>
-                                                                                                                <label htmlFor="otherActivity">Kegiatan Lainnya</label>
-                                                                                                                <Field id="otherActivity" name="otherActivity" placeholder="Kegiatan Lainnya" />
-                                                                                                            </div> : null
-                                                                                                        }
-                                                                                                    </div>
+                                                                                        :
+                                                                                        <div key={index}>
+                                                                                            <label htmlFor={`items.${index}`}>{item.question}</label>
+                                                                                            <div className="w-full mt-2 mb-4">
+                                                                                                <div>
+                                                                                                    <Field type="radio" className="mr-2 my-0" name={`items.${index}.value`} value="1" />
+                                                                                                    Bekerja di perusahaan lain
+                                                                                                </div>
+                                                                                                <div>
+                                                                                                    <Field type="radio" className="mr-2 my-0" name={`items.${index}.value`} value="2" />
+                                                                                                    Wirausaha/wiraswasta
+                                                                                                </div>
+                                                                                                <div>
+                                                                                                    <Field type="radio" className="mr-2 my-0" name={`items.${index}.value`} value="3" />
+                                                                                                    Lain-Lain
+                                                                                                    {values.items[values.items.length - 1].value == "3" ?
+                                                                                                        <div>
+                                                                                                            <label htmlFor="otherActivity">Kegiatan Lainnya</label>
+                                                                                                            <Field id="otherActivity" name="otherActivity" placeholder="Kegiatan Lainnya" />
+                                                                                                        </div> : null
+                                                                                                    }
                                                                                                 </div>
                                                                                             </div>
+                                                                                        </div>
                                                                                 }
                                                                             </>
                                                                         ))
@@ -621,58 +531,220 @@ const OffboardingEmployee = ({ HRMGR = false }) => {
                                                                 </div>
                                                             )}
                                                         />
-                                                        {values.type == 'online' ?
+
+                                                        <div className="border-t border-gray-300 pt-2">
+                                                            <label className="text-xl font-bold" htmlFor="comment">Komentar tambahan</label>
+                                                            <Field id="comment" name="comment" placeholder="Komentar tambahan" />
+                                                        </div>
+
+                                                        {data?.checkpoint?.exit_interview != 1 && <>
+                                                            <label className="mb-4 block bg-gray-100 p-3 rounded">
+                                                                <Field type="checkbox" name="accept" className="my-0 mr-2" />
+                                                                Confirmation Data
+                                                                {errors.accept
+                                                                    && touched.accept
+                                                                    ? (
+                                                                        <div className="text-red-600 text-sm">{errors.accept}</div>
+                                                                    ) : null}
+                                                            </label>
+                                                            {values.accept &&
+                                                                <button type="submit" className="bg-primary text-white p-3 text-lg uppercase">Submit</button>
+                                                            }
+                                                        </>}
+                                                    </fieldset>
+                                                </Form>
+                                            )}
+                                        />
+                                    </TabPanel>
+                                    {/* <TabPanel>
+                                    <h2>Pengalihan Pekerjaan</h2>
+                                </TabPanel> */}
+                                    {/* <TabPanel>
+                                    <h2>Form Perubahan No Telfon</h2>
+                                </TabPanel> */}
+                                    {HRMGR != true ?
+                                        <TabPanel>
+                                            <Formik
+                                                initialValues={{
+                                                    // type: 'confirmation',
+                                                    // confirmation: false,
+                                                    type: data?.offboarding_form?.return_document_form?.return_type?.type,
+                                                    resi: '',
+                                                    comment: data?.offboarding_form?.return_document_form?.additional_comment,
+                                                    message: '',
+                                                    accept: false,
+                                                    completed: false,
+                                                    // dept: '',
+                                                    items: clearanceQuestion,
+                                                    itemOnline: clearanceOnlineQuestion,
+                                                }}
+                                                validationSchema={ConfirmDocument}
+                                                onSubmit={async (values) => {
+                                                    // alert(JSON.stringify(values))
+                                                    setIsOpen(true);
+                                                    const formData = new FormData();
+                                                    formData.append('offboardingID', id);
+                                                    formData.append('type', 'return_document');
+                                                    formData.append('returnType', values.type);
+                                                    formData.append('data', JSON.stringify(values));
+                                                    const res = await axios.post('/api/offboardingForm', formData, {
+                                                        headers: {
+                                                            'Content-Type': 'multipart/form-data'
+                                                        }
+                                                    }).then(response => {
+                                                        console.log(response)
+                                                        return response
+                                                    }).catch(error => {
+                                                        // console.log(error.response)
+                                                        // setSubmitted(true)
+                                                        return error.response
+                                                    });
+                                                    console.log(res.data);
+                                                    if (res.status == '200') {
+                                                        setSubmitted(true)
+                                                    } else {
+                                                        setSubmitted(false)
+                                                    }
+                                                }}
+                                                render={({ values, errors, touched, setFieldValue }) => (
+                                                    <Form autocomplete="off">
+                                                        <fieldset disabled={clearanceStatus}>
+                                                            <h2 className="text-3xl font-bold mt-5">FORMULIR PENGEMBALIAN BARANG</h2>
+                                                            <p className="text-justify">Pada aplikasi ini saudara diminta untuk mengupload scan / soft copy dari dokumen yang terlah dikirimkan lengkap beserta nomor resi pengiriman dokumen dan perangkat IT</p>
+                                                            <label htmlFor="type">Type</label>
+                                                            <Field as="select" name="type">
+                                                                <option value="" disabled selected={data?.offboarding_form?.return_document_form?.return_type?.type == null ? true : false}>Select Type</option>
+                                                                <option value="online" selected={data?.offboarding_form?.return_document_form?.return_type?.type == 'online' ? true : false}>Online</option>
+                                                                <option value="offline" selected={data?.offboarding_form?.return_document_form?.return_type?.type == 'offline' ? true : false}>Offline</option>
+                                                            </Field>
+                                                            {errors.type && touched.type ? (
+                                                                <div className="-mt-4 mb-4 text-red-600 text-sm">{errors.type}</div>
+                                                            ) : null}
                                                             <FieldArray
-                                                                name="itemOnline"
+                                                                name="items"
                                                                 render={arrayHelpers => (
                                                                     <div>
-                                                                        {values.itemOnline && values.itemOnline.length > 0 ? (
-                                                                            values.itemOnline.map((item, index) => (
-                                                                                <div>
-                                                                                    <label htmlFor={`itemOnline.${index}.value`}>{item.question}</label>
-                                                                                    <Field id={`itemOnline.${index}`} name={`itemOnline.${index}.value`} placeholder={item.value} />
-                                                                                </div>
+                                                                        {values.items && values.items.length > 0 ? (
+                                                                            values.items.map((item, index) => (
+                                                                                <>
+                                                                                    {item?.pretext != null && index != 0 ?
+                                                                                        <h3 className="text-xl font-bold border-t border-gray-300 pt-5">{item.pretext}</h3> : null}
+                                                                                    {item.type == 'text' ?
+                                                                                        <div>
+                                                                                            <label htmlFor={`items.${index}.value`}>{item.question}</label>
+                                                                                            <Field id={`items.${index}`} name={`items.${index}.value`} placeholder={item.value} />
+                                                                                        </div>
+                                                                                        : item.type == 'radio' ?
+                                                                                            <div key={index}>
+                                                                                                <label htmlFor={`items.${index}`}>{item.question}</label>
+                                                                                                <div className="flex w-full mt-2 mb-4">
+                                                                                                    <span className="mr-3 text-base leading-none">Hampir Selalu</span>
+                                                                                                    <Field type="radio" className="mr-auto my-0" name={`items.${index}.value`} value="1" />
+                                                                                                    <Field type="radio" className="mx-auto my-0" name={`items.${index}.value`} value="2" />
+                                                                                                    <Field type="radio" className="mx-auto my-0" name={`items.${index}.value`} value="3" />
+                                                                                                    <Field type="radio" className="mx-auto my-0" name={`items.${index}.value`} value="4" />
+                                                                                                    <Field type="radio" className="ml-auto my-0" name={`items.${index}.value`} value="5" />
+                                                                                                    <span className="ml-3 text-base leading-none">Tidak Pernah</span>
+                                                                                                </div>
+                                                                                            </div>
+                                                                                            : item.type == 'checkbox' ?
+                                                                                                <div key={index}>
+                                                                                                    {item.question.map((item2, index2) => (
+                                                                                                        <>
+                                                                                                            <div className="flex w-full mt-2 mb-4">
+                                                                                                                <div>
+                                                                                                                    <Field type="checkbox" className="mr-2 my-0" name={`items.${index}.value.${index2}`} value="1" />
+                                                                                                                    {item2}
+                                                                                                                </div>
+                                                                                                            </div>
+                                                                                                        </>
+                                                                                                    ))}
+                                                                                                </div>
+                                                                                                :
+                                                                                                <div key={index}>
+                                                                                                    <label htmlFor={`items.${index}`}>{item.question}</label>
+                                                                                                    <div className="w-full mt-2 mb-4">
+                                                                                                        <div>
+                                                                                                            <Field type="radio" className="mr-2 my-0" name={`items.${index}.value`} value="1" />
+                                                                                                            Bekerja di perusahaan lain
+                                                                                                        </div>
+                                                                                                        <div>
+                                                                                                            <Field type="radio" className="mr-2 my-0" name={`items.${index}.value`} value="2" />
+                                                                                                            Wirausaha/wiraswasta
+                                                                                                        </div>
+                                                                                                        <div>
+                                                                                                            <Field type="radio" className="mr-2 my-0" name={`items.${index}.value`} value="3" />
+                                                                                                            Lain-Lain
+                                                                                                            {values.items[values.items.length - 1].value == "3" ?
+                                                                                                                <div>
+                                                                                                                    <label htmlFor="otherActivity">Kegiatan Lainnya</label>
+                                                                                                                    <Field id="otherActivity" name="otherActivity" placeholder="Kegiatan Lainnya" />
+                                                                                                                </div> : null
+                                                                                                            }
+                                                                                                        </div>
+                                                                                                    </div>
+                                                                                                </div>
+                                                                                    }
+                                                                                </>
                                                                             ))
                                                                         ) : (
                                                                             null
                                                                         )}
                                                                     </div>
                                                                 )}
-                                                            /> : null
-                                                        }
+                                                            />
+                                                            {values.type == 'online' ?
+                                                                <FieldArray
+                                                                    name="itemOnline"
+                                                                    render={arrayHelpers => (
+                                                                        <div>
+                                                                            {values.itemOnline && values.itemOnline.length > 0 ? (
+                                                                                values.itemOnline.map((item, index) => (
+                                                                                    <div>
+                                                                                        <label htmlFor={`itemOnline.${index}.value`}>{item.question}</label>
+                                                                                        <Field id={`itemOnline.${index}`} name={`itemOnline.${index}.value`} placeholder={item.value} />
+                                                                                    </div>
+                                                                                ))
+                                                                            ) : (
+                                                                                null
+                                                                            )}
+                                                                        </div>
+                                                                    )}
+                                                                /> : null
+                                                            }
 
-                                                        <div className="border-t border-gray-300 pt-2">
-                                                            <label className="text-xl font-bold" htmlFor="comment">Catatan tambahan</label>
-                                                            <Field id="comment" name="comment" placeholder="Catatan tambahan" />
-                                                        </div>
+                                                            <div className="border-t border-gray-300 pt-2">
+                                                                <label className="text-xl font-bold" htmlFor="comment">Catatan tambahan</label>
+                                                                <Field id="comment" name="comment" placeholder="Catatan tambahan" />
+                                                            </div>
 
-                                                        {data?.checkpoint?.return_to_svp != 1 ||
-                                                            data?.checkpoint?.return_to_hrss_doc != 1 ||
-                                                            data?.checkpoint?.return_to_hrss_it != 1 ?
-                                                            <>
-                                                                <label className="mb-4 block bg-gray-100 p-3 rounded">
-                                                                    <Field type="checkbox" name="accept" className="my-0 mr-2" />
-                                                                    Approve Data
-                                                                    {errors.accept
-                                                                        // && touched.accept
-                                                                        ? (
-                                                                            <div className="text-red-600 text-sm">{errors.accept}</div>
-                                                                        ) : null}
-                                                                </label>
-                                                                {values.accept &&
-                                                                    <button type="submit" className="bg-primary text-white p-3 text-lg uppercase">Submit</button>
-                                                                }
-                                                            </>
-                                                            : null
-                                                        }
-                                                    </fieldset>
-                                                </Form>
-                                            )}
-                                        />
-                                    </TabPanel>
-                                    : null
-                                }
-                                {/* <TabPanel>
+                                                            {data?.checkpoint?.return_to_svp != 1 ||
+                                                                data?.checkpoint?.return_to_hrss_doc != 1 ||
+                                                                data?.checkpoint?.return_to_hrss_it != 1 ?
+                                                                <>
+                                                                    <label className="mb-4 block bg-gray-100 p-3 rounded">
+                                                                        <Field type="checkbox" name="accept" className="my-0 mr-2" />
+                                                                        Confirmation Data
+                                                                        {errors.accept
+                                                                            && touched.accept
+                                                                            ? (
+                                                                                <div className="text-red-600 text-sm">{errors.accept}</div>
+                                                                            ) : null}
+                                                                    </label>
+                                                                    {values.accept &&
+                                                                        <button type="submit" className="bg-primary text-white p-3 text-lg uppercase">Submit</button>
+                                                                    }
+                                                                </>
+                                                                : null
+                                                            }
+                                                        </fieldset>
+                                                    </Form>
+                                                )}
+                                            />
+                                        </TabPanel>
+                                        : null
+                                    }
+                                    {/* <TabPanel>
                                     <Formik
                                         initialValues={{
                                             // type: 'confirmation',
@@ -790,7 +862,8 @@ const OffboardingEmployee = ({ HRMGR = false }) => {
                                     />
                                 </TabPanel> */}
 
-                            </Tabs>
+                                </Tabs>
+                            }
                         </div>
                         <ManagerModal
                             openModal={isOpen}

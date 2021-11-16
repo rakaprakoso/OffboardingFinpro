@@ -36,10 +36,13 @@ class ResignationRequest extends Mailable
                 $subject = "Resignation Request Approval";
                 break;
             case '2':
-                $subject = "Resignation On Process";
+                $subject = "Confirm Your Resignation";
                 break;
             case '3':
                 $subject = "Effective Date Changed";
+                break;
+            case '4':
+                $subject = "Resignation On Process";
                 break;
             case '-2':
                 $subject = "Resignation Not Confirmed by SVP";

@@ -126,7 +126,7 @@
         <div class="text-small">
             Dokumen ini sudah disetujui oleh :
             <ol>
-                <li>{{ $data->name }} - Penanggung Jawab Lama</li>
+                <li>{{ $data->name }}</li>
             </ol>
         </div>
         {{-- <p class="text-center">{{ date('d F Y') }}</p> --}}

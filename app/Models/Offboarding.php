@@ -24,7 +24,7 @@ class Offboarding extends Model
 
     protected $with = ['employee','checkpoint',
     // 'exitClearance',
-    'statusDetails','typeDetail','attachment'
+    'statusDetails','typeDetail','attachment','inputToken'
     // 'rightObligation'
     ];
 
@@ -55,6 +55,10 @@ class Offboarding extends Model
     public function exitClearance()
     {
         return $this->hasOne(ExitClearance::class, 'offboarding_id','id');
+    }
+    public function inputToken()
+    {
+        return $this->hasOne(OffboardingInputToken::class, 'offboarding_id','id');
     }
     public function rightObligation()
     {

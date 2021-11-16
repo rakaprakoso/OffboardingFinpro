@@ -131,7 +131,8 @@ const StatusProgress = ({ data }) => {
             {data &&
                 parseInt(data.status_id) >= 0 ?
                 <div className="w-full mb-3 text-center border rounded-lg p-4">
-                    <span className="text-gray-800 font-semibold text-xl mb-2">{Math.round(parseInt(data.status_id) / 7 * 100)} % - {data?.status_details?.name} <TableDropdown data={data?.checkpoint} text={<i class="far fa-eye inline-block text-blue-600"></i>}/></span>
+                    <div className="text-gray-800 font-bold text-xl mb-3">Offboarding Progress</div>
+                    <span className="text-gray-800 font-semibold text-xl mb-2">{Math.round(parseInt(data.status_id) / 7 * 100)} % - {data?.status_details?.name} <TableDropdown data={data?.checkpoint} text={<i className="far fa-eye inline-block text-blue-600"></i>}/></span>
                     <div className="relative w-full">
                         <div className="overflow-hidden h-4 flex rounded bg-blue-200">
                             <div

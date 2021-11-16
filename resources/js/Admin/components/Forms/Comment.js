@@ -21,20 +21,43 @@ const Comment = ({
     setOpenModal,
     checkpoint
 }) => {
+    let { search } = useLocation();
+
+    const query = new URLSearchParams(search);
     const [submitted, setSubmitted] = useState(null);
+    const hrmgrInput = [
+        {
+            name: 'Resign Letter',
+        },
+        {
+            name: 'Interview Form',
+        },
+        {
+            name: 'BAST',
+        },
+        {
+            name: 'Payroll',
+        }
+    ]
     return (
         <Formik
             initialValues={{
                 // accept: false,
                 comment: '',
+                to: '',
             }}
             validationSchema={commentVerification}
             onSubmit={async (values, { resetForm }) => {
+                setSubmitted('loading')
                 // setOpenModal(true);
                 // alert(JSON.stringify(values));
                 const formData = new FormData();
                 formData.append('offboardingID', id);
-                formData.append('from', from);
+                if (query.get('approval') == 'hrmgr') {
+                    formData.append('from', from + ' - ' + values.to);
+                }else{
+                    formData.append('from', from);
+                }
                 formData.append('comment', values.comment);
                 // formData.append('process_type', 3);
                 // formData.append('outstanding_exist', values.outstandingExist);
@@ -67,6 +90,16 @@ const Comment = ({
                             <div class="flex flex-wrap -mx-3">
                                 <h2 class="px-4 pt-3 pb-2 text-gray-800 font-bold">Give the feedback</h2>
                                 <div class="w-full md:w-full px-3">
+                                    {query.get('approval') == 'hrmgr' &&
+                                        <Field as="select" name="to">
+                                            <option disabled selected value="">Select Document</option>
+                                            {
+                                                hrmgrInput.map((item,i) => (
+                                                    <option value={item.name}>{item.name}</option>
+                                                ))
+                                            }
+                                        </Field>
+                                    }
                                     <Field component="textarea" class="bg-gray-100 rounded border border-gray-400 leading-normal resize-none w-full py-2 px-3 mb-0 font-medium placeholder-gray-700 focus:outline-none focus:bg-white" name="comment" placeholder='Type Your Comment' />
                                     {errors.comment && touched.comment ? (
                                         <div className="mb-4 text-red-600 text-sm">{errors.comment}</div>
@@ -80,11 +113,14 @@ const Comment = ({
                                     </div>
                                 </div>
                                 <div class="w-full md:w-full flex items-start px-3 justify-end">
-                                    {submitted == true ?
+                                    {submitted == true &&
                                         <div className="bg-green-300 text-gray-700 text-sm font-medium py-1 px-4 border rounded-lg tracking-wide text-center">Sucess</div>
-                                        : submitted == false ?
+                                    }
+                                    {submitted == 'loading' &&
+                                        <div className="bg-yellow-300 text-gray-700 text-sm font-medium py-1 px-4 border rounded-lg tracking-wide text-center">Loading...</div>
+                                    }
+                                    {submitted == false &&
                                             <div className="bg-red-300 text-gray-700 text-sm font-medium py-1 px-4 border rounded-lg tracking-wide text-center">Fail</div>
-                                            : null
                                     }
                                 </div>
                             </div>

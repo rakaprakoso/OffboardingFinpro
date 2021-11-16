@@ -16,14 +16,14 @@ const ResignForm = () => {
         <>
             <Navbar />
             <main>
-                <div class="heading bg-yellow-500 pt-32 pb-20 text-gray-50">
-                    <div class="container mx-auto">
-                        <h1 class="text-center text-4xl font-bold">
+                <div className="heading bg-yellow-500 pt-32 pb-20 text-gray-50">
+                    <div className="container mx-auto">
+                        <h1 className="text-center text-4xl font-bold">
                             Offboarding
                         </h1>
                     </div>
                 </div>
-                <div class="w-full px-2 py-3 navbar-expand-lg">
+                <div className="w-full px-2 py-3 navbar-expand-lg">
                     <div className="container px-4 py-20 mx-auto items-center justify-between">
                         <Switch>
                             <Route path="/resignform" exact component={EmployeeResignForm} />

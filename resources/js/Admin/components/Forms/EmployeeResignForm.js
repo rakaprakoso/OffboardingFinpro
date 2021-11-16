@@ -1,28 +1,44 @@
 import React, { useState } from 'react'
 import { Formik, Field, Form } from 'formik'
 import SubmitResignModal from '../Modals/SubmitResignModal';
+import moment from 'moment'
 
 import * as Yup from 'yup';
 
-const ResignSchema = Yup.object().shape({
-    employeeID: Yup.string()
-        .required('Required'),
-    password: Yup.string()
-        .required('Required'),
-    reason: Yup.string()
-        .min(5, 'Too Short!')
-        .required('Required'),
-    effectiveDate: Yup.date('Invalid Date').required('Required'),
-    // resignLetter: Yup.mixed().required('Required').test(
-    //     "fileSize",
-    //     "Your video is too big :(",
-    //     value => value && value.size <= 262144000
-    // ),
-});
+
+
+const dateMin = (date = null, type = 'normal') => {
+    if (type == 'verification') {
+        var dtToday = moment(date).add(1, 'M').subtract(1, "days");
+        date = dtToday.format('YYYY-MM-DD')
+        return date
+    }
+    var dtToday = moment(date).add(1, 'M');
+    date = dtToday.format('YYYY-MM-DD')
+    return date;
+}
 
 const EmployeeResignForm = () => {
     const [isOpen, setIsOpen] = useState(false);
     const [submitted, setSubmitted] = useState('loading');
+
+    const ResignSchema = Yup.object().shape({
+        employeeID: Yup.string()
+            .required('Required'),
+        password: Yup.string()
+            .required('Required'),
+        reason: Yup.string()
+            .min(5, 'Too Short!')
+            .required('Required'),
+        effectiveDate: Yup.date('Invalid Date')
+            .required('Required')
+            .min(new Date(dateMin(new Date,'verification')), "At least 1 month"),
+        // resignLetter: Yup.mixed().required('Required').test(
+        //     "fileSize",
+        //     "Your video is too big :(",
+        //     value => value && value.size <= 262144000
+        // ),
+    });
 
     return (
         <>
@@ -35,7 +51,7 @@ const EmployeeResignForm = () => {
                     password: '',
                     reason: '',
                     // resignLetter: '',
-                    effectiveDate: '',
+                    effectiveDate: dateMin(new Date),
                 }}
                 validationSchema={ResignSchema}
                 onSubmit={async (values, { resetForm }) => {
@@ -75,7 +91,7 @@ const EmployeeResignForm = () => {
                 }}
             >
                 {({ formProps, errors, touched, setFieldValue }) => (
-                    <Form autocomplete="off">
+                    <Form autoComplete="off">
                         {/* <label htmlFor="employeeName">Employee Name</label>
             <Field id="employeeName" name="employeeName" placeholder="Employee Name" /> */}
 
@@ -98,7 +114,7 @@ const EmployeeResignForm = () => {
                         ) : null}
 
                         <label htmlFor="effectiveDate">Effective Date</label>
-                        <Field type="date" id="effectiveDate" name="effectiveDate" />
+                        <Field type="date" id="effectiveDate" min={dateMin(new Date)} name="effectiveDate" />
                         {errors.effectiveDate && touched.effectiveDate ? (
                             <div className="-mt-4 mb-4 text-red-600 text-sm">{errors.effectiveDate}</div>
                         ) : null}
