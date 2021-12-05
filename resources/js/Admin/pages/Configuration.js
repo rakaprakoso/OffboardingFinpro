@@ -81,6 +81,10 @@ function ConfigurationForm() {
             name: 'HRBP Manager Email',
             value: data && data[8]['value']
         },
+        {
+            name: 'SVP Email',
+            value: data && data[9]['value']
+        },
     ]
 
     return (

@@ -265,7 +265,9 @@ export default function CardEmployee({ data, visibility, admin }) {
     const ListCheckpoint = ({ item, data, read }) => {
         return (
             <tr className="bg-gray-100 border-b border-gray-200">
-                <td className="px-4 py-3 text-xs">{item.name} {visibility == "admin" && item.token && `- ${item.token}`}</td>
+                <td className="px-4 py-3 text-xs">{item.name}
+                {/* {visibility == "admin" && item.token && `- ${item.token}`} */}
+                </td>
                 <td className="px-4 py-3 text-xs">
                     {
                         parseInt(item.data) == 4 &&
@@ -277,11 +279,6 @@ export default function CardEmployee({ data, visibility, admin }) {
                     }
                     {
                         parseInt(item.data) == 2 &&
-                        // <span className="bg-green-600 px-2 rounded">
-                        //     <i className="fas fa-check text-white"></i>
-                        //     <i className="fas fa-check text-white"></i>
-                        //     <span className="text-white ml-2">Confirmed</span>
-                        // </span>
                         <><i class="fas fa-envelope text-blue-600"></i> Sent</>
                     }
                     {
@@ -445,12 +442,12 @@ export default function CardEmployee({ data, visibility, admin }) {
                                         <>
                                             {visibility && visibility == 'payroll' || visibility == 'admin' || visibility == 'employee' || visibility == 'clearance' ?
                                                 <>
-                                                    {visibility && visibility == 'employee' || visibility == 'admin' &&
+                                                    {visibility && (visibility == 'employee' || visibility == 'admin') &&
                                                         <AccordionItem>
                                                             {/* <div className="mb-2"> */}
                                                             <AccordionItemHeading>
                                                                 <AccordionItemButton>
-                                                                    Attachment
+                                                                    Attachment Document
                                                                 </AccordionItemButton>
                                                             </AccordionItemHeading>
                                                             <AccordionItemPanel>
@@ -595,7 +592,7 @@ export default function CardEmployee({ data, visibility, admin }) {
                                                         <AccordionItem>
                                                             <AccordionItemHeading>
                                                                 <AccordionItemButton>
-                                                                    IT Attachment
+                                                                    IT Department Attachment
                                                                 </AccordionItemButton>
                                                             </AccordionItemHeading>
                                                             <AccordionItemPanel>

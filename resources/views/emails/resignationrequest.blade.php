@@ -51,14 +51,14 @@
         {{ $offboardingData->employee->name }}
     @endsection
     @section('message')
-        Proses pengunduran diri anda sudah disetujui oleh SVP anda tetapi ada perubahan tanggal effective date dari
+       <b> Proses pengunduran diri anda sudah disetujui oleh SVP</b> anda tetapi ada perubahan tanggal effective date dari
         yang anda ajukan menjadi {{ $offboardingData->effective_date }}. Proses Offboarding anda dapat dilihat pada dashboard anda melalui link di bawah ini :
     @endsection
     @section('url')
         "{{ config('app.url') }}/offboarding/employee/{{ $offboardingData->id }}/?token={{ $offboardingData->employee_token }}"
     @endsection
     @section('cta')
-        Konfirmasi
+        Lihat Data
     @endsection
 @elseif ($type == 4)
     @section('title')
@@ -68,13 +68,13 @@
         {{ $offboardingData->employee->name }}
     @endsection
     @section('message')
-        Proses pengunduran diri anda sudah disetujui oleh SVP anda. Proses Offboarding anda dapat dilihat pada dashboard anda melalui link di bawah ini :
+        <b>Proses pengunduran diri anda sudah disetujui oleh SVP</b> anda. Proses Offboarding anda dapat dilihat pada dashboard anda melalui link di bawah ini :
     @endsection
     @section('url')
         "{{ config('app.url') }}/offboarding/employee/{{ $offboardingData->id }}/?token={{ $offboardingData->employee_token }}"
     @endsection
     @section('cta')
-        Konfirmasi
+    Lihat Data
     @endsection
 @elseif ($type == -2)
     @section('title')

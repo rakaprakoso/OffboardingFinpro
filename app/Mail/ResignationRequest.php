@@ -39,23 +39,23 @@ class ResignationRequest extends Mailable
                 $subject = "Confirm Your Resignation";
                 break;
             case '3':
-                $subject = "Effective Date Changed";
+                $subject = "Resignation Approved";
                 break;
             case '4':
-                $subject = "Resignation On Process";
+                $subject = "Resignation Approved";
                 break;
             case '-2':
-                $subject = "Resignation Not Confirmed by SVP";
+                $subject = "Resignation canceled";
                 break;
             case '-3':
-                $subject = "Cancel by Employee";
+                $subject = "Canceled by Employee";
                 break;
             default:
                 break;
         }
 
         return $this->from('noreply@deprakoso.site', 'HR Info')
-            ->subject('[OFFBOARDING]' . $subject . ' - ' . $this->offboardingData->employee->name)
+            ->subject('[OFFBOARDING] ' . $subject . ' - ' . $this->offboardingData->employee->name)
             ->view('emails.resignationrequest')
             ->with('offboardingData', $this->offboardingData)
             ->with('subject', $subject)

@@ -377,7 +377,8 @@ const OffboardingEmployee = ({ HRMGR = false }) => {
                                         {/* <Tab>Surat Pengalihan Pekerjaan</Tab> */}
                                         {/* <Tab>Form Perubahan No Telfon</Tab> */}
                                         {HRMGR != true ?
-                                            <Tab disabled={data?.checkpoint?.confirm_it != 1 ? true : false}>
+                                            // <Tab disabled={data?.checkpoint?.confirm_it != 1 ? true : false}>
+                                            <Tab disabled={data?.status_id < 4 ? true : false}>
                                                 Form Pengembalian Barang
                                                 {
                                                     data?.checkpoint?.return_to_svp == 1 ?
