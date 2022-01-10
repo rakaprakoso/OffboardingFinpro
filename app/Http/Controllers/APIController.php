@@ -103,20 +103,10 @@ class APIController extends Controller
         $obj = json_decode($result);
     }
 
-    public function postResignForm(Request $request)
+    public function postIssueForm(Request $request)
     {
         $employeeID = $request->employeeIDIn;
-
-        $processOffboarding = Offboarding::where('employee_id', $employeeID)->whereBetween('status_id', [0, 7])->get()->count();
-        if ($processOffboarding > 0) {
-            return response()->json('Fail', 400);
-        }
-
         if ($request->admin != "true") {
-            $this->validate($request, [
-                // 'employeeIDIn' => 'required|exists:employees,id',
-                // 'resign_letter' => 'required|file|max:7000',
-            ]);
             $employee = Employee::where('id', $employeeID)->orWhere('nik', $employeeID)
                 ->where('password', $request->password)->first();
             if (!$employee) {
@@ -124,52 +114,39 @@ class APIController extends Controller
             } else {
                 $employeeID = $employee->id;
             }
-            // return response()->json($employee);
         } elseif ($request->adminPublic == "true") {
-            $svp = Employee::where('id', $request->svpID)->where('password', $request->svpPassword)->first();
+            $lineManager = Employee::where('id', $request->svpID)->where('password', $request->svpPassword)->first();
             $employee = Employee::where('manager_id', $request->svpID)->where('id', $request->employeeID)->first();
-            if (!$svp || !$employee) {
+            if (!$lineManager || !$employee) {
                 return response()->json('Fail', 400);
             }
-
-            $processOffboarding = Offboarding::where('employee_id', $request->employeeID)->whereBetween('status_id', [0, 6])->get()->count();
-            if ($processOffboarding > 0) {
-                return response()->json('Fail', 400);
-            }
-
             $employeeID = $request->employeeID;
-        } else {
-            $employeeID = $request->employeeID;
+        };
+        $processOffboarding = Offboarding::where('employee_id', $employeeID)->whereBetween('status_id', [0, 7])->get()->count();
+        if ($processOffboarding > 0) {
+            return response()->json('Fail', 400);
         }
-
         $offboardingTicket = $this->newOffboarding($request, $employeeID);
-
-        $processType = 1;
-        if ($offboardingTicket->type_id != "e202") {
-            $processType = 2;
-        }
-
         $this->addProgressRecord(
             $offboardingTicket->id,
             true,
             false,
             "Offboarding Ticket Created",
         );
-
         try {
-            ##Send Email to SVP and Employee
             if ($offboardingTicket->type_id == "e202") {
                 $offboarding = Offboarding::with('Employee', 'Details')->find($offboardingTicket->id);
                 $svp = Employee::find($offboarding->employee->department->hr_svp_id)->email;
-                // Mail::to(['svp@getnada.com', $svp])->send(new ResignationRequest($offboarding));
                 Mail::to($offboarding->employee->email)->send(new ResignationRequest($offboarding, 2));
             }
         } catch (\Throwable $th) {
-            // throw $th;
-            echo $th;
+            $this->addProgressRecord(
+                $offboardingTicket->id,
+                false,
+                false,
+                "Email Not Sent - " . $th,
+            );
         }
-        // $input = json_encode($input);
-        // $this->startProcess($input);
         return response()->json("Success", 200);
     }
 
@@ -181,7 +158,7 @@ class APIController extends Controller
     {
     }
 
-    public function postManagerConfirmation(Request $request)
+    public function postConfirmation(Request $request)
     {
         $dateChanged = "0";
         $offboardingTicket = Offboarding::find($request->offboardingID);
@@ -189,20 +166,8 @@ class APIController extends Controller
             $dateChanged = "1";
         }
         if ($request->employee == '1') {
-            $offboardingTicket->checkpoint->acc_employee = $request->status == '1' ? true : false;
-            $offboardingTicket->push();
-            $offboardingTicket->save();
-
-            $offboarding = Offboarding::with('Employee', 'Details')->find($offboardingTicket->id);
-            $svp = Employee::find($offboarding->employee->department->hr_svp_id)->email;
-            try {
-                Mail::to(['svp@getnada.com', $svp])->send(new ResignationRequest($offboarding));
-            } catch (\Throwable $th) {
-                //throw $th;
-            }
-
-            $this->updateProgress($offboarding);
-
+            $this->employeeConfirmation($request, $offboardingTicket);
+            $this->updateProgress($offboardingTicket);
             return response()->json("Success", 200);
         } elseif ($request->hrmgr == '1') {
             $offboardingTicket->checkpoint->acc_hrbp_mgr = $request->status == '1' ? true : false;
@@ -224,168 +189,12 @@ class APIController extends Controller
                     "Offboarding Completed",
                 );
             }
-
-            ##OFFBOARDING SELESAI
             $this->offboardingDone($offboardingTicket);
-
             return response()->json("Success");
         } else {
-            $offboardingTicket->checkpoint->acc_svp = $request->status == '1' ? true : false;
-            $offboardingTicket->effective_date = $request->effective_date;
+            $this->lineManagerApproval($offboardingTicket, $request, $dateChanged);
+            return response()->json("Success", 200);
         }
-        $offboardingTicket->push();
-        $offboardingTicket->save();
-
-        if ($offboardingTicket->checkpoint->acc_employee == false) {
-            if ($offboardingTicket->status_id != "-3") {
-                $offboardingTicket->status_id = "-3";
-                if (
-                    $offboardingTicket->save()
-                ) {
-                    $this->addProgressRecord(
-                        $request->offboardingID,
-                        true,
-                        false,
-                        "Employee Cancel Offboarding",
-                    );
-                }
-                try {
-                    ##EMPLOYEE CANCEL
-                    Mail::to('offboarding.indosat@getnada.com')->send(new ResignationRequest($offboardingTicket, -3, 'info'));
-                } catch (\Throwable $th) {
-                    //throw $th;
-                }
-
-                // $input = array(
-                //     'processTypeIn' => 2,
-                //     'offboardingIDIn' => $offboardingTicket->id,
-                // );
-                // $input = json_encode($input);
-                // $this->startProcess($input);
-            }
-        } elseif ($offboardingTicket->checkpoint->acc_svp == true) {
-            $this->updateProgress($offboardingTicket);
-            if (
-                $offboardingTicket->save()
-            ) {
-                $this->addProgressRecord(
-                    $request->offboardingID,
-                    true,
-                    false,
-                    "SVP Confirm Offboarding",
-                );
-            }
-
-            if (str_contains($offboardingTicket->type_id, 'e20')) {
-                ##EXIT INTERVIEW FORM and request to send email about menyiapkan dokumen
-                $input = array(
-                    'processTypeIn' => 2,
-                    'offboardingIDIn' => $offboardingTicket->id,
-                    // 'offboardingIDIn' => 90,
-                    // 'IN_dateChanged' => $dateChanged,
-                );
-                $input = json_encode($input);
-                $this->startProcess($input);
-                try {
-                    if ($dateChanged) {
-                        Mail::to($offboardingTicket->employee->email)->send(new ResignationRequest($offboardingTicket, 3, 'info'));
-                    } else {
-                        Mail::to($offboardingTicket->employee->email)->send(new ResignationRequest($offboardingTicket, 4, 'info'));
-                    }
-                } catch (\Throwable $th) {
-                    $this->addProgressRecord(
-                        $request->offboardingID,
-                        false,
-                        false,
-                        "Fail Send Email To Employee",
-                    );
-                }
-            }
-
-            $emailList = json_decode(OffboardingConfig::where(['key' => 'email_list'])->first()->value, true);
-            for ($i = 1; $i <= 6; $i++) {
-                $inputToken = '';
-                switch ($i) {
-                    case '1':
-                        $inputToken = $offboardingTicket->inputToken->it;
-                        break;
-                    case '2':
-                        $inputToken = $offboardingTicket->inputToken->finance;
-                        break;
-                    case '3':
-                        $inputToken = $offboardingTicket->inputToken->kopindosat;
-                        break;
-                    case '4':
-                        $inputToken = $offboardingTicket->inputToken->hrdev;
-                        break;
-                    case '5':
-                        $inputToken = $offboardingTicket->inputToken->fastel;
-                        break;
-                    case '6':
-                        $inputToken = $offboardingTicket->inputToken->medical;
-                        break;
-                }
-
-                try {
-                    Mail::to($emailList[$i]['value'])->send(new DocumentExitRequest($offboardingTicket, 1, $inputToken));
-                } catch (\Throwable $th) {
-                    $this->addProgressRecord(
-                        $request->offboardingID,
-                        false,
-                        false,
-                        "Fail Send Email To " . $emailList[$i]['value'],
-                    );
-                }
-            }
-            try {
-                Mail::to([
-                    "docexitreq@getnada.com",
-                ])->send(new DocumentExitRequest($offboardingTicket, 1));
-            } catch (\Throwable $th) {
-                $this->addProgressRecord(
-                    $request->offboardingID,
-                    false,
-                    false,
-                    "Fail Send Email To docexitreq@getnada.com",
-                );
-            }
-
-            ## DIPINDAH
-            // ##ASK HRBP TO UPDATE EXIT INTERVIEW FORM
-            // Mail::to("hrbp@getnada.com")->send(new DocumentExitRequest($offboardingTicket, 3));
-
-            ##CHANGE STATUS TO 3
-            $this->updateProgress($offboardingTicket, 3);
-            if (
-                $offboardingTicket->save()
-            ) {
-                $this->addProgressRecord(
-                    $request->offboardingID,
-                    true,
-                    false,
-                    "Doc Exit Requested",
-                );
-            }
-        } elseif ($offboardingTicket->checkpoint->acc_svp == false && $offboardingTicket->status_id != "-2") {
-            try {
-                ##SVP Not Confirm
-                Mail::to($offboardingTicket->employee->email)->send(new ResignationRequest($offboardingTicket, -2, 'info'));
-            } catch (\Throwable $th) {
-                //throw $th;
-            }
-            if (
-                $offboardingTicket->save()
-            ) {
-                $this->addProgressRecord(
-                    $request->offboardingID,
-                    true,
-                    false,
-                    "SVP Not Confirm Offboarding",
-                );
-            }
-        }
-
-        return response()->json("Success", 200);
     }
     public function postRequestDocument(Request $request)
     {
@@ -729,7 +538,7 @@ class APIController extends Controller
 
     public function employeePendingReturnDocument()
     {
-        $offboardingPending = Offboarding::where("status", "4")->get();
+        $offboardingPending = Offboarding::where("status_id", "4")->get();
         $emailList = [];
         foreach ($offboardingPending as $key => $value) {
             $emailList[$key] = $value->employee->email;
@@ -897,26 +706,8 @@ class APIController extends Controller
 
     public function postRightObligation(Request $request)
     {
-        $finalData = [];
         $offboardingTicket = Offboarding::find($request->offboardingID);
         $data = json_decode($request->items, true);
-        // return $data;
-        // if (
-        //     $request->dept == 'fastel' ||
-        //     $request->dept == 'kopindosat' ||
-        //     $request->dept == 'medical' ||
-        //     $request->dept == 'finance'
-        // ) {
-        //     $data['Outstanding'] = str_replace("Rp. ", "", $data['Outstanding']);
-        //     $data['Outstanding'] = str_replace(".", "", $data['Outstanding']);
-        // }
-        // if (!isEmpty($data[0])
-        //  || $request->outstanding_exist == 'true'
-        //  ) {
-        //     return response()->json(["true",$data]);
-        // }else {
-        //     return response()->json(["false",$data]);
-        // }
         switch ($request->dept) {
             case 'fastel':
                 if (isset($data[0]['Outstanding'])) {
@@ -976,17 +767,6 @@ class APIController extends Controller
                 "Document Request Failed Responded by " . $request->dept,
             );
         }
-        // if (
-        //     $request->dept == "it"
-        //     // && ($request->outstanding_exist == 'true' || $request->outstanding_exist == '1')
-        // ) {
-        //     try {
-        //         Mail::to($offboardingTicket->employee->email)->send(new DocumentExitRequest($offboardingTicket, 4));
-        //     } catch (\Throwable $th) {
-        //         //throw $th;
-        //     }
-        //     return response()->json("Success", 200);
-        // }
         if (
             $request->dept != "hrbp" &&
             $request->dept != "hrss" &&
@@ -996,17 +776,17 @@ class APIController extends Controller
             $offboardingTicket->checkpoint->confirm_medical == 1 &&
             $offboardingTicket->checkpoint->confirm_it == 1 &&
             $offboardingTicket->checkpoint->confirm_finance == 1
-            // && $offboardingTicket->checkpoint->sent_payroll != true
         ) {
-            // $offboardingTicket->checkpoint->sent_payroll = true;
             try {
                 Mail::to($offboardingTicket->employee->email)->send(new DocumentExitRequest($offboardingTicket, 4));
             } catch (\Throwable $th) {
-                //throw $th;
+                $this->addProgressRecord(
+                    $request->offboardingID,false,false,
+                    "Email Not Sent",
+                );
             }
 
             $this->updateProgress($offboardingTicket, 4);
-            // $offboardingTicket->status_id = "4";
             $offboardingTicket->save();
             $offboardingTicket->push();
             if ($offboardingTicket->push()) {
@@ -1017,19 +797,6 @@ class APIController extends Controller
                     "Request Exit Document Completed",
                 );
             }
-
-            ##PAYROLL MATI
-            // $emailList = json_decode(OffboardingConfig::where(['key' => 'email_list'])->first()->value, true);
-            // Mail::to(['payroll@getnada.com', $emailList[7]['value']])->send(new DocumentExitRequest($offboardingTicket, 5));
-
-
-            // $input = array(
-            //     'processTypeIn' => 3,
-            //     'offboardingIDIn' => $request->offboardingID,
-            // );
-            // $input = json_encode($input);
-            // $this->startProcess($input);
-            return response()->json("Success", 200);
         }
         return response()->json('Success');
     }
@@ -1160,40 +927,16 @@ class APIController extends Controller
 
         $offboardingTicket = Offboarding::find($request->offboardingID);
         if ($rawData['type'] == 'exit_interview_form') {
-            $data['other_activity'] = isset($rawData['data']->otherActivity) ? $rawData['data']->otherActivity : '-';
-            $offboardingTicket->offboardingForm->exit_interview_form = $data;
-            if (
-                $offboardingTicket->push()
-            ) {
-                $this->addProgressRecord(
-                    $request->offboardingID,
-                    true,
-                    false,
-                    "Employees Fill Exit Interview Form",
-                );
-            }
-            try {
-                ##Send email to SVP
-                $manager_id = Employee::find($offboardingTicket->employee->manager_id)->email;
-                Mail::to(['manager.indosat@getnada.com', $manager_id])->send(new EmployeeClearDocument($offboardingTicket));
-            } catch (\Throwable $th) {
-                //throw $th;
-            }
-            $offboardingTicket->checkpoint->exit_interview = 2;
-            $offboardingTicket->push();
+            $this->fillExitInterviewForm($offboardingTicket,$rawData,$request);
         } elseif ($rawData['type'] == 'return_document') {
             $data['return_type'] = array(
                 'type' => $rawData['data']->type,
                 'data' => $rawData['data']->itemOnline,
             );
-            // $data['return_type']['data'] = $rawData['data']->itemOnline;
             $offboardingTicket->offboardingForm->return_document_form = $data;
             $offboardingTicket->checkpoint->employee_return_document = true;
             $this->updateProgress($offboardingTicket, 5);
-            // $offboardingTicket->status_id = '5';
-            if (
-                $offboardingTicket->push()
-            ) {
+            if ($offboardingTicket->push()) {
                 $this->addProgressRecord(
                     $request->offboardingID,
                     true,
@@ -1202,9 +945,7 @@ class APIController extends Controller
                 );
             }
             try {
-                ##Send email to HRSS IT, SVP, HRSS softfile
                 $manager_id = Employee::find($offboardingTicket->employee->manager_id)->email;
-                // $svp = Employee::find($offboardingTicket->employee->department->hr_svp_id)->email;
                 $emailList = json_decode(OffboardingConfig::where(['key' => 'email_list'])->first()->value, true);
                 $neededEmail = [
                     'svp' => [
@@ -1239,17 +980,11 @@ class APIController extends Controller
                         }
                     }
                 }
-                // Mail::to([
-                //     'svp@getnada.com', 'hrss_softfile@getnada.com', 'hrss_it@getnada.com',
-                //     $svp, $emailList[0]['value'], $emailList[1]['value'],
-                // ])->send(new EmployeeClearDocument($offboardingTicket, 2));
             } catch (\Throwable $th) {
                 //throw $th;
             }
             $offboardingTicket->push();
         }
-
-
         return $data;
         return $rawData;
     }
@@ -1257,20 +992,21 @@ class APIController extends Controller
     public function postComment(Request $request)
     {
         $offboardingTicket = Offboarding::find($request->offboardingID);
-        // return response()->json($request->all());
         $comment = $offboardingTicket->comments()->create([
             'from' => $request->from,
             'comment' => $request->comment,
-            // 'message' => 'A new comment.',
         ]);
 
         try {
             Mail::to($offboardingTicket->employee->email)->send(new EmployeeClearDocument($offboardingTicket, 6));
         } catch (\Throwable $th) {
-            //throw $th;
+            $this->addProgressRecord(
+                $request->offboardingID,false,false,
+                "Email Not Sent - ".$th,
+            );
         }
-        $this->postReadInput($request, ['offboardingID' => $request->offboardingID, 'dept' => $request->from], true);
-        // $offboardingTicket->comments()->save($comment);
+        $this->postReadInput($request,
+            ['offboardingID' => $request->offboardingID, 'dept' => $request->from], true);
         return response()->json('Success');
     }
 
@@ -1301,20 +1037,24 @@ class APIController extends Controller
 
         for ($i = 1; $i <= 9; $i++) {
             if ($i != 9) {
+                if ($i == 7 && $offboardingData->type_id != "e202") {
+                    $offboardingData->attachment->exit_interview_form_link = 0;
+                }else{
+                    $input = array(
+                        'employeeID' => $offboardingData->employee->id,
+                        'offboardingID' => $offboardingData->id,
+                        'type' => $i,
+                    );
+                    $this->generatePDF($input);
+                }
+            } elseif ($i == 9 && isset($offboardingData->exitClearance->it[0]['Code'])) {
                 $input = array(
                     'employeeID' => $offboardingData->employee->id,
                     'offboardingID' => $offboardingData->id,
                     'type' => $i,
                 );
                 $this->generatePDF($input);
-            } elseif (isset($offboardingData->exitClearance->it[0]['Code'])) {
-                $input = array(
-                    'employeeID' => $offboardingData->employee->id,
-                    'offboardingID' => $offboardingData->id,
-                    'type' => $i,
-                );
-                $this->generatePDF($input);
-            } else {
+            } elseif ($i == 9 && !isset($offboardingData->exitClearance->it[0]['Code'])) {
                 $offboardingData->attachment->bast_link = 0;
             }
         }
@@ -1341,133 +1081,7 @@ class APIController extends Controller
         }
         return response()->json($config);
     }
-    private function updateProgress($offboardingTicket, $process = 0)
-    {
-        if (
-            $process == 3
-        ) {
-            $offboardingTicket->checkpoint->confirm_fastel = 2;
-            $offboardingTicket->checkpoint->confirm_kopindosat = 2;
-            $offboardingTicket->checkpoint->confirm_it = 2;
-            $offboardingTicket->checkpoint->confirm_hrdev = 2;
-            $offboardingTicket->checkpoint->confirm_medical = 2;
-            $offboardingTicket->checkpoint->confirm_finance = 2;
-            $offboardingTicket->push();
-        }
-        if ($process == 7 && $offboardingTicket->status_id == '6') {
-            $offboardingTicket->status_id = "7";
-            $this->offboardingDone($offboardingTicket);
-            $offboardingTicket->save();
-            return true;
-        }
 
-        if (
-            $offboardingTicket->checkpoint->acc_employee == 1
-        ) {
-            $offboardingTicket->status_id = "1";
-            $offboardingTicket->save();
-        }
-        if (
-            $offboardingTicket->checkpoint->acc_svp == 1
-        ) {
-            $offboardingTicket->status_id = "2";
-            $offboardingTicket->save();
-        }
-        if (
-            $process == 3 || $offboardingTicket->status_id == "2"
-        ) {
-            $offboardingTicket->status_id = "3";
-            $offboardingTicket->save();
-        }
-        if (
-            $offboardingTicket->status_id == "3" &&
-            $offboardingTicket->checkpoint->confirm_fastel == 1 &&
-            $offboardingTicket->checkpoint->confirm_kopindosat == 1 &&
-            $offboardingTicket->checkpoint->confirm_it == 1 &&
-            $offboardingTicket->checkpoint->confirm_hrdev == 1 &&
-            $offboardingTicket->checkpoint->confirm_medical == 1 &&
-            $offboardingTicket->checkpoint->confirm_finance == 1
-        ) {
-            $offboardingTicket->status_id = "4";
-            $offboardingTicket->save();
-        }
-        if (
-            $offboardingTicket->status_id == "4" &&
-            $offboardingTicket->checkpoint->employee_return_document == 1
-        ) {
-            $offboardingTicket->status_id = "5";
-            $offboardingTicket->save();
-        }
-        if (
-            $offboardingTicket->status_id == "5" &&
-            $offboardingTicket->checkpoint->return_to_svp == 1 &&
-            $offboardingTicket->checkpoint->return_to_hrss_doc == 1 &&
-            $offboardingTicket->checkpoint->return_to_hrss_it == 1 &&
-            $offboardingTicket->checkpoint->exit_interview == 1
-        ) {
-            $offboardingTicket->status_id = "6";
-            $offboardingTicket->save();
-            try {
-                ##APPROVAL HR MGR
-                $emailList = json_decode(OffboardingConfig::where(['key' => 'email_list'])->first()->value, true);
-                Mail::to(["hrmgr@getnada.com", $emailList[8]['value']])->send(new DocumentExitRequest($offboardingTicket, 2));
-                $offboardingTicket->checkpoint->acc_hrbp_mgr = 2;
-                $offboardingTicket->push();
-            } catch (\Throwable $th) {
-                //throw $th;
-            }
-        }
-        if ($process == 7 && $offboardingTicket->status_id == '6') {
-            $offboardingTicket->status_id = "7";
-            $this->offboardingDone($offboardingTicket);
-            $offboardingTicket->save();
-            return response()->json('Success');
-        }
-
-        // if ($process == 4 && $offboardingTicket->status_id != '5') {
-        //     if (
-        //         $offboardingTicket->checkpoint->confirm_fastel == true &&
-        //         $offboardingTicket->checkpoint->confirm_kopindosat == true &&
-        //         $offboardingTicket->checkpoint->confirm_it == true &&
-        //         $offboardingTicket->checkpoint->confirm_hrdev == true &&
-        //         $offboardingTicket->checkpoint->confirm_medical == true &&
-        //         $offboardingTicket->checkpoint->confirm_finance == true
-        //         // &&
-        //         // $offboardingTicket->checkpoint->confirm_payroll == true
-        //     ) {
-        //         $offboardingTicket->status_id = "4";
-        //         $offboardingTicket->save();
-        //         if (
-        //             $offboardingTicket->checkpoint->employee_return_document == true
-        //         ) {
-        //             $offboardingTicket->status_id = "5";
-        //             $offboardingTicket->save();
-        //         }
-        //     }
-
-        //     if (
-        //         $offboardingTicket->checkpoint->return_to_svp == true &&
-        //         $offboardingTicket->checkpoint->return_to_hrss_doc == true &&
-        //         $offboardingTicket->checkpoint->return_to_hrss_it &&
-        //         $offboardingTicket->status_id == '5'
-        //     ) {
-        //         $offboardingTicket->status_id = "6";
-        //         $offboardingTicket->save();
-        //         ##APPROVAL HR MGR
-        //         $emailList = json_decode(OffboardingConfig::where(['key' => 'email_list'])->first()->value, true);
-        //         Mail::to(["hrmgr@getnada.com", $emailList[8]['value']])->send(new DocumentExitRequest($offboardingTicket, 2));
-        //     }
-        // }
-        // // if ($process == 4 && $offboardingTicket->checkpoint->confirm_payroll == true && $offboardingTicket->status_id == '5') {
-        // //     $offboardingTicket->status_id = "6";
-        // //     $offboardingTicket->save();
-        // // }
-        // if ($process == 5 && $offboardingTicket->status_id == '4') {
-        //     $offboardingTicket->status_id = "5";
-        //     $offboardingTicket->save();
-        // }
-
-    }
 
     public function postReadInput(Request $request, $requestData = null, $revision = false)
     {
@@ -1504,7 +1118,7 @@ class APIController extends Controller
                 break;
             case 'hrbp_manager':
                 if ($offboardingTicket->checkpoint->acc_hrbp_mgr == 2) {
-                    $this->updateProgress($offboardingTicket,7);
+                    $this->updateProgress($offboardingTicket, 7);
                 }
                 $offboardingTicket->checkpoint->acc_hrbp_mgr = 1;
                 break;

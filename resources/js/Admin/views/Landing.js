@@ -49,7 +49,10 @@ export default function Landing() {
                                         Offboarding Employee with UiPath
                                     </h1>
                                     <p className="mt-4 text-lg text-blueGray-200">
-                                        ICStar Hackathon 2021 by Tiptronic
+                                        Developed by
+                                        <a href="https://deprakoso.site/" className="ml-2">
+                                        <u>Raka D Prakoso</u>
+                                        </a>
                                     </p>
                                 </div>
                             </div>
@@ -274,16 +277,12 @@ export default function Landing() {
           </div>
         </section> */}
 
-                <section className="pt-20 pb-48">
+                {/* <section className="pt-20 pb-48">
                     <div className="container mx-auto px-4">
                         <div className="flex flex-wrap justify-center text-center mb-24">
                             <div className="w-full lg:w-6/12 px-4">
                                 <h2 className="text-4xl font-semibold">Here are our teams</h2>
-                                {/* <p className="text-lg leading-relaxed m-4 text-blueGray-500">
-                  According to the National Oceanic and Atmospheric
-                  Administration, Ted, Scambos, NSIDClead scentist, puts the
-                  potentially record maximum.
-                </p> */}
+
                             </div>
                         </div>
                         <div className="flex flex-wrap">
@@ -300,26 +299,6 @@ export default function Landing() {
                                             <p className="mt-1 text-sm text-blueGray-400 uppercase font-semibold">
                                                 {item.role}
                                             </p>
-                                            {/* <div className="mt-6">
-                                                <button
-                                                    className="bg-red-600 text-white w-8 h-8 rounded-full outline-none focus:outline-none mr-1 mb-1"
-                                                    type="button"
-                                                >
-                                                    <i className="fab fa-google"></i>
-                                                </button>
-                                                <button
-                                                    className="bg-lightBlue-400 text-white w-8 h-8 rounded-full outline-none focus:outline-none mr-1 mb-1"
-                                                    type="button"
-                                                >
-                                                    <i className="fab fa-twitter"></i>
-                                                </button>
-                                                <button
-                                                    className="bg-blueGray-700 text-white w-8 h-8 rounded-full outline-none focus:outline-none mr-1 mb-1"
-                                                    type="button"
-                                                >
-                                                    <i className="fab fa-instagram"></i>
-                                                </button>
-                                            </div> */}
 
                                         </div>
                                     </div>
@@ -327,7 +306,7 @@ export default function Landing() {
                             ))}
                         </div>
                     </div>
-                </section>
+                </section> */}
 
                 {/* <section className="pb-20 relative block bg-blueGray-800">
           <div

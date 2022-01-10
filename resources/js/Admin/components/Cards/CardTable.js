@@ -271,7 +271,7 @@ export default function CardTable({ color }) {
                                             <i className="far fa-eye inline-block mr-1"></i>
                                             Details
                                         </Link>
-                                        <TableDropdown data={item.checkpoint} />
+                                        <TableDropdown data={item.checkpoint} ticketResign={item?.type_id}/>
                                     </td>
                                 </tr>
 

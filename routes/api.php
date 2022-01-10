@@ -69,11 +69,11 @@ Route::get('/orderStatus',[OrderController::class,'status'])->name('status');
 Route::resource('/employees', EmployeeController::class);
 Route::resource('/offboarding', OffboardingController::class);
 
-Route::post('/resignform',[APIController::class,'postResignForm'])->name('postResignForm');
-// Route::post('/newOffboarding',[APIController::class,'postResignForm'])->name('postResignForm');
+Route::post('/resignform',[APIController::class,'postIssueForm'])->name('postIssueForm');
+// Route::post('/newOffboarding',[APIController::class,'postIssueForm'])->name('postIssueForm');
 Route::post('/verifyresignletter',[APIController::class,'postVerifyResignLetter'])->name('postVerifyResignLetter');
 Route::post('/employeeReject',[APIController::class,'postEmployeeReject'])->name('postEmployeeReject');
-Route::post('/managerconfirmation',[APIController::class,'postManagerConfirmation'])->name('postManagerConfirmation');
+Route::post('/managerconfirmation',[APIController::class,'postConfirmation'])->name('postManagerConfirmation');
 Route::post('/requestdocument',[APIController::class,'postRequestDocument'])->name('postRequestDocument');
 Route::post('/returndocument',[APIController::class,'postReturnDocument'])->name('postReturnDocument');
 Route::post('/bast',[APIController::class,'postBast'])->name('postBast');

@@ -4,7 +4,7 @@
         {{$subject}}
     @endsection
     @section('recipient')
-        SVP
+        Line Manager
     @endsection
     @section('message')
         Kami ingin memberitahukan bahwa karyawan dengan
@@ -84,7 +84,7 @@
         {{ $offboardingData->employee->name }}
     @endsection
     @section('message')
-        Proses pengunduran diri anda tidak disetujui oleh SVP anda.
+        Proses pengunduran diri anda tidak disetujui oleh Line Manager anda. Harap ulangi proses dan koordinasi terlebih dahulu dengan line manager anda.
     @endsection
 @elseif ($type == -3)
     @section('title')

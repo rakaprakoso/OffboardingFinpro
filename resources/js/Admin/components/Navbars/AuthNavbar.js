@@ -17,13 +17,13 @@ export default function Navbar(props) {
                 {name: 'Offboarding Form',path: '/newOffboarding'},
             ],
         },
-        {
-            name: 'Admin',
-            children: [
-                {name: 'Dashboard',path: '/admin'},
-                {name: 'Admin Offboarding Form',path: '/admin/newOffboarding'},
-            ],
-        }
+        // {
+        //     name: 'Admin',
+        //     children: [
+        //         {name: 'Dashboard',path: '/admin'},
+        //         {name: 'Admin Offboarding Form',path: '/admin/newOffboarding'},
+        //     ],
+        // }
     ];
     return (
         <>

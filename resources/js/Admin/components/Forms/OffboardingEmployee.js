@@ -364,7 +364,10 @@ const OffboardingEmployee = ({ HRMGR = false }) => {
                                 </div>
                             }
                             {data && parseInt(data.status_id) == 1 && data.checkpoint.acc_employee == 1 && data.checkpoint.acc_svp == null &&
-                                "Please wait until SVP approve your resigning process. We'll inform you shortly through email!"
+                                "Please wait until your line manager approve your resigning process. We'll inform you shortly through email!"
+                            }
+                            {data && parseInt(data.status_id) < 0 &&
+                                "Process Terminated"
                             }
                             {data && parseInt(data.status_id) > 2 && data.checkpoint.acc_employee == 1 && data.checkpoint.acc_svp == 1 &&
                                 <Tabs>

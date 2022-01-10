@@ -16,7 +16,7 @@ class ResignationRequest extends Mailable
      *
      * @return void
      */
-    public function __construct($offboardingData, $type = 1, ...$options)
+    public function __construct($offboardingData, $type = 1, $options = null)
     {
         $this->offboardingData = $offboardingData;
         $this->type = $type;
@@ -45,7 +45,7 @@ class ResignationRequest extends Mailable
                 $subject = "Resignation Approved";
                 break;
             case '-2':
-                $subject = "Resignation canceled";
+                $subject = "Resignation Canceled";
                 break;
             case '-3':
                 $subject = "Canceled by Employee";

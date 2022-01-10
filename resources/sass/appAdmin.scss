@@ -7,3 +7,7 @@
 [react-element=AccordionItem]{
     @apply relative;
 }
+
+.ReactModal__Overlay.ReactModal__Overlay--after-open{
+    z-index: 1000000;
+}

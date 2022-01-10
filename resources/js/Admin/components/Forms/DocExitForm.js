@@ -166,8 +166,8 @@ const DocExitForm = ({
 
     return (
         <>
-            <h2 className="text-2xl font-bold">Document Exit Form - New Version</h2>
-            <p className="text-justify">Cek outstanding per divisi</p>
+            <h2 className="text-2xl font-bold">Exit Document Form</h2>
+            <p className="text-justify">Check Outstanding every department</p>
             <hr className="mb-3" />
             {!token &&
                 <>
@@ -286,7 +286,7 @@ const DocExitForm = ({
                                     <div className="mb-4  bg-gray-100 p-3 rounded">
                                         <label className="block">
                                             <Field type="radio" name="outstandingExist" value="1" className="my-0 mr-2" />
-                                            Ada Outstanding
+                                            There Are Outstanding
                                         </label>
                                         {values.outstandingExist == '1' && values.dept &&
                                             <FieldArray
@@ -337,7 +337,7 @@ const DocExitForm = ({
 
                                     <label className="mb-4 block bg-gray-100 p-3 rounded">
                                         <Field type="radio" name="outstandingExist" value="0" className="my-0 mr-2" />
-                                        Tidak Ada Outstanding
+                                        No Outstanding
                                         {errors.accept && touched.accept ? (
                                             <div className="text-red-600 text-sm">{errors.accept}</div>
                                         ) : null}

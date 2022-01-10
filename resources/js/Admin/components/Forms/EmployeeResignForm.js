@@ -33,11 +33,6 @@ const EmployeeResignForm = () => {
         effectiveDate: Yup.date('Invalid Date')
             .required('Required')
             .min(new Date(dateMin(new Date,'verification')), "At least 1 month"),
-        // resignLetter: Yup.mixed().required('Required').test(
-        //     "fileSize",
-        //     "Your video is too big :(",
-        //     value => value && value.size <= 262144000
-        // ),
     });
 
     return (
@@ -108,7 +103,7 @@ const EmployeeResignForm = () => {
                         ) : null}
 
                         <label htmlFor="reason">Resign Reason</label>
-                        <Field id="reason" type="textarea" name="reason" placeholder="Resign Reason" />
+                        <Field id="reason" component="textarea" name="reason" placeholder="Resign Reason" />
                         {errors.reason && touched.reason ? (
                             <div className="-mt-4 mb-4 text-red-600 text-sm">{errors.reason}</div>
                         ) : null}
@@ -128,7 +123,7 @@ const EmployeeResignForm = () => {
                         {errors.resignLetter && touched.resignLetter ? (
                             <div className="-mt-4 mb-4 text-red-600 text-sm">{errors.resignLetter}</div>
                         ) : null} */}
-                        <button type="submit" className="bg-primary text-white">Submit</button>
+                        <button type="submit" className="bg-primary text-white p-3 text-lg uppercase">Submit</button>
                     </Form>
 
 

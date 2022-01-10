@@ -1,7 +1,7 @@
 import React from "react";
 import { createPopper } from "@popperjs/core";
 
-const NotificationDropdown = ({ data, text }) => {
+const NotificationDropdown = ({ data, text, ticketResign }) => {
 
     const {
         // acc_document,
@@ -170,33 +170,34 @@ const NotificationDropdown = ({ data, text }) => {
             >
                 <ul className="text-xs">
                     {dataCheckpoint.map((item, i) => (
-                        <li key={i}>
-                            {
-                                parseInt(item.data) == 4 &&
-                                <i className="fas fa-edit text-yellow-600"></i>
-                            }
-                            {
-                                parseInt(item.data) == 3 &&
-                                <i className="fas fa-envelope-open text-yellow-600"></i>
-                            }
-                            {
-                                parseInt(item.data) == 2 &&
-                                <i className="fas fa-envelope text-blue-600"></i>
-                            }
-                            {
-                                parseInt(item.data) == 1 ?
-                                    <i className="fas fa-check text-green-600"></i> :
+                        ((window[ticketResign] !== undefined || ticketResign.includes("e2")) || !item.resign) &&
+                            <li key={i}>
+                                {
+                                    parseInt(item.data) == 4 &&
+                                    <i className="fas fa-edit text-yellow-600"></i>
+                                }
+                                {
+                                    parseInt(item.data) == 3 &&
+                                    <i className="fas fa-envelope-open text-yellow-600"></i>
+                                }
+                                {
+                                    parseInt(item.data) == 2 &&
+                                    <i className="fas fa-envelope text-blue-600"></i>
+                                }
+                                {
+                                    parseInt(item.data) == 1 ?
+                                        <i className="fas fa-check text-green-600"></i> :
 
-                                    parseInt(item.data) == 0 && item?.read ?
-                                        <i class="fas fa-edit text-yellow-600"></i>
-                                        :
-                                        parseInt(item.data) == 0 ?
-                                            <i className="fas fa-times text-red-600"></i> :
-                                            item.data == null &&
-                                            <i className="animate-spin fas fa-spinner text-gray-800"></i>
-                            }
-                            <span className="ml-2">| {item.name}</span>
-                        </li>
+                                        parseInt(item.data) == 0 && item?.read ?
+                                            <i class="fas fa-edit text-yellow-600"></i>
+                                            :
+                                            parseInt(item.data) == 0 ?
+                                                <i className="fas fa-times text-red-600"></i> :
+                                                item.data == null &&
+                                                <i className="animate-spin fas fa-spinner text-gray-800"></i>
+                                }
+                                <span className="ml-2">| {item.name}</span>
+                            </li>
                     ))}
                 </ul>
                 {/* <a

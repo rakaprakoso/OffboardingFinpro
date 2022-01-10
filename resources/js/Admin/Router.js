@@ -34,7 +34,6 @@ const Main = props => {
                 <Route path="/offboarding/:id" component={ResignForm} />
                 <Route path="/exitDocument" component={ResignForm} />
                 <Route path="/exitClearance" component={ResignForm} />
-                <Route path="/maps" exact component={Map} />
                 <Route path="/" exact component={Landing} />
                 {/* <Route path="/admin/product" component={AdminMain}/>
                 <Route path="/admin/dashboard" component={Home}/> */}
@@ -63,25 +62,6 @@ const Home = () => {
     return (
         <div>
             Home
-        </div>
-    )
-}
-
-const Map = () => {
-    const position = [-3.824181, 117.8191513]
-    return (
-        <div className="w-full h-screen">
-            <MapContainer className="h-screen" center={position} zoom={5} scrollWheelZoom={false}>
-                <TileLayer
-                    attribution='&copy; <a href="http://osm.org/copyright">OpenStreetMap</a> contributors'
-                    url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
-                />
-                <Marker position={position}>
-                    <Popup>
-                        A pretty CSS3 popup. <br /> Easily customizable.
-                    </Popup>
-                </Marker>
-            </MapContainer>
         </div>
     )
 }
