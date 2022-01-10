@@ -121,6 +121,8 @@ class APIController extends Controller
                 return response()->json('Fail', 400);
             }
             $employeeID = $request->employeeID;
+        }else{
+            $employeeID = $request->employeeID;
         };
         $processOffboarding = Offboarding::where('employee_id', $employeeID)->whereBetween('status_id', [0, 7])->get()->count();
         if ($processOffboarding > 0) {

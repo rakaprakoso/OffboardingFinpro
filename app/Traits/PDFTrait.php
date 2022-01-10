@@ -185,6 +185,8 @@ trait PDFTrait
             $data['upmk_pay'] = ceil($data['work_duration'] / 3) * $data['salary'];
         } elseif ($data['work_duration'] / 3 > 8) {
             $data['upmk_pay'] = 10 * $data['salary'];
+        }else{
+            $data['upmk_pay'] = 0;
         }
         ##Uang Cuti
         $data['paid_leave_pay'] = ($data['paid_leave_available'] / 25) * $data['salary'];
