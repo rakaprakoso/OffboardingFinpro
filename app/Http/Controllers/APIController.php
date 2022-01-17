@@ -924,13 +924,12 @@ class APIController extends Controller
         $rawData['type'] = $request->type;
         $rawData['id'] = $request->offboardingID;
         $rawData['data'] = json_decode($request->data);
-        $data['data'] = $rawData['data']->items;
-        $data['additional_comment'] = isset($rawData['data']->comment) ? $rawData['data']->comment : '-';
 
         $offboardingTicket = Offboarding::find($request->offboardingID);
         if ($rawData['type'] == 'exit_interview_form') {
             $this->fillExitInterviewForm($offboardingTicket,$rawData,$request);
         } elseif ($rawData['type'] == 'return_document') {
+            $data['data'] = $rawData['data']->items;
             $data['return_type'] = array(
                 'type' => $rawData['data']->type,
                 'data' => $rawData['data']->itemOnline,
@@ -987,7 +986,7 @@ class APIController extends Controller
             }
             $offboardingTicket->push();
         }
-        return $data;
+        // return $data;
         return $rawData;
     }
 

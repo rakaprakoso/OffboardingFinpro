@@ -259,8 +259,11 @@ trait OffboardingTrait
 
     public function fillExitInterviewForm($offboardingTicket, $rawData, $request)
     {
+        $data['data'] = $rawData['data']->items;
+        $data['additional_comment'] = isset($rawData['data']->comment) ? $rawData['data']->comment : '-';
         $data['other_activity'] = isset($rawData['data']->otherActivity) ? $rawData['data']->otherActivity : '-';
         $offboardingTicket->offboardingForm->exit_interview_form = $data;
+
         if ($offboardingTicket->push()) {
             $this->addProgressRecord(
                 $request->offboardingID,
