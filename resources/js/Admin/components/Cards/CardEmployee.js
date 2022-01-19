@@ -62,12 +62,12 @@ export default function CardEmployee({ data, visibility, admin }) {
             'employee': true,
         },
         {
-            'name': 'Confirmation by SVP',
+            'name': 'Confirmation by Line Manager',
             'data': acc_svp,
             'link': `&process=2`,
         },
         {
-            'name': 'Exit Interview Confirmation by HRBP',
+            'name': 'Exit Interview Confirmation by Line Manager',
             'data': exit_interview,
             'link': `&process=3&exitInterview=true`,
             'resign': true,

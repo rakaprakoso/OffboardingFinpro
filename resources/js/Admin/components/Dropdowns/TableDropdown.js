@@ -43,7 +43,7 @@ const NotificationDropdown = ({ data, text, ticketResign }) => {
             'link': `&process=2`,
         },
         {
-            'name': 'Exit Interview Confirmation by HRBP',
+            'name': 'Exit Interview Confirmation by Line Manager',
             'data': exit_interview,
             'link': `&process=3&exitInterview=true`,
             'resign': true,
