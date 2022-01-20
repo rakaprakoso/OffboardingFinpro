@@ -930,6 +930,7 @@ class APIController extends Controller
             $this->fillExitInterviewForm($offboardingTicket,$rawData,$request);
         } elseif ($rawData['type'] == 'return_document') {
             $data['data'] = $rawData['data']->items;
+            $data['additional_comment'] = $rawData['data']->comment;
             $data['return_type'] = array(
                 'type' => $rawData['data']->type,
                 'data' => $rawData['data']->itemOnline,
