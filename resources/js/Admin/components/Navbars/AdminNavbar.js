@@ -1,3 +1,4 @@
+import { Formik, Field, Form, FieldArray } from "formik";
 import React from "react";
 
 import UserDropdown from "../Dropdowns/UserDropdown.js";
@@ -32,9 +33,55 @@ export default function Navbar() {
                     {/* User */}
                     <ul className="flex-col md:flex-row list-none items-center hidden md:flex">
                         {/* <UserDropdown /> */}
-                        <form action="/logout" method="post"className="md:flex hidden flex-row flex-wrap items-center lg:ml-auto mr-3">
-                            <input type="hidden" name="_token" value={document.getElementsByTagName("META")[3].content}/>
-                            <button className="btn bg-white text-gray-900"><i className="fas fa-sign-out-alt mr-2"></i>Logout</button>
+                        <Formik
+                            initialValues={{
+                                managerID: "",
+                            }}
+                            onSubmit={async (values) => {
+                                const formData = new FormData();
+                                formData.append("offboardingID", "value");
+                                const res = await axios.post(
+                                    "/api/employeeMovement",
+                                    formData,
+                                    {
+                                        headers: {
+                                            "Content-Type":
+                                                "multipart/form-data",
+                                        },
+                                    }
+                                );
+                                console.log(res.data);
+                            }}
+                        >
+                            {({ values, errors, touched, setFieldValue }) => (
+                                <Form>
+                                    <button
+                                        type="submit"
+                                        className="btn bg-primary text-white"
+                                    >
+                                        <i className="fas fa-sign-out-alt mr-2"></i>
+                                        EM Test
+                                    </button>
+                                </Form>
+                            )}
+                        </Formik>
+                        <form
+                            action="/logout"
+                            method="post"
+                            className="md:flex hidden flex-row flex-wrap items-center lg:ml-auto mr-3"
+                        >
+                            <input
+                                type="hidden"
+                                name="_token"
+                                value={
+                                    document.getElementsByTagName("META")[3]
+                                        .content
+                                }
+                            />
+                            <button className="btn bg-white text-gray-900">
+                                <i className="fas fa-sign-out-alt mr-2"></i>
+                                Logout
+                            </button>
                         </form>
                     </ul>
                 </div>

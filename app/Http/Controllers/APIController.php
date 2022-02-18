@@ -63,7 +63,7 @@ class APIController extends Controller
         $obj = json_decode($result);
         return $obj->access_token;
     }
-    private function startProcess($argumentIn)
+    private function startProcess($argumentIn, $releasekey = 'cb0907ba-a09f-46b8-8298-6d1fc1ca63f0')
     {
         $auth = $this->getAccessToken();
 
@@ -72,7 +72,7 @@ class APIController extends Controller
         $ch = curl_init($url);
         $data = array(
             // 'ReleaseKey' => '842a7024-05c7-4856-8da7-e6a8814692c9',
-            'ReleaseKey' => 'cb0907ba-a09f-46b8-8298-6d1fc1ca63f0',
+            'ReleaseKey' => $releasekey,
             'Strategy' => 'ModernJobsCount',
             "RuntimeType" => "Development",
             "RobotIds" => [],
@@ -103,6 +103,16 @@ class APIController extends Controller
         $obj = json_decode($result);
     }
 
+    public function employeeMovement(Request $request)
+    {
+        $input = array(
+            'in_process' => 'Sequence Process',
+        );
+        $input = json_encode($input);
+        $this->startProcess($input,'0e0298da-635e-41ab-a1a3-2038373d81a7');
+        return response()->json("Success", 200);
+    }
+
     public function postIssueForm(Request $request)
     {
         $employeeID = $request->employeeIDIn;
@@ -121,7 +131,7 @@ class APIController extends Controller
                 return response()->json('Fail', 400);
             }
             $employeeID = $request->employeeID;
-        }else{
+        } else {
             $employeeID = $request->employeeID;
         };
         $processOffboarding = Offboarding::where('employee_id', $employeeID)->whereBetween('status_id', [0, 7])->get()->count();
@@ -783,7 +793,9 @@ class APIController extends Controller
                 Mail::to($offboardingTicket->employee->email)->send(new DocumentExitRequest($offboardingTicket, 4));
             } catch (\Throwable $th) {
                 $this->addProgressRecord(
-                    $request->offboardingID,false,false,
+                    $request->offboardingID,
+                    false,
+                    false,
                     "Email Not Sent",
                 );
             }
@@ -927,7 +939,7 @@ class APIController extends Controller
 
         $offboardingTicket = Offboarding::find($request->offboardingID);
         if ($rawData['type'] == 'exit_interview_form') {
-            $this->fillExitInterviewForm($offboardingTicket,$rawData,$request);
+            $this->fillExitInterviewForm($offboardingTicket, $rawData, $request);
         } elseif ($rawData['type'] == 'return_document') {
             $data['data'] = $rawData['data']->items;
             $data['additional_comment'] = $rawData['data']->comment;
@@ -1003,12 +1015,17 @@ class APIController extends Controller
             Mail::to($offboardingTicket->employee->email)->send(new EmployeeClearDocument($offboardingTicket, 6));
         } catch (\Throwable $th) {
             $this->addProgressRecord(
-                $request->offboardingID,false,false,
-                "Email Not Sent - ".$th,
+                $request->offboardingID,
+                false,
+                false,
+                "Email Not Sent - " . $th,
             );
         }
-        $this->postReadInput($request,
-            ['offboardingID' => $request->offboardingID, 'dept' => $request->from], true);
+        $this->postReadInput(
+            $request,
+            ['offboardingID' => $request->offboardingID, 'dept' => $request->from],
+            true
+        );
         return response()->json('Success');
     }
 
@@ -1041,7 +1058,7 @@ class APIController extends Controller
             if ($i != 9) {
                 if ($i == 7 && $offboardingData->type_id != "e202") {
                     $offboardingData->attachment->exit_interview_form_link = 0;
-                }else{
+                } else {
                     $input = array(
                         'employeeID' => $offboardingData->employee->id,
                         'offboardingID' => $offboardingData->id,
