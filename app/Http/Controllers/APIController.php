@@ -259,7 +259,8 @@ class APIController extends Controller
                 $fileName
             );
             $docLink = config('app.url') . Storage::url($path);
-            $offboardingTicket->attachment->employee_CV_link = $docLink;
+            return $docLink;
+            // $offboardingTicket->attachment->employee_CV_link = $docLink;
             if (
                 $offboardingTicket->push()
             ) {
